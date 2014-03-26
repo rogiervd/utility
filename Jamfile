@@ -1,4 +1,7 @@
-project /utility ;
+project /utility :
+    requirements
+    <library>/meta//meta
+    ;
 
 # Declare target /utility//utility as a header-only library.
 alias utility : : : :
