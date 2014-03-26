@@ -1,0 +1,7 @@
+project /utility ;
+
+# Declare target /utility//utility as a header-only library.
+alias utility : : : :
+    <include>include
+    <cxxflags>"-std=c++0x"
+    ;
