@@ -86,24 +86,26 @@ namespace utility {
     This is useful to perform a blanket check for exception-safety.
     */
     inline void check_all_throw_points (
-        thrower & t, const std::function <void ()> & f)
+        std::function <void (thrower &)> const & f)
     {
-        // Don't throw at first
-        t.set_cycle (-1);
-        t.reset();
-        try {
-            f();
-        } catch (...) {}
-        int max_count = t.count();
-        for (int cycle = 1; cycle <= max_count; ++ cycle) {
-            t.set_cycle (cycle);
-            t.reset();
+        int max_count;
+        {
+            thrower t;
+            // Don't throw at first
+            t.set_cycle (-1);
             try {
-                f();
+                f (t);
+            } catch (...) {}
+            max_count = t.count();
+        }
+
+        for (int cycle = 1; cycle <= max_count; ++ cycle) {
+            thrower t;
+            t.set_cycle (cycle);
+            try {
+                f (t);
             } catch (thrower_exception &) {}
         }
-        // Reset so that another test may run peacefully
-        t.set_cycle (-1);
     }
 
 } // namespace utility

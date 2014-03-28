@@ -36,9 +36,7 @@ BOOST_AUTO_TEST_CASE (test_utility_thrower) {
     BOOST_CHECK_THROW (t.throw_point(), std::exception);
 }
 
-utility::thrower t;
-
-void test_check_all_throw_points() {
+void test_check_all_throw_points (utility::thrower & t) {
     static int time = 0;
 
     // The first time this shouldn't throw at all.
@@ -61,7 +59,7 @@ void test_check_all_throw_points() {
 }
 
 BOOST_AUTO_TEST_CASE (test_utility_check_all_throw_points) {
-    utility::check_all_throw_points (t, &test_check_all_throw_points);
+    utility::check_all_throw_points (&test_check_all_throw_points);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
