@@ -1,0 +1,17 @@
+# The point of the tests in this directory is to try and cause randomised
+# crashes because of race conditions.
+# Boost.Thread is therefore necessary, and Valgrind must be disabled.
+
+project
+    : requirements
+        <library>/boost//thread
+        # The following line works textually.
+        # The text after the minus must be exactly what is added in
+        # ../../Jamfile.
+        -<testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
+    ;
+
+alias "threaded-tests" :
+    # Run all .cpp files in this directory as tests.
+    [ run_glob *.cpp ]
+    ;
