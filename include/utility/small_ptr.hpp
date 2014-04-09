@@ -34,10 +34,6 @@ namespace utility {
     template <class Type, class Allocator = std::allocator <Type>>
         class small_ptr;
 
-    template <class Type>
-        void swap_around (small_ptr <Type> & p1,
-            small_ptr <Type> & p2, small_ptr <Type> & p3);
-
     /**
     Smart pointer to an object of known type.
     Since it uses an allocator, it has a fixed type.
