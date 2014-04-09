@@ -126,6 +126,32 @@ void test_small_ptr (utility::thrower & thrower)
         BOOST_CHECK (!empty2.unique());
         BOOST_CHECK (empty2.allocator() == allocator2);
 
+        // Copy empty to empty.
+        {
+            auto empty3 = small_ptr (allocator2);
+            BOOST_CHECK (empty3.allocator() == empty2.allocator());
+
+            empty3 = empty1;
+            BOOST_CHECK (empty3.empty());
+            BOOST_CHECK (empty3.allocator() == allocator1);
+        }
+        // Move empty to empty
+        {
+            auto empty3 = small_ptr (allocator2);
+            BOOST_CHECK (empty3.allocator() == empty2.allocator());
+
+            empty3 = std::move (empty1);
+            BOOST_CHECK (empty3.empty());
+            BOOST_CHECK (empty3.allocator() == allocator1);
+        }
+    }
+    {
+        test_allocator allocator1 (thrower);
+        auto empty1 = small_ptr (allocator1);
+
+        test_allocator allocator2 (thrower);
+        auto empty2 = small_ptr (allocator2);
+
         BOOST_CHECK (empty1.allocator() != empty2.allocator());
 
         // Constructing from a pointer is possible, but not recommended.
@@ -230,7 +256,7 @@ void test_small_ptr (utility::thrower & thrower)
         BOOST_CHECK (p4.allocator() == p2.allocator());
         BOOST_CHECK (p4.allocator() != p1.allocator());
 
-        // Copy construction if the assignee is empty.
+        // Copy assignment if the assignee is empty.
         {
             small_ptr p5 (allocator2);
             BOOST_CHECK (p5.empty());
@@ -243,7 +269,7 @@ void test_small_ptr (utility::thrower & thrower)
             BOOST_CHECK_EQUAL (p5->value(), 75);
             BOOST_CHECK (p5.allocator() == p4.allocator());
         }
-        // Copy construction if the assignee is not empty.
+        // Copy assignment if the assignee is not empty.
         {
             small_ptr p5 = small_ptr::construct (allocator2,
                 thrower, registry, -2);
@@ -258,7 +284,7 @@ void test_small_ptr (utility::thrower & thrower)
             BOOST_CHECK (p5.allocator() == p4.allocator());
         }
 
-        // Move construction if the assignee is empty.
+        // Move assignment if the assignee is empty.
         small_ptr p5 (allocator2);
         BOOST_CHECK (p5.allocator() != p4.allocator());
         p5 = std::move (p4);
@@ -275,6 +301,40 @@ void test_small_ptr (utility::thrower & thrower)
         swap (p1, p2);
         BOOST_CHECK (p2 == p3);
         BOOST_CHECK (p1 != p3);
+    }
+
+    // Check self-assignment.
+    {
+        test_allocator allocator1 (thrower);
+
+        small_ptr p = small_ptr::construct (allocator1, thrower, registry, -23);
+        BOOST_CHECK (!p.empty());
+        BOOST_CHECK_EQUAL (p.use_count(), 1);
+        BOOST_CHECK_EQUAL (p->value(), -23);
+
+        // Self copy assignment.
+        p = p;
+        BOOST_CHECK (!p.empty());
+        BOOST_CHECK_EQUAL (p.use_count(), 1);
+        BOOST_CHECK_EQUAL (p->value(), -23);
+
+        // Self move assignment.
+        p = std::move (p);
+        BOOST_CHECK (!p.empty());
+        BOOST_CHECK_EQUAL (p.use_count(), 1);
+        BOOST_CHECK_EQUAL (p->value(), -23);
+
+        // Self swap: member function.
+        p.swap (p);
+        BOOST_CHECK (!p.empty());
+        BOOST_CHECK_EQUAL (p.use_count(), 1);
+        BOOST_CHECK_EQUAL (p->value(), -23);
+
+        // Self swap: member function.
+        swap (p, p);
+        BOOST_CHECK (!p.empty());
+        BOOST_CHECK_EQUAL (p.use_count(), 1);
+        BOOST_CHECK_EQUAL (p->value(), -23);
     }
 
     // Check singly-linked lists

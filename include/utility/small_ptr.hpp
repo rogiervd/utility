@@ -137,12 +137,15 @@ namespace utility {
             // list).
             Type * new_object = that.object;
             allocator_type new_allocator (that.allocator());
+            // In case of self-assignment, i.e. this == &that, the object is
+            // first acquired and then released, so this is safe.
             if (new_object)
                 shared::acquire (new_object);
-            if (object)
-                shared::release (with_allocator_type::allocator(), object);
+            if (this->object)
+                shared::release (with_allocator_type::allocator(),
+                    this->object);
             with_allocator_type::allocator() = new_allocator;
-            object = new_object;
+            this->object = new_object;
 
             return *this;
         }
@@ -158,10 +161,13 @@ namespace utility {
             Type * new_object = that.object;
             allocator_type new_allocator (that.allocator());
             that.object = nullptr;
-            if (object)
-                shared::release (with_allocator_type::allocator(), object);
+            // In case of self-assignment, when this == &that, this->object has
+            // just been set to nullptr, so this does not do anything.
+            if (this->object)
+                shared::release (with_allocator_type::allocator(),
+                    this->object);
             with_allocator_type::allocator() = new_allocator;
-            object = new_object;
+            this->object = new_object;
 
             return *this;
         }
