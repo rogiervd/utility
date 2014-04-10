@@ -26,13 +26,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/mpl/if.hpp>
 
-#include "with_allocator.hpp"
-#include "shared.hpp"
+#include "pointer_policy.hpp"
 
 namespace utility {
 
     template <class Type, class Allocator = std::allocator <Type>>
         class small_ptr;
+
+    namespace detail {
+
+        template <class Type, class Allocator> struct small_ptr_policies {
+            typedef pointer_policy::strict_weak_ordered <
+                pointer_policy::pointer_access <
+                pointer_policy::reference_count_shared <
+                pointer_policy::use_allocator <
+                    Type, Allocator>>>> type;
+        };
+
+    } // namespace detail
 
     /**
     Smart pointer to an object of known type.
@@ -40,235 +51,24 @@ namespace utility {
     It is meant as an efficient type to be used inside containers.
     */
     template <class Type, class Allocator> class small_ptr
-    : private with_allocator <Allocator>
+    : public pointer_policy::pointer <
+        typename detail::small_ptr_policies <Type, Allocator>::type,
+        small_ptr <Type, Allocator>>
     {
+        typedef typename detail::small_ptr_policies <Type, Allocator>::type
+            policies_type;
+        typedef pointer_policy::pointer <policies_type, small_ptr> base_type;
     public:
-        typedef Type value_type;
-        typedef Allocator allocator_type;
-
-    private:
-        // Only check this when the class is fully instantiated.
-        static void static_checks() {
-            static_assert (std::is_base_of <shared, Type>::value,
-                "Type must be derived from 'shared'.");
-            static_assert (std::is_same <typename Allocator::value_type,
-                typename std::decay <value_type>::type>::value,
-                "The allocator value_type must match small_ptr's Type.");
-        }
-
-        typedef with_allocator <Allocator> with_allocator_type;
-
-        Type * object;
-
-    public:
-        /**
-        Construct empty.
-        */
-        explicit small_ptr (allocator_type const & allocator)
-        noexcept (noexcept (with_allocator_type (allocator)))
-            : with_allocator_type (allocator), object (nullptr) {}
-
-        /**
-        Construct with an object, which must have been allocated with
-        \c allocator.
-        The object's owner count is increased.
-        It is possible to call this on a pointer that another small_ptr already
-        owns; sharing will work.
-        Of course, the allocator must be the same.
-        However, this would be a great opportunity for bugs.
-        Instead, it is usually best to use \c construct.
-        */
-        explicit small_ptr (Type * object, allocator_type const & allocator)
-        noexcept (noexcept (with_allocator_type (allocator)))
-            : with_allocator_type (allocator), object (object)
-        {
-            static_checks();
-            shared::acquire (object);
-        }
-
-        /**
-        The preferred way of constructing an object of type Type, returning an
-        owner.
-        This takes the allocator by value because it will be copied to the
-        small_ptr anyway.
-        */
         template <class ... Arguments>
-            static small_ptr
-            construct (Allocator allocator, Arguments && ... arguments)
-        {
-            Type * object = shared::construct <Type> (
-                allocator, std::forward <Arguments> (arguments) ...);
-            return small_ptr (object, std::move (allocator));
-        }
+            explicit small_ptr (Arguments && ... arguments)
+        : base_type (std::forward <Arguments> (arguments) ...) {}
 
-        /**
-        Copy-construct from another small_ptr.
-        This increased the use count on the underlying object.
-        */
-        small_ptr (small_ptr const & p)
-            : with_allocator_type (p.allocator()), object (p.object)
-        {
-            if (object)
-                shared::acquire (object);
-        }
+        small_ptr (small_ptr const &) = default;
+        small_ptr (small_ptr &&) = default;
 
-        /**
-        Move-construct from another small_ptr.
-        The original pointer will be empty.
-        No atomic operations are used.
-        */
-        small_ptr (small_ptr && p)
-            : with_allocator_type (std::move (p.allocator())),
-            object (p.object)
-        { p.object = nullptr; }
-
-        ~small_ptr() {
-            if (object)
-                shared::release (with_allocator_type::allocator(), object);
-        }
-
-        /**
-        Copy assignment.
-        This also copies the allocator.
-        */
-        small_ptr & operator = (const small_ptr & that) {
-            // Save the new pointer and allocator temparily because they may be
-            // destructed when the old object is destructed (e.g. in a linked
-            // list).
-            Type * new_object = that.object;
-            allocator_type new_allocator (that.allocator());
-            // In case of self-assignment, i.e. this == &that, the object is
-            // first acquired and then released, so this is safe.
-            if (new_object)
-                shared::acquire (new_object);
-            if (this->object)
-                shared::release (with_allocator_type::allocator(),
-                    this->object);
-            with_allocator_type::allocator() = new_allocator;
-            this->object = new_object;
-
-            return *this;
-        }
-
-        /**
-        Move assignment.
-        This also copies the allocator.
-        */
-        small_ptr & operator = (small_ptr && that) {
-            // Save the new pointer and allocator temparily because they may be
-            // destructed when the old object is destructed (e.g. in a linked
-            // list).
-            Type * new_object = that.object;
-            allocator_type new_allocator (that.allocator());
-            that.object = nullptr;
-            // In case of self-assignment, when this == &that, this->object has
-            // just been set to nullptr, so this does not do anything.
-            if (this->object)
-                shared::release (with_allocator_type::allocator(),
-                    this->object);
-            with_allocator_type::allocator() = new_allocator;
-            this->object = new_object;
-
-            return *this;
-        }
-
-        Type & operator * () const { return *object; }
-
-        Type * operator -> () const { return object; }
-
-        /**
-        \return A normal pointer to the owned object, or nullptr if this is
-        empty.
-        */
-        Type * get() const { return object; }
-
-        /**
-        \return true iff this owns an object.
-        */
-        bool empty() const { return object == nullptr; }
-
-        explicit operator bool() const { return !empty(); }
-
-        /**
-        \return The number of small_ptr's owning the object this owns.
-        0 if this is empty.
-        */
-        long use_count() const {
-            if (object)
-                return shared::get_count (object);
-            else
-                return 0;
-        }
-
-        /**
-        \return true iff this is the only owner of the object.
-        If this is empty, return false.
-        */
-        bool unique() const { return use_count() == 1; }
-
-        /**
-        \return The allocator in current use.
-        */
-        allocator_type const & allocator() const
-        { return with_allocator_type::allocator(); }
-
-        /**
-        Swap the object and allocator with \a that.
-        */
-        void swap (small_ptr & that) {
-            using std::swap;
-            swap (with_allocator_type::allocator(),
-                that.with_allocator_type::allocator());
-            swap (this->object, that.object);
-        }
+        small_ptr & operator = (small_ptr const &) = default;
+        small_ptr & operator = (small_ptr &&) = default;
     };
-
-    template <class Type, class Allocator>
-        inline void swap (small_ptr <Type, Allocator> & p1,
-            small_ptr <Type, Allocator> & p2)
-    { p1.swap (p2); }
-
-    /**
-    Owner-based equality.
-    If two small_ptr's own the same object in memory, they compare equal.
-    If they are both empty, they compare equal.
-    Otherwise, they compare unequal.
-    */
-    template <class Type, class Allocator>
-        inline bool operator == (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() == p2.get(); }
-
-    /**
-    Owner-based inequality.
-    */
-    template <class Type, class Allocator>
-        inline bool operator != (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() != p2.get(); }
-
-    /**
-    Owner-based ordering.
-    */
-    template <class Type, class Allocator>
-        inline bool operator < (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() < p2.get(); }
-
-    template <class Type, class Allocator>
-        inline bool operator > (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() > p2.get(); }
-
-    template <class Type, class Allocator>
-        inline bool operator <= (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() <= p2.get(); }
-
-    template <class Type, class Allocator>
-        inline bool operator >= (small_ptr <Type, Allocator> const & p1,
-            small_ptr <Type, Allocator> const & p2)
-    { return p1.get() >= p2.get(); }
 
 }   // namespace utility
 
