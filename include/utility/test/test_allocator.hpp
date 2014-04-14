@@ -101,6 +101,8 @@ namespace utility {
                 std::for_each (allocations.begin(), allocations.end(),
                     &error_leak);
             }
+
+            unsigned allocation_count() const { return current_index; }
         };
 
         class test_allocator_checker {
@@ -126,6 +128,9 @@ namespace utility {
 
             void check_done() const { registry->check_done(); }
             void throw_point() const {}
+
+            unsigned allocation_count() const
+            { return registry->allocation_count(); }
 
             bool operator == (test_allocator_checker const & other) const
             { return registry == other.registry; }
@@ -292,6 +297,8 @@ namespace utility {
         { return ! (*this == other); }
 
         void check_done() const { checker.check_done(); }
+
+        unsigned allocation_count() { return checker.allocation_count(); }
     };
 
 } // namespace utility
