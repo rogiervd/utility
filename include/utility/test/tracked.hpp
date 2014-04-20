@@ -140,9 +140,6 @@ namespace utility {
             if (value_construct_count_ + copy_count_ + move_count_ !=
                 destruct_count_ + destruct_moved_count_)
                 return false;
-            // All carcasses must have been destructed.
-            if (move_count_ + move_assign_count_ != destruct_moved_count_)
-                return false;
             return true;
         }
 
@@ -188,12 +185,14 @@ namespace utility {
         };
         state state_;
 
+        void set_valid() { state_ = valid; }
+        void set_moved() { state_ = moved; }
+        void invalidate() { state_ = invalid; }
+
+    protected:
         bool is_valid() const { return state_ == valid; }
         bool is_moved() const { return state_ == moved; }
         bool is_invalid() const { return state_ == invalid; }
-
-        void set_moved() { state_ = moved; }
-        void invalidate() { state_ = invalid; }
     public:
         tracked (tracked_registry & registry,
             std::type_info const & type = typeid (void))
@@ -235,8 +234,9 @@ namespace utility {
 
         tracked & operator = (tracked const & other) {
             BOOST_CHECK_EQUAL (&registry, &other.registry);
-            BOOST_CHECK (this->is_valid());
+            BOOST_CHECK (this->is_valid() || this->is_moved());
             BOOST_CHECK (other.is_valid());
+            this->set_valid();
 
             ++ registry.copy_assign_count_;
 
@@ -247,8 +247,9 @@ namespace utility {
         }
         tracked & operator = (tracked && other) {
             BOOST_CHECK_EQUAL (&registry, &other.registry);
-            BOOST_CHECK (this->is_valid());
+            BOOST_CHECK (this->is_valid() || this->is_moved());
             BOOST_CHECK (other.is_valid());
+            this->set_valid();
             other.set_moved();
 
             ++ registry.move_assign_count_;
@@ -270,6 +271,7 @@ namespace utility {
     template <class Content> class tracked
     : public tracked <void>
     {
+        template <class Content2> friend class tracked;
         Content content_;
     public:
         template <class ... Arguments>
@@ -281,14 +283,14 @@ namespace utility {
         tracked (tracked <OtherContent> const & other, typename
             boost::enable_if <std::is_convertible <
                 OtherContent const &, Content>>::type * = 0)
-        : tracked <void> (other), content_ (other.content()) {}
+        : tracked <void> (other), content_ (other.content_) {}
 
         template <class OtherContent>
         tracked (tracked <OtherContent> && other, typename
             boost::enable_if <std::is_convertible <
                 OtherContent, Content>>::type * = 0)
         : tracked <void> (std::move (other)),
-            content_ (std::move (other.content())) {}
+            content_ (std::move (other.content_)) {}
 
         /* Default-provided constructors and assignment operators are fine. */
 
@@ -298,8 +300,15 @@ namespace utility {
             swap (this->content_, other.content_);
         }
 
-        Content const & content() const { return content_; }
-        Content & content() { return content_; }
+        Content const & content() const {
+            BOOST_CHECK (this->is_valid());
+            return content_;
+        }
+
+        Content & content() {
+            BOOST_CHECK (this->is_valid());
+            return content_;
+        }
     };
 
     template <class Content>

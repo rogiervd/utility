@@ -77,6 +77,8 @@ BOOST_AUTO_TEST_CASE (test_tracked) {
 
         object2.content() = -7;
         move_assigned = std::move (object2);
+        // This causes an error:
+        // object2.content();
         BOOST_CHECK_EQUAL (move_assigned.content(), -7);
         BOOST_CHECK_EQUAL (c.move_assign_count(), 1);
         c.check_counts (4, 1, 1, 1, 1, 0, 0, 0);
@@ -104,6 +106,29 @@ BOOST_AUTO_TEST_CASE (test_tracked) {
 
     // This causes an error:
     // new tracked <int> (c, 4);
+}
+
+void swallow (tracked <int> && t)
+{ tracked <int> black_hole (std::move (t)); }
+
+BOOST_AUTO_TEST_CASE (test_tracked_move) {
+    tracked_registry c;
+
+    {
+        tracked <int> moved (c, 7);
+        swallow (std::move (moved));
+        // This causes an error because "moved" is not in a valid state:
+        // moved.content();
+
+        // It should be possible to assign to moved objects, like object2, and
+        // make them valid again.
+        tracked <int> moved2 (c, 14);
+        moved = std::move (moved2);
+        BOOST_CHECK_EQUAL (moved.content(), 14);
+        tracked <int> copied (c, 127);
+        moved2 = copied;
+        BOOST_CHECK_EQUAL (moved2.content(), 127);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
