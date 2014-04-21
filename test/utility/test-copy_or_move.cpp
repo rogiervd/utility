@@ -87,6 +87,70 @@ BOOST_AUTO_TEST_CASE (test_utility_forward_copy_or_move) {
     }
 }
 
+struct structure {
+    int a;
+    long & b;
+    int const & c;
+
+    structure (int a, long & b, int const & c)
+    : a (a), b (b), c (c) {}
+};
+
+BOOST_AUTO_TEST_CASE (test_utility_forward_member) {
+    int i = 5;
+    long l = 9;
+    structure s (2, l, i);
+    structure const s2 (4, l, i);
+
+    {
+        auto t = destination (utility::forward_member <structure> (s.a));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <int>>));
+        BOOST_CHECK_EQUAL (utility::forward_member <structure> (s.a), 2);
+    }
+    {
+        auto t = destination (utility::forward_member <structure &> (s.a));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <int &>>));
+        BOOST_CHECK_EQUAL (utility::forward_member <structure &> (s.a), 2);
+    }
+    {
+        auto t = destination (
+            utility::forward_member <structure const &> (s2.a));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <int const &>>));
+        BOOST_CHECK_EQUAL (
+            utility::forward_member <structure const &> (s2.a), 4);
+    }
+    // It is currently possible to set Container to structure const & while
+    // passing in a reference to another member.
+    // Should that be possible?
+    /*{
+        auto t = destination (
+            utility::forward_member <structure const &> (s.a));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <int &>>));
+    }*/
+
+    {
+        auto t = destination (utility::forward_member <structure &> (s.b));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <long &>>));
+        BOOST_CHECK_EQUAL (utility::forward_member <structure &> (s.b), 9l);
+    }
+    {
+        auto t = destination (
+            utility::forward_member <structure const &> (s2.b));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <long &>>));
+        BOOST_CHECK_EQUAL (
+            utility::forward_member <structure const &> (s2.b), 9l);
+    }
+
+    {
+        auto t = destination (
+            utility::forward_member <structure &> (s.c));
+        BOOST_MPL_ASSERT ((std::is_same <decltype (t), type <int const &>>));
+        BOOST_CHECK_EQUAL (
+            utility::forward_member <structure &> (s.c), 5);
+    }
+}
+
+
 struct got_int {};
 struct got_int_temporary {};
 struct got_base {};

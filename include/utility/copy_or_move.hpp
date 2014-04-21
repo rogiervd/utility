@@ -58,6 +58,31 @@ template <class Target, class Source> inline
 -> decltype (copy_or_move <Target> (std::declval <Source &&>()))
 { return copy_or_move <Target> (static_cast <Source &&> (argument)); }
 
+namespace detail {
+    template <class Container, class Member> struct forward_member_result
+    { typedef typename std::remove_reference <Member>::type && type; };
+
+    template <class Container, class Member>
+        struct forward_member_result <Container &, Member>
+    { typedef typename std::remove_reference <Member>::type & type; };
+
+} // namespace detail
+
+/**
+Forward a member with the reference qualification of its container.
+That is, if the container is not an lvalue reference, return an rvalue reference
+to the member.
+This can be used to forward a member of a struct or an element of a container.
+This is not as safe to use as std::forward.
+*/
+template <class Container, class Member>
+    typename detail::forward_member_result <Container, Member>::type
+    forward_member (Member & member)
+{
+    return static_cast <typename
+        detail::forward_member_result <Container, Member>::type> (member);
+}
+
 /**
 Contain a type only if Source is not a qualified version of Target, and Target
 is not a base of Source.
