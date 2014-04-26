@@ -213,7 +213,7 @@ namespace utility {
                 other;
         };
 
-        test_allocator (thrower & t) noexcept
+        explicit test_allocator (thrower & t) noexcept
         : base_allocator(), checker (t) {}
 
         explicit test_allocator (thrower & t,
