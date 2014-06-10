@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Standard case.
 template <class Type> inline auto return_decayed (Type c)
-RETURNS (c)
+RETURNS (c);
 
 // More complicated case that seems to expose a bug on GCC 4.6 when the
 // argument to return is in parentheses.
@@ -37,8 +37,13 @@ template <class Type> struct construct_default_helper {
 };
 
 template <class Type> inline auto construct_default()
-RETURNS (construct_default_helper <Type>()())
+RETURNS (construct_default_helper <Type>()());
 
+struct s {
+    auto get_int() const RETURNS (3);
+
+    auto get_float() const RETURNS (5.6f);
+};
 
 BOOST_AUTO_TEST_SUITE(test_utility_returns)
 
@@ -48,6 +53,12 @@ BOOST_AUTO_TEST_CASE (test_utility_returns) {
     BOOST_MPL_ASSERT ((std::is_same <
         decltype (construct_default <float>()), float>));
     BOOST_CHECK_EQUAL (construct_default <float>(), 0);
+
+    s o;
+    BOOST_MPL_ASSERT ((std::is_same <decltype (o.get_int()), int>));
+    BOOST_CHECK_EQUAL (o.get_int(), 3);
+    BOOST_MPL_ASSERT ((std::is_same <decltype (o.get_float()), float>));
+    BOOST_CHECK_EQUAL (o.get_float(), 5.6f);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,5 +1,5 @@
 /*
-Copyright 2011, 2012 Rogier van Dalen.
+Copyright 2011, 2012, 2014 Rogier van Dalen.
 
 This file is part of Rogier van Dalen's Utility library for C++.
 
@@ -30,9 +30,11 @@ traditional function signature.
 This looks like
     auto f (...) -> decltype (x) { return x; }
 This macro simplifies those expressions into
-    auto f (...) RETURNS (x)
+    auto f (...) RETURNS (x);
+This requires a semicolon after the macro invocation, so that simple parsers
+(for example, for inline documentation) do not get confused.
 */
-#define RETURNS(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; }
+#define RETURNS(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; } \
+    struct utility_returns_should_be_followed_by_a_semicolon
 
 #endif // UTILITY_RETURNS_HPP_INCLUDED
-

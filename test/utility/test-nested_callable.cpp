@@ -130,7 +130,7 @@ namespace callable {
 
         template <class ...  Arguments>
             auto operator() (Arguments const & ... arguments)
-        RETURNS (apply <Arguments ...>() (arguments ...))
+        RETURNS (apply <Arguments ...>() (arguments ...));
     };
 
     struct times {
@@ -139,7 +139,7 @@ namespace callable {
 
         template <class ...  Arguments>
             auto operator() (Arguments const & ... arguments)
-        RETURNS (apply <Arguments ...>() (arguments ...))
+        RETURNS (apply <Arguments ...>() (arguments ...));
     };
 
     struct make_approximate {
@@ -148,7 +148,7 @@ namespace callable {
 
         template <class ...  Arguments>
             auto operator() (Arguments const & ... arguments)
-        RETURNS (apply <Arguments ...>() (arguments ...))
+        RETURNS (apply <Arguments ...>() (arguments ...));
     };
 
 } // namespace callable
