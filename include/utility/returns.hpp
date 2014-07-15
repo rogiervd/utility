@@ -24,6 +24,8 @@ Define macro to make it easier to declare the return type of a simple function.
 #ifndef UTILITY_RETURNS_HPP_INCLUDED
 #define UTILITY_RETURNS_HPP_INCLUDED
 
+#include <boost/preprocessor/cat.hpp>
+
 /**
 In C++11, an "auto" return type needs an explicit type specification after the
 traditional function signature.
@@ -35,6 +37,7 @@ This requires a semicolon after the macro invocation, so that simple parsers
 (for example, for inline documentation) do not get confused.
 */
 #define RETURNS(...) -> decltype(__VA_ARGS__) { return __VA_ARGS__; } \
-    struct utility_returns_should_be_followed_by_a_semicolon
+    struct BOOST_PP_CAT (utility_returns_should_be_followed_by_a_semicolon, \
+        __LINE__)
 
 #endif // UTILITY_RETURNS_HPP_INCLUDED

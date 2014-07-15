@@ -42,6 +42,10 @@ RETURNS (construct_default_helper <Type>()());
 struct s {
     auto get_int() const RETURNS (3);
 
+private:
+    auto dummy1() RETURNS (71);
+
+public:
     auto get_float() const RETURNS (5.6f);
 };
 
