@@ -6,5 +6,6 @@ project /utility :
 # Declare target /utility//utility as a header-only library.
 alias utility : : : :
     <include>include
-    <cxxflags>"-std=c++0x"
+    # Require C++11.
+    <toolset>gcc:<cxxflags>-std=gnu++0x <toolset>clang:<cxxflags>-std=c++11
     ;
