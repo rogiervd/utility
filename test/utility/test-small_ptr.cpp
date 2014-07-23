@@ -58,7 +58,7 @@ public:
     int value() { return value_.content().content(); }
 
     void set_next (utility::small_ptr <shared_object> const & n)
-    { next = n; }
+    { next_ = n; }
 
     utility::small_ptr <shared_object, test_allocator> const & next() const
     { return next_; }
