@@ -1,5 +1,6 @@
 alias "utility" :
     # Run all .cpp files in this directory as tests.
+    config//test
     [ run_glob *.cpp ]
     test//test
     threaded//threaded-tests

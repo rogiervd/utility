@@ -1,0 +1,19 @@
+# Test configuration defines.
+
+# This works in a similar way to the tests for Boost.Config.
+# There are two types of tests: pass-* and fail-*.
+# If a configuration flag *_NO_[feature] is set, i.e. the feature is not
+# available:
+# - pass-config-no-[feature] will not do anything, and therefore pass.
+# - fail-config-no-[feature] will test the feature, and presumably fail.
+# If the configuration flag is not set, i.e. the feature is available:
+# - pass-config-no-[feature] will test the feature, and presumably succeed.
+# - fail-config-no-[feature] will fail with #error, and therefore fail.
+
+# If a configuration flag is therefore wrongly defined or wrongly not defined,
+# this will result in an error.
+
+alias "test" :
+    [ compile pass-config_no_cxx11_delegate_constructors.cpp ]
+    [ compile-fail fail-config_no_cxx11_delegate_constructors.cpp ]
+    ;
