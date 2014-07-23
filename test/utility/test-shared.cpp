@@ -98,8 +98,9 @@ template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
 
 template <int throw_points> void check_all_exceptions() {
     utility::check_all_throw_points (test_exceptions <
-            throw_points & 0x01, throw_points & 0x02, throw_points & 0x04,
-            throw_points & 0x08, throw_points & 0x10, throw_points & 0x20>());
+            bool (throw_points & 0x01), bool (throw_points & 0x02),
+            bool (throw_points & 0x04), bool (throw_points & 0x08),
+            bool (throw_points & 0x10), bool (throw_points & 0x20)>());
     check_all_exceptions <throw_points - 1>();
 }
 
