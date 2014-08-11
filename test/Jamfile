@@ -5,7 +5,7 @@ project
       <library>/boost/test//boost_unit_test_framework
       <library>/utility//utility
       <warnings-as-errors>on
-      <testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
+      <target-os>linux:<testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
     ;
 
 # Run the tests in the subdirectories.
