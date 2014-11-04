@@ -26,11 +26,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #       define UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
 #   endif
 
+// Random crashes occur on CLang 3.0 when many templates are instantiated.
+// This makes unit tests fail, so it may be worth switching them off.
+#   if (__clang_major__ == 3 && __clang_minor__ == 0)
+#       define UTILITY_CONFIG_CLANG_RANDOM_TEMPLATE_CRASHES
+#   endif
+
 #elif defined __GNUC__
+
 #   if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 7) \
             || !defined(__GXX_EXPERIMENTAL_CXX0X__)
 #       define UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
 #   endif
+
 #endif
 
 #endif // UTILITY_CONFIG_HPP_INCLUDED
