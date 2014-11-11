@@ -34,6 +34,7 @@ Unary traits are not provided; they are probably easy enough to write as, e.g.,
 
 #include "meta/vector.hpp"
 
+#include "is_default_constructible.hpp"
 #include "is_assignable.hpp"
 
 namespace utility {
@@ -60,6 +61,18 @@ namespace utility {
         : std::is_nothrow_constructible <Type1, Type2> {};
 
     } // namespace type_sequence_traits_detail
+
+    /**
+    Evaluate to \c true iff Predicate returns true for each type in meta range
+    Types.
+    */
+    template <template <class> class Predicate, class Types>
+    struct all_unary
+    : all_unary <Predicate, typename meta::as_vector <Types>::type> {};
+
+    template <template <class> class Predicate, class ... Types>
+    struct all_unary <Predicate, meta::vector <Types ...>>
+    : type_sequence_traits_detail::all <Predicate <Types> ...> {};
 
     /**
     Evaluate to \c true iff the two meta ranges are of the same length, and
@@ -110,6 +123,19 @@ namespace utility {
     template <class Types1, class Types2> struct are_nothrow_constructible
     : all_binary <type_sequence_traits_detail::is_nothrow_constructible,
         Types1, Types2> {};
+
+    /**
+    Evaluate to \c true iff all types in \a Types are default-constructible.
+    */
+    template <class Types> struct are_default_constructible
+    : all_unary <is_default_constructible, Types> {};
+
+    /**
+    Evaluate to \c true iff all types in \a Types are default-constructible
+    without exceptions.
+    */
+    template <class Types> struct are_nothrow_default_constructible
+    : all_unary <is_nothrow_default_constructible, Types> {};
 
     /**
     Evaluate to \c true iff the two meta ranges are of the same length, and
