@@ -43,6 +43,22 @@ template <class Target, class Source, class Type = void>
     !std::is_base_of <Target,
         typename std::remove_reference <Source>::type>::value> {};
 
+/**
+Contain a type (which is always \c void) only if \a Sources is not one type
+which is a qualified version of Target, or a derived class.
+If Sources is a type list of zero or more than 1 types, always contain \c void.
+
+This differs from disable_if_same_or_derived in that this allows a variadic
+Sources argument, but no explicit type to contain.
+*/
+template <class Target, class ... Sources>
+    struct disable_if_variadic_same_or_derived
+{ typedef void type; };
+
+template <class Target, class Source>
+    struct disable_if_variadic_same_or_derived <Target, Source>
+: disable_if_same_or_derived <Target, Source> {};
+
 } // namespace utility
 
 #endif // UTILITY_DISABLE_IF_SAME_INCLUDED
