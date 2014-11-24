@@ -108,7 +108,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
         BOOST_CHECK_EQUAL (i, 15);
     }
 
-#ifndef UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
     // Arrays
     {
         int is [5] {5, 3, 5, 7};
@@ -127,6 +126,19 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
         simple_container <int [2]> c (is);
         BOOST_CHECK_EQUAL (c.content() [0], 27);
         BOOST_CHECK_EQUAL (c.content() [1], 0);
+
+        int is2 [2] {31, 33};
+        c = is2;
+        BOOST_CHECK_EQUAL (c.content() [0], 31);
+        BOOST_CHECK_EQUAL (c.content() [1], 33);
+
+        is2 [0] = 4;
+        is2 [1] = 7;
+
+        simple_container <int [2]> c2 (is2);
+        c = c2;
+        BOOST_CHECK_EQUAL (c2.content() [0], 4);
+        BOOST_CHECK_EQUAL (c2.content() [1], 7);
     }
     {
         int is [2] {27};
@@ -146,7 +158,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
         BOOST_CHECK_EQUAL (c.content() [0], 27);
         BOOST_CHECK_EQUAL (c.content() [1], 0);
     }
-#endif
 }
 
 BOOST_AUTO_TEST_CASE (test_utility_storage_example_extensive) {

@@ -59,8 +59,6 @@ struct array_data {
     array_data (int a, int b, int c) : a (a), b (b), c (c) {}
 };
 
-#ifndef UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
-
 array_data test_storage_of_array (array_type & i, array_type & j) {
     typename store <array_type>::type storage = j;
     storage = j;
@@ -76,7 +74,6 @@ array_data test_storage_of_array (const_array_type & i, const_array_type & j) {
     std::cout << &storage << std::endl;
     return array_data (storage [0], storage[1], storage [2]);
 }
-#endif
 
 // Function types are strange: they can be passed in, but they can't be
 // returned.
@@ -146,7 +143,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_store) {
     BOOST_CHECK_EQUAL (i, 9);
     BOOST_CHECK_EQUAL (j, 24);
 
-#ifndef UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
     // Array.
     int a [3] = {3, 4, 5};
     int b [3] = {7, 8, 9};
@@ -193,7 +189,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_store) {
         BOOST_CHECK_EQUAL ((*c) [1], 8);
         BOOST_CHECK_EQUAL ((*c) [2], 9);
     }
-#endif
 
     // Function.
     {
@@ -511,7 +506,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             get_pointer <int const &&, decltype (std::move (c))>::type);
     }
 
-#ifndef UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
     // Array type.
     {
         array_type a = {12, 23, 34};
@@ -605,7 +599,6 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract_pointer (std::move (c))), array_type const *>));
     }
-#endif
 
     // Function type.
     {

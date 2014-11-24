@@ -81,16 +81,32 @@ namespace utility { namespace storage {
         The implementation of this class requires delegate constructors, so it
         does not work for compilers that do not support those.
         */
-        template <class Type, std::size_t N> class array_wrapper {
-#ifdef UTILITY_CONFIG_NO_CXX11_DELEGATE_CONSTRUCTORS
-            template <class Type2> struct always_false
-            { static bool const value = false; };
+        template <class Type, std::size_t N> class array_wrapper;
 
-            static_assert (always_false <Type>::value,
-                "utility::storage::store is not implemented for arrays on this "
-                "compiler. "
-                "The implementation requires delegate constructors. Sorry.");
-#else
+        // Implementation type that is constructed with a list of indices.
+        template <class Type, std::size_t N> struct array_wrapper_implementation
+        {
+            Type data_ [N];
+
+            // This is the only way to initialise a std::initialiser_list.
+            template <class ... Indices>
+                array_wrapper_implementation (Type const (& data) [N],
+                    meta::vector <Indices ...>)
+            : data_ {data [Indices::value] ...} {}
+
+            void assign (Type const (& data) [N], meta::vector <>) {}
+
+            template <class FirstIndex, class ... Indices>
+                void assign (Type const (& data) [N],
+                    meta::vector <FirstIndex, Indices ...>)
+            {
+                data_ [FirstIndex::value] = data [FirstIndex::value];
+                assign (data, meta::vector <Indices ...>());
+            }
+        };
+
+        template <class Type, std::size_t N> class array_wrapper {
+            typedef typename meta::count <N>::type indices_type;
         public:
             typedef Type value_type [N];
 
@@ -98,20 +114,21 @@ namespace utility { namespace storage {
             typedef Type const (& const_reference_type) [N];
 
             array_wrapper (Type const (& data) [N])
-            : array_wrapper (data, typename meta::count <N>::type()) {}
+            : implementation (data, indices_type()) {}
 
-            operator reference_type() { return data_; }
-            operator const_reference_type() const { return data_; }
+            operator reference_type()
+            { return implementation.data_; }
+
+            operator const_reference_type() const
+            { return implementation.data_; }
+
+            array_wrapper & operator= (Type const (& data) [N]) {
+                implementation.assign (data, indices_type());
+                return *this;
+            }
 
         private:
-            Type data_ [N];
-
-            // This is the only way to initialise a std::initialiser_list.
-            template <class ... Indices>
-            array_wrapper (
-                Type const (& data) [N], meta::vector <Indices ...> const &)
-            : data_ {data [Indices::value] ...} {}
-#endif
+            array_wrapper_implementation <Type, N> implementation;
         };
 
         struct incomplete_type;
