@@ -17,6 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef UTILITY_TEST_BOOST_UNIT_TEST_HPP_INCLUDED
+#define UTILITY_TEST_BOOST_UNIT_TEST_HPP_INCLUDED
+
 /**
 There are some problems compiling the unit tests on various Boost versions.
 This file hopefully abstracts away these problems.
@@ -42,3 +45,4 @@ Clang gives a warning that Boost.Test should probably fix:
 #   include <boost/test/auto_unit_test.hpp>
 #endif
 
+#endif // UTILITY_TEST_BOOST_UNIT_TEST_HPP_INCLUDED
