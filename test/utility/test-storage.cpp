@@ -40,10 +40,11 @@ template <class Target, class Source>
 { return std::forward <Source> (object); }
 
 template <class Type> Type test_storage_of (Type i, Type j) {
-    typename store <Type>::type storage = std::forward <Type> (i);
+    typedef typename store <Type>::type storage_type;
+    storage_type storage = std::forward <Type> (i);
     storage = std::forward <Type> (j);
     // Make sure that this has a side-effect.
-    std::cout << sizeof (storage) << alignof (storage) << std::endl;
+    std::cout << sizeof (storage) << alignof (storage_type) << std::endl;
     typename store <Type>::type * address = &storage;
     std::cout << address << std::endl;
     return implicit_cast <typename get <Type>::type> (storage);
@@ -60,17 +61,19 @@ struct array_data {
 };
 
 array_data test_storage_of_array (array_type & i, array_type & j) {
-    typename store <array_type>::type storage = j;
+    typedef typename store <array_type>::type storage_type;
+    storage_type storage = j;
     storage = j;
-    std::cout << sizeof (storage) << alignof (storage) << std::endl;
+    std::cout << sizeof (storage) << alignof (storage_type) << std::endl;
     std::cout << &storage << std::endl;
     return array_data (storage [0], storage[1], storage [2]);
 }
 
 array_data test_storage_of_array (const_array_type & i, const_array_type & j) {
-    typename store <const_array_type>::type storage = j;
+    typedef typename store <const_array_type>::type storage_type;
+    storage_type storage = j;
     storage = j;
-    std::cout << sizeof (storage) << alignof (storage) << std::endl;
+    std::cout << sizeof (storage) << alignof (storage_type) << std::endl;
     std::cout << &storage << std::endl;
     return array_data (storage [0], storage[1], storage [2]);
 }
