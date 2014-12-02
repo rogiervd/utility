@@ -613,8 +613,13 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         CHECK_INCOMPLETE_TYPE (
             typename get_pointer <function_type, decltype (c)>::type);
 
-        BOOST_MPL_ASSERT ((std::is_same <
-            decltype (extract (std::move (c))), function_type &&>));
+        // Compilers differ about whether the result of the function, a
+        // reference to function, is an lvalue or rvalue reference.
+        // We don't really care which one it picks.
+        typedef decltype (extract (std::move (c))) result_type;
+        BOOST_MPL_ASSERT ((boost::mpl::or_ <
+            std::is_same <result_type, function_type &&>,
+            std::is_same <result_type, function_type &>>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
         CHECK_INCOMPLETE_TYPE (typename
@@ -630,8 +635,13 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         CHECK_INCOMPLETE_TYPE (
             typename get_pointer <function_type, decltype (c)>::type);
 
-        BOOST_MPL_ASSERT ((std::is_same <
-            decltype (extract (std::move (c))), function_type &&>));
+        // Compilers differ about whether the result of the function, a
+        // reference to function, is an lvalue or rvalue reference.
+        // We don't really care which one it picks.
+        typedef decltype (extract (std::move (c))) result_type;
+        BOOST_MPL_ASSERT ((boost::mpl::or_ <
+            std::is_same <result_type, function_type &&>,
+            std::is_same <result_type, function_type &>>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
         CHECK_INCOMPLETE_TYPE (typename
