@@ -167,8 +167,8 @@ BOOST_AUTO_TEST_CASE (test_utility_assignable_exception_safety) {
 
 template <int throw_bits> void check_assignable_all_throw_points() {
     utility::check_all_throw_points (test_assignable <
-        throw_bits & 0x01, throw_bits & 0x02, throw_bits & 0x04,
-        throw_bits & 0x08, throw_bits & 0x10, throw_bits & 0x20>);
+        !(throw_bits & 0x01), !(throw_bits & 0x02), !(throw_bits & 0x04),
+        !(throw_bits & 0x08), !(throw_bits & 0x10), !(throw_bits & 0x20)>);
     check_assignable_all_throw_points <throw_bits - 1>();
 }
 
