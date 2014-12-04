@@ -5,7 +5,22 @@ project
       <library>/boost/test//boost_unit_test_framework
       <library>/utility//utility
       <warnings-as-errors>on
-      <target-os>linux:<testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
+
+    # It is useful to switch on some form of memory checking for the tests.
+    # Here are some options, commented out.
+
+    # 1) Use Valgrind, which then must be installed on the computer.
+    # This uses Valgrind's MemCheck tool.
+#      <testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
+
+    # 2) Switch on Address Sanitizer.
+    # It is available in LLVM from version 3.1.
+#      <toolset>clang:<cxxflags>-fsanitize=address
+#      <toolset>clang:<linkflags>-fsanitize=address
+    # It is available in GCC from version 4.8.
+#      <toolset>gcc:<cxxflags>-fsanitize=address
+#      <toolset>gcc:<linkflags>-fsanitize=address
+
     ;
 
 # Run the tests in the subdirectories.
