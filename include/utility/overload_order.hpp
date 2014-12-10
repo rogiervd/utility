@@ -33,7 +33,7 @@ namespace utility {
 
     template <> struct overload_order <32> {};
 
-    overload_order <0> * pick_overload() { return nullptr; }
+    inline overload_order <0> * pick_overload() { return nullptr; }
 
 } // namespace utility
 
