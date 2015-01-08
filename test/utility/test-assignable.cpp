@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "utility/test/throwing.hpp"
 #include "utility/test/tracked.hpp"
 
+using utility::assignable;
+
 template <class Target, class ... Sources>
     struct disable_if_same_or_derived
 { typedef void type; };
@@ -119,40 +121,40 @@ template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
         utility::tracked <int> (registry, 79)));
     BOOST_CHECK_EQUAL (b.content().i.content().content(), 79);
 
-    registry.check_counts (4, 2, 9, 0, 0, 0, 2, 8);
+    registry.check_counts (4, 2, 10, 0, 0, 0, 2, 9);
 
     utility::assignable <test_type> c (b);
     c.content().i.content().content() = 123;
 
-    registry.check_counts (4, 3, 9, 0, 0, 0, 2, 8);
+    registry.check_counts (4, 3, 10, 0, 0, 0, 2, 9);
 
     utility::assignable <test_type> d (std::move (c));
     BOOST_CHECK_EQUAL (d.content().i.content().content(), 123);
 
-    registry.check_counts (4, 3, 10, 0, 0, 0, 2, 8);
+    registry.check_counts (4, 3, 11, 0, 0, 0, 2, 9);
 
     a = b;
     BOOST_CHECK_EQUAL (a.content().i.content().content(), 79);
 
-    registry.check_counts (4, 4, 10, 0, 0, 0, 3, 8);
+    registry.check_counts (4, 4, 11, 0, 0, 0, 3, 9);
 
     a = std::move (d);
     BOOST_CHECK_EQUAL (a.content().i.content().content(), 123);
 
-    registry.check_counts (4, 4, 11, 0, 0, 0, 4, 8);
+    registry.check_counts (4, 4, 12, 0, 0, 0, 4, 9);
 
     utility::assignable <test_type> e (tracked (thrower,
         utility::tracked <int> (registry, 156)));
     BOOST_CHECK_EQUAL (e.content().i.content().content(), 156);
 
-    registry.check_counts (5, 4, 13, 0, 0, 0, 4, 10);
+    registry.check_counts (5, 4, 15, 0, 0, 0, 4, 12);
 
     BOOST_MPL_ASSERT ((std::is_same <
         decltype (e.move_content()), test_type &&>));
 
     test_type content = e.move_content();
 
-    registry.check_counts (5, 4, 14, 0, 0, 0, 4, 10);
+    registry.check_counts (5, 4, 16, 0, 0, 0, 4, 12);
 
     // Print a list of on which occasions this may have thrown.
     std::cout << "Testing throwing at: " << std::boolalpha
@@ -195,6 +197,74 @@ BOOST_AUTO_TEST_CASE (test_utility_assignable_types) {
         // Moving a reference merely returns the reference itself.
         BOOST_MPL_ASSERT ((std::is_same <decltype (a.move_content()), int &>));
     }
+}
+
+struct trivial {};
+struct pretty_trivial { int i; };
+struct pretty_trivial_2 { int i; int j; };
+struct pretty_trivial_3 { int & i; };
+struct pretty_trivial_4 { int i; int & j; };
+
+struct pretty_trivial_5 {
+    int i;
+    int & j;
+
+    explicit pretty_trivial_5 (int i) : i (i), j (this->i) {}
+};
+
+struct nothrow_struct {
+    nothrow_struct (nothrow_struct const &) noexcept {}
+    nothrow_struct (nothrow_struct &&) noexcept {}
+};
+
+struct throw_struct {
+    int i, j, k;
+    throw_struct (throw_struct const &);
+    throw_struct (throw_struct &&);
+};
+
+struct throw_struct_with_bool {
+    int i, j, k;
+    bool b;
+};
+
+struct copyable {
+    int i;
+    copyable (copyable const &) noexcept {}
+};
+
+struct moveable {
+    int i;
+    moveable (moveable &&) noexcept {}
+};
+
+BOOST_AUTO_TEST_CASE (test_object_size) {
+    // BOOST_CHECK_EQUAL leaves a more informative trace than static_assert.
+    // This is also not important enough to cause failure to compile.
+    BOOST_CHECK_EQUAL (sizeof (assignable <int>), sizeof (int));
+
+    BOOST_CHECK_EQUAL (sizeof (assignable <trivial>), sizeof (trivial));
+    BOOST_CHECK_EQUAL (sizeof (assignable <pretty_trivial>),
+        sizeof (pretty_trivial));
+    BOOST_CHECK_EQUAL (sizeof (assignable <pretty_trivial_2>),
+        sizeof (pretty_trivial_2));
+    BOOST_CHECK_EQUAL (sizeof (assignable <pretty_trivial_3>),
+        sizeof (pretty_trivial_3));
+    BOOST_CHECK_EQUAL (sizeof (assignable <pretty_trivial_4>),
+        sizeof (pretty_trivial_4));
+    BOOST_CHECK_EQUAL (sizeof (assignable <pretty_trivial_5>),
+        sizeof (pretty_trivial_5));
+
+    BOOST_CHECK_EQUAL (sizeof (assignable <moveable>), sizeof (moveable));
+    BOOST_CHECK_EQUAL (sizeof (assignable <copyable>), sizeof (copyable));
+
+    BOOST_CHECK_EQUAL (sizeof (assignable <non_assignable <int>>),
+        sizeof (non_assignable <int>));
+
+    BOOST_CHECK_EQUAL (sizeof (assignable <nothrow_struct>),
+        sizeof (nothrow_struct));
+    BOOST_CHECK_EQUAL (sizeof (assignable <throw_struct>),
+        sizeof (throw_struct_with_bool));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
