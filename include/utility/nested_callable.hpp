@@ -31,8 +31,8 @@ Find properties of nested function calls expressed as types.
 #include <boost/mpl/apply.hpp>
 
 #include "meta/vector.hpp"
-#include "meta/all.hpp"
-#include "meta/any.hpp"
+#include "meta/all_of_c.hpp"
+#include "meta/any_of_c.hpp"
 
 namespace nested_callable {
 
@@ -93,9 +93,9 @@ namespace nested_callable {
     template <class Predicate, class Function, class ... Arguments>
         struct all <Predicate, Function (Arguments ...)>
     : boost::mpl::eval_if <
-        meta::all <meta::vector <
-            all <Predicate, Function>,
-            all <Predicate, Arguments> ...>>,
+        meta::all_of_c <
+            all <Predicate, Function>::value,
+            all <Predicate, Arguments>::value ...>,
         detail::shallow <Predicate, Function (Arguments ...)>,
         boost::mpl::false_
     >::type {};
@@ -115,9 +115,9 @@ namespace nested_callable {
     template <class Predicate, class Function, class ... Arguments>
         struct any <Predicate, Function (Arguments ...)>
     : boost::mpl::eval_if <
-        meta::any <meta::vector <
-            any <Predicate, Function>,
-            any <Predicate, Arguments> ...>>,
+        meta::any_of_c <
+            any <Predicate, Function>::value,
+            any <Predicate, Arguments>::value ...>,
         boost::mpl::true_,
         detail::shallow <Predicate, Function (Arguments ...)>
     >::type {};
