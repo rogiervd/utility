@@ -13,7 +13,6 @@
 # If a configuration flag is therefore wrongly defined or wrongly not defined,
 # this will result in an error.
 
-alias "test" :
-    [ compile pass-config_no_cxx11_delegate_constructors.cpp ]
-    [ compile-fail fail-config_no_cxx11_delegate_constructors.cpp ]
-    ;
+
+compile pass-config_no_cxx11_delegate_constructors.cpp ;
+compile-fail fail-config_no_cxx11_delegate_constructors.cpp ;

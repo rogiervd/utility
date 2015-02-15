@@ -11,7 +11,4 @@ project
         -<testing.launcher>"valgrind --leak-check=full --error-exitcode=1"
     ;
 
-alias "threaded-tests" :
-    # Run all .cpp files in this directory as tests.
-    [ run_glob *.cpp ]
-    ;
+run_glob *.cpp ;

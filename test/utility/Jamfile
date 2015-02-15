@@ -1,7 +1,4 @@
-alias "utility" :
-    # Run all .cpp files in this directory as tests.
-    config//test
-    [ run_glob *.cpp ]
-    test//test
-    threaded//threaded-tests
-    ;
+build-project config ;
+run_glob *.cpp ;
+build-project test ;
+build-project threaded ;

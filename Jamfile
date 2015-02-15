@@ -1,6 +1,7 @@
-project /utility :
-    requirements
-    <library>/meta//meta
+project /utility
+    : requirements
+      <use>/boost//headers
+      <library>/meta//meta
     ;
 
 # Declare target /utility//utility as a header-only library.

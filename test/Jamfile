@@ -2,7 +2,7 @@ import testing ;
 
 project
     : requirements
-      <library>/boost/test//boost_unit_test_framework
+      <library>/boost//unit_test_framework
       <library>/utility//utility
       <warnings-as-errors>on
 
@@ -23,5 +23,5 @@ project
 
     ;
 
-# Run the tests in the subdirectories.
-alias "utility-tests" : utility ;
+# Always build the project in ./utility/
+build-project utility ;
