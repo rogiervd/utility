@@ -1,0 +1,18 @@
+import python ;
+
+project
+    : requirements
+      <library>/boost//python
+    ;
+
+local rule run-python-test ( test-name : sources + )
+{
+    import testing ;
+    testing.make-test run-pyd : $(sources) : : $(test-name) ;
+}
+
+python-extension std_function_example : std_function_example.cpp ;
+
+run-python-test test-std_function :
+    std_function_example test-std_function.py
+    ;
