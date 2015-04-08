@@ -26,18 +26,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/mpl/assert.hpp>
 
-// Standard case.
-template <class Type> inline auto return_decayed (Type c)
+float f;
+
+template <class Type> inline auto return_const_ref (Type const & c)
 RETURNS (c);
 
-// More complicated case that seems to expose a bug on GCC 4.6 when the
-// argument to return is in parentheses.
-template <class Type> struct construct_default_helper {
-    Type operator() () const { return Type(); }
-};
+template <class Type> inline auto return_ref (Type & c)
+RETURNS (c);
 
-template <class Type> inline auto construct_default()
-RETURNS (construct_default_helper <Type>()());
+template <class Type> inline auto return_decayed (Type const & c)
+RETURNS_DECAYED (c);
+
+template <class Type> inline auto construct_default() RETURNS (Type());
 
 struct s {
     auto get_int() const RETURNS (3);
@@ -45,14 +45,32 @@ struct s {
 private:
     auto dummy1() RETURNS (71);
 
+    static double d;
+
 public:
     auto get_float() const RETURNS (5.6f);
+
+    auto get_double_ref() RETURNS (d);
+    auto get_double() const RETURNS_DECAYED (d);
 };
+
+double s::d = 81.25;
 
 BOOST_AUTO_TEST_SUITE(test_utility_returns)
 
 BOOST_AUTO_TEST_CASE (test_utility_returns) {
-    BOOST_MPL_ASSERT ((std::is_same <decltype (return_decayed (1)), int>));
+    {
+        int i = 7;
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (return_const_ref (i)), int const &>));
+        BOOST_CHECK_EQUAL (return_const_ref (i), 7);
+
+        BOOST_MPL_ASSERT ((std::is_same <decltype (return_ref (i)), int &>));
+        BOOST_CHECK_EQUAL (return_ref (i), 7);
+
+        BOOST_MPL_ASSERT ((std::is_same <decltype (return_decayed (i)), int>));
+        BOOST_CHECK_EQUAL (return_decayed (i), 7);
+    }
 
     BOOST_MPL_ASSERT ((std::is_same <
         decltype (construct_default <float>()), float>));
@@ -63,6 +81,11 @@ BOOST_AUTO_TEST_CASE (test_utility_returns) {
     BOOST_CHECK_EQUAL (o.get_int(), 3);
     BOOST_MPL_ASSERT ((std::is_same <decltype (o.get_float()), float>));
     BOOST_CHECK_EQUAL (o.get_float(), 5.6f);
+
+    BOOST_MPL_ASSERT ((std::is_same <decltype (o.get_double()), double>));
+    BOOST_CHECK_EQUAL (o.get_double(), 81.25);
+    BOOST_MPL_ASSERT ((std::is_same <decltype (o.get_double_ref()), double &>));
+    BOOST_CHECK_EQUAL (o.get_double_ref(), 81.25);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
