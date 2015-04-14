@@ -1,0 +1,26 @@
+language: cpp
+
+branches:
+  only:
+    - master
+
+compiler:
+  - gcc
+  - clang
+
+env:
+  - VARIANT=debug
+  - VARIANT=release
+
+before_install:
+  - sudo apt-get update -qq
+  - wget https://github.com/boostorg/build/raw/develop/src/contrib/boost.jam -O ~/boost.jam
+  - echo -e 'import boost ;\nboost.use-project ;\n using gcc ;\n using clang ;\n using python ;' > ~/user-config.jam
+  - cat ~/user-config.jam
+
+install:
+  - sudo apt-get install -qq libboost1.48-all-dev
+  - sudo apt-get install -qq python-dev
+
+# It just so happens that ${CC} corresponds to the Boost.Build toolset name.
+script: ./test/bjam_test_in_parent_directory.sh toolset=${CC} variant=${VARIANT}
