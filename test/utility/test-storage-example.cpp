@@ -231,6 +231,11 @@ struct example_struct {
     std::string example_member_2;
 };
 
+// The C++ faq recommends using this.
+// https://isocpp.org/wiki/faq/pointers-to-members
+#define CALL_MEMBER_FUNCTION(object, member_pointer) \
+    ((object).*(member_pointer))
+
 BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
     // Function.
     {
@@ -243,47 +248,83 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
     {
         simple_container <int (&) (double, std::string)> c (example_function_1);
         BOOST_CHECK_EQUAL (&c.content(), &example_function_1);
+        BOOST_CHECK_EQUAL (c.content() (1., ""), 0);
+
         c.replace_with (example_function_2);
         BOOST_CHECK_EQUAL (&c.content(), &example_function_2);
+        BOOST_CHECK_EQUAL (c.content() (1., ""), 1);
     }
     // Function pointer.
     {
         simple_container <int (*) (double, std::string)> c (example_function_1);
         BOOST_CHECK_EQUAL (c.content(), &example_function_1);
+        BOOST_CHECK_EQUAL (c.content() (1., ""), 0);
+
         c.replace_with (example_function_2);
         BOOST_CHECK_EQUAL (c.content(), &example_function_2);
+        BOOST_CHECK_EQUAL (c.content() (1., ""), 1);
     }
+
     // Member functions.
+    example_struct s;
     {
         simple_container <int (example_struct::*) (std::string, double)> c (
             &example_struct::example_function_1);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_1);
+        auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+
         c.replace_with (&example_struct::example_function_2);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_2);
+        member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            1);
     }
     {
         simple_container <
             int (example_struct::*) (std::string, double) const> c (
             &example_struct::example_function_3);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_3);
+        auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+
         c.replace_with (&example_struct::example_function_4);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_4);
+        member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            1);
     }
     {
         simple_container <
             int (example_struct::*) (std::string, double) volatile> c (
             &example_struct::example_function_5);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_5);
+        auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+
         c.replace_with (&example_struct::example_function_6);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_6);
+        member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            1);
     }
     {
         simple_container <
             int (example_struct::*) (std::string, double) const volatile> c (
             &example_struct::example_function_7);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_7);
+        auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+
         c.replace_with (&example_struct::example_function_8);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_8);
+        member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            1);
     }
     {
         simple_container <std::string (example_struct::*)> c (

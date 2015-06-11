@@ -1,1 +1,8 @@
 run_glob *.cpp ;
+
+run-fail fail/fail-test_allocator-leak-1.cpp ;
+run-fail fail/fail-test_allocator-leak-2.cpp ;
+run-fail fail/fail-test_allocator-leak-3.cpp ;
+run-fail fail/fail-tracked-1.cpp ;
+run-fail fail/fail-tracked-2.cpp ;
+run-fail fail/fail-tracked-3.cpp ;
