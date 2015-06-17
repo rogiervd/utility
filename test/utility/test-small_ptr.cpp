@@ -25,12 +25,26 @@ limitations under the License.
 
 #include "utility/small_ptr.hpp"
 
-BOOST_AUTO_TEST_SUITE(test_suite_utility_small_ptr)
-
-template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
+template <bool recursive, bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
     class shared_object;
 
-template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
+namespace utility { namespace pointer_policy {
+
+    template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
+        struct move_recursive_next <
+            shared_object <true, t1, t2, t3, t4, t5, t6>>
+    {
+        typedef shared_object <true, t1, t2, t3, t4, t5, t6> object_type;
+        typedef utility::test_allocator <std::allocator <object_type>, true>
+            allocator_type;
+        utility::small_ptr <object_type, allocator_type> &&
+            operator() (object_type * object) const
+        { return std::move (object->next()); }
+    };
+
+}} // namespace utility::pointer_policy
+
+template <bool recursive, bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
     class shared_object : public utility::shared
 {
     typedef utility::test_allocator <std::allocator <shared_object>, true>
@@ -68,6 +82,9 @@ private:
     utility::small_ptr <shared_object, test_allocator> next_;
 };
 
+
+BOOST_AUTO_TEST_SUITE(test_suite_utility_small_ptr)
+
 /**
 Assuming operator == works correctly and operator < does something, test whether
 the other comparison operators are consistent with them.
@@ -94,10 +111,10 @@ template <class Type> void check_comparison (Type const & o1, Type const o2) {
     }
 }
 
-template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
+template <bool recursive, bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
 void test_small_ptr (utility::thrower & thrower)
 {
-    typedef shared_object <t1, t2, t3, t4, t5, t6> shared_object;
+    typedef shared_object <recursive, t1, t2, t3, t4, t5, t6> shared_object;
     typedef utility::test_allocator <std::allocator <shared_object>, true>
         test_allocator;
     utility::tracked_registry registry;
@@ -380,11 +397,13 @@ void test_small_ptr (utility::thrower & thrower)
 BOOST_AUTO_TEST_CASE (test_utility_small_ptr) {
     // This is, assuming that std::allocator is empty.
     BOOST_CHECK_EQUAL (
-        sizeof (utility::small_ptr <std::allocator <int> >),
+        sizeof (utility::small_ptr <int, std::allocator <int> >),
         sizeof (void *));
 
     utility::check_all_throw_points (
-        test_small_ptr <false, false, false, false, false, false>);
+        test_small_ptr <false, false, false, false, false, false, false>);
+    utility::check_all_throw_points (
+        test_small_ptr <true, false, false, false, false, false, false>);
 }
 
 /** Check all configurations for throwing. */
@@ -392,29 +411,36 @@ BOOST_AUTO_TEST_CASE (test_utility_small_ptr) {
 template <int throw_bits> void check_small_ptr_all_throw_points() {
     utility::check_all_throw_points (test_small_ptr <
         !(throw_bits & 0x01), !(throw_bits & 0x02), !(throw_bits & 0x04),
-        !(throw_bits & 0x08), !(throw_bits & 0x10), !(throw_bits & 0x20)>);
+        !(throw_bits & 0x08), !(throw_bits & 0x10), !(throw_bits & 0x20),
+        !(throw_bits & 0x40)>);
     check_small_ptr_all_throw_points <throw_bits - 1>();
 }
 
 template <> void check_small_ptr_all_throw_points <-1>() {}
 
 BOOST_AUTO_TEST_CASE (test_utility_small_ptr_exception_safety) {
-//    check_small_ptr_all_throw_points <64>();
+//    check_small_ptr_all_throw_points <0x80>();
     utility::check_all_throw_points (
-        test_small_ptr <true, false, false, false, false, false>);
+        test_small_ptr <false, true, false, false, false, false, false>);
     utility::check_all_throw_points (
-        test_small_ptr <false, true, false, false, false, false>);
+        test_small_ptr <false, false, true, false, false, false, false>);
     utility::check_all_throw_points (
-        test_small_ptr <false, false, true, false, false, false>);
+        test_small_ptr <false, false, false, true, false, false, false>);
     utility::check_all_throw_points (
-        test_small_ptr <false, false, false, true, false, false>);
+        test_small_ptr <false, false, false, false, true, false, false>);
     utility::check_all_throw_points (
-        test_small_ptr <false, false, false, false, true, false>);
+        test_small_ptr <false, false, false, false, false, true, false>);
     utility::check_all_throw_points (
-        test_small_ptr <false, false, false, false, false, true>);
+        test_small_ptr <false, false, false, false, false, false, true>);
 
     utility::check_all_throw_points (
-        test_small_ptr <true, true, true, true, true, true>);
+        test_small_ptr <false, true, true, true, true, true, true>);
+
+    // Check destruction of chains.
+    utility::check_all_throw_points (
+        test_small_ptr <true, false, false, false, false, false, false>);
+    utility::check_all_throw_points (
+        test_small_ptr <true, true, true, true, true, true, true>);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

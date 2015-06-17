@@ -262,6 +262,88 @@ namespace utility { namespace pointer_policy {
         { return pointer_and_allocator_.second(); }
     };
 
+    // Dummy class.
+    struct move_recursive_next_not_available {};
+
+    /**
+    Class that is default-constructed and called with a plain pointer
+    (<c>Type *</c>) by with_recursive_type.
+    It should return an rvalue reference to the smart pointer to the next object
+    in the chain.
+
+    Implement this for an object that is part of such a chain.
+    \code
+    template <> struct move_recursive_next <your_type> {
+        ..._ptr <your_type> operator() (your_type * object) const
+        { return object->next_; }
+    };
+    \endcode
+
+    The default implementation is empty, but derives from
+    move_recursive_next_not_available so this can be detected.
+    */
+    template <class Type> struct move_recursive_next
+    : move_recursive_next_not_available {};
+
+    /**
+    Storage policy that wraps another storage policy and deals with objects that
+    contain a pointer to an object of the same type.
+    An example are nodes in a linked list.
+    Normally, the pointer's destructor would indirectly call itself if a whole
+    string of objects needs to be destructed at once.
+    This can lead to stack overflows.
+    When this class is used as a storage policy, the recursion is essentially
+    turned into iteration.
+    Just before the node object's destructor is called, move_recursive_next is
+    called and the pointer to the next object is moved out.
+    Then the destructor is called, and then the next object is dealt with.
+
+    This policy requires move_recursive_next to be specialised for the value
+    type.
+    */
+    template <class Storage> class with_recursive_type
+    : public Storage
+    {
+    public:
+        template <class ... Arguments>
+        with_recursive_type (Arguments && ... arguments)
+        noexcept (noexcept (Storage (std::forward <Arguments> (arguments) ...)))
+        : Storage (std::forward <Arguments> (arguments) ...)
+        {}
+
+        // Use default copy, move, copy assignment, and move assignment.
+        // Use default destructor.
+
+    protected:
+        void destruct() noexcept {
+            // Deal with the chain following this object.
+            move_recursive_next <typename Storage::value_type> move_next;
+            auto && next = move_next (Storage::object());
+            typedef typename std::decay <decltype (next)>::type pointer_type;
+            if (!next.empty())
+                pointer_type::release_chain (std::move (next));
+
+            // Destruct this object (with the pointer to the next object set
+            // to null.)
+            Storage::destruct();
+
+            // Static check.
+            static_assert (
+                std::is_base_of <with_recursive_type, pointer_type>::value,
+                "move_recursive_next should return the same type as this.");
+        }
+
+        with_recursive_type & operator= (with_recursive_type const & that) {
+            Storage::operator= (that);
+            return *this;
+        }
+
+        with_recursive_type & operator= (with_recursive_type && that) {
+            Storage::operator= (std::move (that));
+            return *this;
+        }
+    };
+
     /* Lifetime policies. */
 
     /**
@@ -354,6 +436,49 @@ namespace utility { namespace pointer_policy {
             if (!Storage::empty()
                     && shared::release_count (Storage::object()))
                 Storage::destruct();
+        }
+
+        template <class Storage2> friend class with_recursive_type;
+
+        /**
+        Release a chain of objects iteratively.
+        Useful when recursive destruction might cause stack overflows.
+
+        Move the pointer to the next object out before destructing the current
+        object.
+        Do this to each object in the chain, until the object is shared.
+
+        \pre !p.empty()
+        */
+        template <class Pointer, class Enable = typename boost::enable_if <
+            std::is_base_of <reference_count_shared, Pointer>>::type>
+        static void release_chain (Pointer && p) noexcept
+        {
+            Pointer current = std::move (p);
+            move_recursive_next <typename Storage::value_type> move_next;
+
+            // "current" will be manually destructed if necessary.
+            assert (!current.empty());
+            do {
+                bool must_be_destructed
+                    = shared::release_count (current.object());
+
+                if (!must_be_destructed) {
+                    // Reset the pointer ...
+                    current.reset();
+                    // ...  because here it goes out of scope, and that would
+                    // decrease the use count again.
+                    return;
+                }
+
+                auto next = move_next (current.object());
+                current.destruct();
+                // Reset the pointer ...
+                current.reset();
+                // ... because otherwise the use count will be decreased again
+                // here.
+                current = std::move (next);
+            } while (!current.empty());
         }
     };
 
