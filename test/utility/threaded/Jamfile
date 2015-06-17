@@ -5,6 +5,7 @@
 project
     : requirements
         <library>/boost//thread
+        <library>/boost//system
         # The following line works textually.
         # The text after the minus must be exactly what is added in
         # ../../Jamfile.
