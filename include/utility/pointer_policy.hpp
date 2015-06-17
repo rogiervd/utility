@@ -42,6 +42,7 @@ framework.
 
 #include <algorithm> // For std::swap
 #include <type_traits>
+#include <cassert>
 
 #include <boost/compressed_pair.hpp>
 
@@ -275,11 +276,16 @@ namespace utility { namespace pointer_policy {
         reference_count_shared (Arguments && ... arguments)
         noexcept (noexcept (Storage (std::forward <Arguments> (arguments) ...)))
         : Storage (std::forward <Arguments> (arguments) ...)
-        { acquire(); }
+        {
+            static_assert (
+                std::is_base_of <shared, typename Storage::value_type>::value,
+                "The referenced object must derive from utility::shared.");
+            acquire();
+        }
 
         /**
         Copy-construct from another pointer.
-        This increased the use count on the underlying object.
+        This increases the use count on the underlying object.
         */
         reference_count_shared (reference_count_shared const & that) noexcept
         : Storage (that)
@@ -298,7 +304,7 @@ namespace utility { namespace pointer_policy {
             that.Storage::reset();
         }
 
-        reference_count_shared & operator = (
+        reference_count_shared & operator= (
             reference_count_shared const & that)
         {
             // Save and acquire "that" in case releasing the object in "this"
@@ -307,16 +313,15 @@ namespace utility { namespace pointer_policy {
             that.acquire();
             Storage save = that;
             release();
-            Storage::operator = (save);
+            Storage::operator= (save);
             return *this;
         }
 
-        reference_count_shared & operator = (reference_count_shared && that)
-        {
+        reference_count_shared & operator= (reference_count_shared && that) {
             Storage save = std::move (that);
             that.Storage::reset();
             release();
-            Storage::operator = (std::move (save));
+            Storage::operator= (std::move (save));
             return *this;
         }
 
@@ -366,9 +371,9 @@ namespace utility { namespace pointer_policy {
 
         typedef typename Lifetime::value_type value_type;
 
-        value_type & operator * () const { return *Lifetime::object(); }
+        value_type & operator* () const { return *Lifetime::object(); }
 
-        value_type * operator -> () const { return Lifetime::object(); }
+        value_type * operator-> () const { return Lifetime::object(); }
 
         /**
         \return A normal pointer to the owned object, or nullptr if this is
@@ -389,23 +394,23 @@ namespace utility { namespace pointer_policy {
     : public Access {
     public:
         template <class ... Arguments>
-        strict_weak_ordered (Arguments && ... arguments)
+        explicit strict_weak_ordered (Arguments && ... arguments)
             noexcept (noexcept (Access (std::declval <Arguments &&>() ...)))
         : Access (std::forward <Arguments> (arguments) ...) {}
 
-        bool operator == (strict_weak_ordered const & that) const
+        bool operator== (strict_weak_ordered const & that) const
         { return this->get() == that.get(); }
-        bool operator != (strict_weak_ordered const & that) const
+        bool operator!= (strict_weak_ordered const & that) const
         { return this->get() != that.get(); }
 
-        bool operator < (strict_weak_ordered const & that) const
+        bool operator< (strict_weak_ordered const & that) const
         { return this->get() < that.get(); }
-        bool operator <= (strict_weak_ordered const & that) const
+        bool operator<= (strict_weak_ordered const & that) const
         { return this->get() <= that.get(); }
 
-        bool operator > (strict_weak_ordered const & that) const
+        bool operator> (strict_weak_ordered const & that) const
         { return this->get() > that.get(); }
-        bool operator >= (strict_weak_ordered const & that) const
+        bool operator>= (strict_weak_ordered const & that) const
         { return this->get() >= that.get(); }
     };
 
