@@ -2,10 +2,10 @@ import python ;
 
 project
     : requirements
-      <library>/boost//python
+      <conditional>@appropriate_boost_python
     ;
 
-local rule run-python-test ( test-name : sources + )
+local rule run-test ( test-name : sources + )
 {
     import testing ;
     testing.make-test run-pyd : $(sources) : : $(test-name) ;
@@ -13,6 +13,5 @@ local rule run-python-test ( test-name : sources + )
 
 python-extension std_function_example : std_function_example.cpp ;
 
-run-python-test test-std_function :
-    std_function_example test-std_function.py
-    ;
+run-test test-std_function :
+    std_function_example test-std_function.py ;
