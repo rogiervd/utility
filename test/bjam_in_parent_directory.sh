@@ -31,7 +31,7 @@ set -o errexit
     rm -r utility
     ln -s ../utility
 
-    # Test it
-    bjam test "$@"
+    # Run the tests.
+    bjam "$@"
 
 )
