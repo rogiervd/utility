@@ -132,12 +132,14 @@ namespace utility {
             std::for_each (registry.begin(), registry.end(), &exists_error);
         }
 
+        int alive_count() const {
+            return (value_construct_count_ + copy_count_ + move_count_)
+                - (destruct_count_ + destruct_moved_count_);
+        }
+
         bool consistent() const {
             // All constructed objects must have been destructed.
-            if (value_construct_count_ + copy_count_ + move_count_ !=
-                destruct_count_ + destruct_moved_count_)
-                return false;
-            return true;
+            return alive_count() == 0;
         }
 
         int value_construct_count() const { return value_construct_count_; }
