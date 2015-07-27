@@ -26,6 +26,8 @@ This provides a consistent interface.
 
 #include <type_traits>
 
+#include "enable_if_compiles.hpp"
+
 // Declare both names in namespace std.
 // This is technically undefined behaviour.
 namespace std {
@@ -39,27 +41,24 @@ namespace utility {
 
     namespace is_trivially_destructible_detail {
 
-        template <bool> struct make_void { typedef void type; };
-
         template <class Type, class Enable = void>
             struct is_trivially_destructible;
 
         // Version that works if std::is_trivially_destructible is defined.
         template <class Type>
             struct is_trivially_destructible <Type,
-                typename make_void <std::is_trivially_destructible <Type>::type
-                    ::value>::type>
+                typename enable_if_compiles <typename
+                    std::is_trivially_destructible <Type>::type>::type>
         : std::is_trivially_destructible <Type> {};
 
         // Version that works if std::has_trivial_destructor is defined.
         template <class Type>
             struct is_trivially_destructible <Type,
-                typename make_void <std::has_trivial_destructor <Type>::type
-                    ::value>::type>
+                typename enable_if_compiles <typename
+                    std::has_trivial_destructor <Type>::type>::type>
         : std::has_trivial_destructor <Type> {};
 
     } // namespace is_trivially_destructible_detail
-
 
     template <class Type> struct is_trivially_destructible
     : is_trivially_destructible_detail::is_trivially_destructible <Type> {};
