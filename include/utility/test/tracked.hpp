@@ -1,5 +1,5 @@
 /*
-Copyright 2009, 2014 Rogier van Dalen.
+Copyright 2009, 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -308,6 +308,14 @@ namespace utility {
             BOOST_CHECK (this->is_valid());
             return content_;
         }
+
+        template <class OtherContent>
+            bool operator== (tracked <OtherContent> const & other) const
+        { return this->content() == other.content(); }
+
+        template <class OtherContent>
+            bool operator!= (tracked <OtherContent> const & other) const
+        { return this->content() != other.content(); }
     };
 
     template <class Content>

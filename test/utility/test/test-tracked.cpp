@@ -1,5 +1,5 @@
 /*
-Copyright 2013, 2014 Rogier van Dalen.
+Copyright 2013-2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -63,7 +63,12 @@ BOOST_AUTO_TEST_CASE (test_tracked) {
         tracked <int> object2 (c, 7);
         tracked <int> copy_assigned (c, -1);
         tracked <int> move_assigned (c, -1);
+        // Check comparison operator.
         BOOST_CHECK_EQUAL (c.value_construct_count(), 4);
+        BOOST_CHECK (!(object2 == copy_assigned));
+        BOOST_CHECK (object2 != copy_assigned);
+        BOOST_CHECK (move_assigned == copy_assigned);
+        BOOST_CHECK (!(move_assigned != copy_assigned));
 
         // This would generate a run-time assert to fail:
         //copy_assigned = object1;
