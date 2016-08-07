@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,6 +71,19 @@ BOOST_AUTO_TEST_CASE (test_utility_test_allocator) {
     // Playground for creating error messages:
     int * p = allocator.allocate (4);
     allocator.deallocate (p, 4);
+}
+
+BOOST_AUTO_TEST_CASE (test_utility_test_allocator_swap) {
+    utility::thrower thrower;
+    utility::test_allocator <std::allocator <int>> allocator_1 (thrower);
+    utility::test_allocator <std::allocator <int>> allocator_2 (thrower);
+
+    // Allocate with allocator_1
+    auto temporary = allocator_1.allocate(1);
+
+    swap (allocator_1, allocator_2);
+    // Deallocate an object allocated with allocator_1.
+    allocator_2.deallocate (temporary, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

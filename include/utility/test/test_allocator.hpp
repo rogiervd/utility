@@ -1,5 +1,5 @@
 /*
-Copyright 2009, 2014 Rogier van Dalen.
+Copyright 2009, 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ namespace utility {
                 if (i == allocations.end()) {
                     BOOST_ERROR ("Trying to deallocate " << n << " "
                         << type.name() << " objects at " << p
-                        << "where there was none allocated.");
+                        << " where there was none allocated.");
                 } else {
                     if (type != i->second.type || n != i->second.n) {
                         BOOST_ERROR ("Trying to deallocate " << n << " "
@@ -296,6 +296,14 @@ namespace utility {
         void check_done() const { checker.check_done(); }
 
         unsigned allocation_count() { return checker.allocation_count(); }
+
+        friend void swap (test_allocator & left, test_allocator & right)
+            noexcept
+        {
+            using std::swap;
+            swap (left.base_allocator, right.base_allocator);
+            swap (left.checker, right.checker);
+        }
     };
 
 } // namespace utility
