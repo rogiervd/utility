@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -41,60 +41,69 @@ BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 #if !defined (__GNUC__) || __GNUC__ != 4 || __GNUC_MINOR__ != 6
 // ThrowOnConstruction.
 static_assert (std::is_nothrow_constructible <
-    utility::throwing <int>,
+    utility::throwing <int, utility::do_not_throw>,
     utility::thrower &, int>::value, "");
 static_assert (!std::is_nothrow_constructible <
-    utility::throwing <int, true>,
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_construction>>,
     utility::thrower &, int>::value, "");
 
 // ThrowOnCopy.
 static_assert (std::is_nothrow_constructible <
-    utility::throwing <int>,
-    utility::throwing <int> const &>::value, "");
+    utility::throwing <int, utility::do_not_throw>,
+    utility::throwing <int, utility::do_not_throw> const &>::value, "");
 static_assert (!std::is_nothrow_constructible <
-    utility::throwing <int, false, true>,
-    utility::throwing <int, false, true> const &>::value, "");
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_copy>>,
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_copy>> const &>::value, "");
 
 // ThrowOnMove.
 static_assert (std::is_nothrow_constructible <
-    utility::throwing <int>,
-    utility::throwing <int> &&>::value, "");
+    utility::throwing <int, utility::do_not_throw>,
+    utility::throwing <int, utility::do_not_throw> &&>::value, "");
 static_assert (!std::is_nothrow_constructible <
-    utility::throwing <int, false, false, true>,
-    utility::throwing <int, false, false, true> &&>::value, "");
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_move>>,
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_move>> &&>::value, "");
 #endif
 
 // ThrowOnCopyAssign.
 static_assert (utility::is_nothrow_assignable <
-    utility::throwing <int> &,
-    utility::throwing <int> const &>::value, "");
+    utility::throwing <int, utility::do_not_throw> &,
+    utility::throwing <int, utility::do_not_throw> const &>::value, "");
 static_assert (!utility::is_nothrow_assignable <
-    utility::throwing <int, false, false, false, true> &,
-    utility::throwing <int, false, false, false, true> const &>::value, "");
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_copy_assign>> &,
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_copy_assign>> const &>::value, "");
 
 // ThrowOnMoveAssign.
 static_assert (utility::is_nothrow_assignable <
-    utility::throwing <int> &,
-    utility::throwing <int> &&>::value, "");
+    utility::throwing <int, utility::do_not_throw> &,
+    utility::throwing <int, utility::do_not_throw> &&>::value, "");
 static_assert (!utility::is_nothrow_assignable <
-    utility::throwing <int, false, false, false, false, true> &,
-    utility::throwing <int, false, false, false, false, true> &&>::value, "");
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_move_assign>> &,
+    utility::throwing <int, utility::throw_toggles <
+        utility::toggle_throw_on_move_assign>> &&>::value, "");
 
 // ThrowOnConversion is not really interesting to check here.
 
 BOOST_AUTO_TEST_CASE (test_utility_throwing) {
     utility::thrower t;
-    utility::throwing <int> o (t, 5);
+    utility::throwing <int, utility::do_not_throw> o (t, 5);
     BOOST_CHECK_EQUAL (o.content(), 5);
 
     // Copying.
-    utility::throwing <int> o2 (o);
+    utility::throwing <int, utility::do_not_throw> o2 (o);
     BOOST_CHECK_EQUAL (o2.content(), 5);
-    utility::throwing <int> o3 (std::move (o2));
+    utility::throwing <int, utility::do_not_throw> o3 (std::move (o2));
     BOOST_CHECK_EQUAL (o3.content(), 5);
 
     // Assignment.
-    utility::throwing <int> o4 (t, 7);
+    utility::throwing <int, utility::do_not_throw> o4 (t, 7);
     o4.content() = 27;
     BOOST_CHECK_EQUAL (o4.content(), 27);
     o4 = o;
@@ -105,14 +114,15 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
     BOOST_CHECK_EQUAL (o4.content(), 5);
 
     // This produces an error because the memory is not cleaned up:
-    // new utility::throwing <int> (t, 5);
+    // new utility::throwing <int, utility::do_not_throw> (t, 5);
 
     // ThrowOnConstruction
     {
         t.reset();
         t.set_cycle (1);
         // Can't use a type with a comma in a macro.
-        typedef utility::throwing <int, true> type;
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_construction>> type;
         BOOST_CHECK_THROW (type object (t, 6), std::exception);
     }
 
@@ -120,7 +130,8 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
     {
         t.reset();
         t.set_cycle (1);
-        typedef utility::throwing <int, false, true> type;
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_copy>> type;
         type original (t, 7);
         BOOST_CHECK_THROW (type copy (original), std::exception);
     }
@@ -129,7 +140,8 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
     {
         t.reset();
         t.set_cycle (1);
-        typedef utility::throwing <int, false, false, true> type;
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_move>> type;
         type original (t, 7);
         BOOST_CHECK_THROW (type copy (std::move (original)), std::exception);
     }
@@ -139,7 +151,8 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
         t.reset();
         t.set_cycle (1);
         // Can't use a type with a comma in a macro.
-        typedef utility::throwing <int, false, false, false, true> type;
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_copy_assign>> type;
         type original (t, 7);
         type copy (t, 1);
         BOOST_CHECK_THROW (copy = original, std::exception);
@@ -150,7 +163,8 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
         t.reset();
         t.set_cycle (1);
         // Can't use a type with a comma in a macro.
-        typedef utility::throwing <int, false, false, false, false, true>
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_move_assign>>
             type;
         type original (t, 7);
         type copy (t, 1);
@@ -162,7 +176,8 @@ BOOST_AUTO_TEST_CASE (test_utility_throwing) {
         t.reset();
         t.set_cycle (1);
         // Can't use a type with a comma in a macro.
-        typedef utility::throwing <int, false, false, false, false, false, true>
+        typedef utility::throwing <int, utility::throw_toggles <
+            utility::toggle_throw_on_conversion>>
             type;
         type original (t, 7);
         int i = 27;

@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE (test_utility_use_allocator) {
 void test_use_new_delete_allocation (utility::thrower & thrower) {
     utility::tracked_registry registry;
 
-    typedef utility::throwing <utility::tracked <int>,
-        true, true, true, true, true, true> value_type;
+    typedef utility::throwing <utility::tracked <int>, utility::always_throw>
+        value_type;
 
     typedef utility::pointer_policy::use_new_delete <value_type>
         storage_type;
@@ -174,8 +174,8 @@ BOOST_AUTO_TEST_CASE (test_use_utility_new_delete_exception) {
 void test_use_allocator_allocation (utility::thrower & thrower) {
     utility::tracked_registry registry;
 
-    typedef utility::throwing <utility::tracked <int>,
-        true, true, true, true, true, true> value_type;
+    typedef utility::throwing <utility::tracked <int>, utility::always_throw>
+        value_type;
 
     typedef utility::test_allocator <std::allocator <value_type>>
         allocator_type;

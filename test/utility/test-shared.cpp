@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -43,11 +43,9 @@ BOOST_AUTO_TEST_CASE (test_utility_shared_basic) {
     BOOST_CHECK_EQUAL (shared::get_count (&s), 0);
 }
 
-template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
-    struct test_exceptions
-{
-    struct shared_throwing : utility::shared {
-        utility::throwing <utility::tracked <int>, t1, t2, t3, t4, t5, t6>
+struct test_exceptions {
+    template <class ThrowToggles> struct shared_throwing : utility::shared {
+        utility::throwing <utility::tracked <int>, ThrowToggles>
             content_;
 
         shared_throwing (utility::thrower & thrower,
@@ -58,27 +56,29 @@ template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
         int const & content() const { return content_.content().content(); }
     };
 
-    void operator() (utility::thrower & thrower) const {
+    template <class ThrowToggles>
+        void operator() (utility::thrower & thrower, ThrowToggles) const
+    {
+        typedef shared_throwing <ThrowToggles> throwing;
         utility::tracked_registry registry;
         {
             // This must be scoped or the registry could go out of scope before
             // this object.
-            shared_throwing on_stack (thrower, registry, 7);
+            throwing on_stack (thrower, registry, 7);
         }
 
-        utility::test_allocator <std::allocator <shared_throwing>> allocator (
-            thrower);
+        utility::test_allocator <std::allocator <throwing>> allocator (thrower);
 
         // Allocate and deallocate manually.
-        shared_throwing * on_heap = shared::construct <shared_throwing> (
+        throwing * on_heap = shared::construct <throwing> (
             allocator, thrower, registry, 234);
         BOOST_CHECK_EQUAL (shared::get_count (on_heap), 0);
         BOOST_CHECK_EQUAL (on_heap->content(), 234);
-        on_heap->~shared_throwing();
+        on_heap->~throwing();
         allocator.deallocate (on_heap, 1);
 
         // Allocate manually, but then handle with acquire() and release().
-        on_heap = shared::construct <shared_throwing> (
+        on_heap = shared::construct <throwing> (
             allocator, thrower, registry, 789);
         BOOST_CHECK_EQUAL (shared::get_count (on_heap), 0);
         BOOST_CHECK_EQUAL (on_heap->content(), 789);
@@ -93,22 +93,11 @@ template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
     }
 };
 
-template <int throw_points> void check_all_exceptions() {
-    utility::check_all_throw_points (test_exceptions <
-        !(throw_points & 0x01), !(throw_points & 0x02), !(throw_points & 0x04),
-        !(throw_points & 0x08), !(throw_points & 0x10), !(throw_points & 0x20)
-        >());
-    check_all_exceptions <throw_points - 1>();
-}
-
-template <> void check_all_exceptions <-1> () {}
-
 BOOST_AUTO_TEST_CASE (test_utility_shared_exceptions) {
     // Check only a throwing allocator.
-    utility::check_all_throw_points (
-        test_exceptions <false, false, false, false, false, false>());
+    utility::check_with_some_throw_toggles (test_exceptions());
     // Check all configurations.
-    check_all_exceptions <63>();
+    utility::check_with_all_throw_toggles (test_exceptions());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

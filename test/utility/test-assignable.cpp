@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -71,110 +71,104 @@ BOOST_AUTO_TEST_CASE (test_utility_assignable_simple) {
     BOOST_CHECK_EQUAL (a.content().i, 27);
 }
 
-template <bool t1, bool t2, bool t3, bool t4, bool t5, bool t6>
-    void test_assignable (utility::thrower & thrower)
-{
-    utility::tracked_registry registry;
+struct test_assignable {
+    template <class ThrowToggles> void operator() (
+        utility::thrower & thrower, ThrowToggles throw_toggles) const
+    {
+        utility::tracked_registry registry;
 
-    typedef utility::throwing <
-        utility::tracked <int>, t1, t2, t3, t4, t5, t6> tracked;
-    typedef non_assignable <tracked> test_type;
+        typedef utility::throwing <utility::tracked <int>, ThrowToggles>
+            tracked;
+        typedef non_assignable <tracked> test_type;
 
-    test_type i (tracked (thrower, utility::tracked <int> (registry, 4)));
-    test_type j (tracked (thrower, utility::tracked <int> (registry, 9)));
-    test_type k (tracked (thrower, utility::tracked <int> (registry, 24)));
+        test_type i (tracked (thrower, utility::tracked <int> (registry, 4)));
+        test_type j (tracked (thrower, utility::tracked <int> (registry, 9)));
+        test_type k (tracked (thrower, utility::tracked <int> (registry, 24)));
 
-    utility::assignable <test_type> a (i);
-    BOOST_CHECK_EQUAL (a.content().i.content().content(), 4);
+        utility::assignable <test_type> a (i);
+        BOOST_CHECK_EQUAL (a.content().i.content().content(), 4);
 
-    /*
-    value_construct, copy, move, copy_assign, move_assign, swap, destruct,
-    destruct_moved.
-    */
-    registry.check_counts (3, 1, 6, 0, 0, 0, 0, 6);
+        /*
+        value_construct, copy, move, copy_assign, move_assign, swap, destruct,
+        destruct_moved.
+        */
+        registry.check_counts (3, 1, 6, 0, 0, 0, 0, 6);
 
-    // Copy-assignment: 1 destruction, 1 copy.
-    try {
-        a = j;
-    } catch (...) {
-        // a is now in an invalid state.
-        // Reassignment should put this right.
-        a = k;
+        // Copy-assignment: 1 destruction, 1 copy.
+        try {
+            a = j;
+        } catch (...) {
+            // a is now in an invalid state.
+            // Reassignment should put this right.
+            a = k;
+            BOOST_CHECK_EQUAL (a.content().i.content().content(), 24);
+            // Propagate the exception anyway.
+            throw;
+        }
+        BOOST_CHECK_EQUAL (a.content().i.content().content(), 9);
+
+        registry.check_counts (3, 2, 6, 0, 0, 0, 1, 6);
+
+        // Copy-assignment: 1 destruction, 1 move.
+        a = std::move (k);
         BOOST_CHECK_EQUAL (a.content().i.content().content(), 24);
-        // Propagate the exception anyway.
-        throw;
+
+        registry.check_counts (3, 2, 7, 0, 0, 0, 2, 6);
+
+        utility::assignable <test_type> b (tracked (thrower,
+            utility::tracked <int> (registry, 79)));
+        BOOST_CHECK_EQUAL (b.content().i.content().content(), 79);
+
+        registry.check_counts (4, 2, 10, 0, 0, 0, 2, 9);
+
+        utility::assignable <test_type> c (b);
+        c.content().i.content().content() = 123;
+
+        registry.check_counts (4, 3, 10, 0, 0, 0, 2, 9);
+
+        utility::assignable <test_type> d (std::move (c));
+        BOOST_CHECK_EQUAL (d.content().i.content().content(), 123);
+
+        registry.check_counts (4, 3, 11, 0, 0, 0, 2, 9);
+
+        a = b;
+        BOOST_CHECK_EQUAL (a.content().i.content().content(), 79);
+
+        registry.check_counts (4, 4, 11, 0, 0, 0, 3, 9);
+
+        a = std::move (d);
+        BOOST_CHECK_EQUAL (a.content().i.content().content(), 123);
+
+        registry.check_counts (4, 4, 12, 0, 0, 0, 4, 9);
+
+        utility::assignable <test_type> e (tracked (thrower,
+            utility::tracked <int> (registry, 156)));
+        BOOST_CHECK_EQUAL (e.content().i.content().content(), 156);
+
+        registry.check_counts (5, 4, 15, 0, 0, 0, 4, 12);
+
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (e.move_content()), test_type &&>));
+
+        test_type content = e.move_content();
+
+        registry.check_counts (5, 4, 16, 0, 0, 0, 4, 12);
+
+        // Print a list of on which occasions this may have thrown.
+        std::cout << "Testing assignable: " << throw_toggles << std::endl;
     }
-    BOOST_CHECK_EQUAL (a.content().i.content().content(), 9);
-
-    registry.check_counts (3, 2, 6, 0, 0, 0, 1, 6);
-
-    // Copy-assignment: 1 destruction, 1 move.
-    a = std::move (k);
-    BOOST_CHECK_EQUAL (a.content().i.content().content(), 24);
-
-    registry.check_counts (3, 2, 7, 0, 0, 0, 2, 6);
-
-    utility::assignable <test_type> b (tracked (thrower,
-        utility::tracked <int> (registry, 79)));
-    BOOST_CHECK_EQUAL (b.content().i.content().content(), 79);
-
-    registry.check_counts (4, 2, 10, 0, 0, 0, 2, 9);
-
-    utility::assignable <test_type> c (b);
-    c.content().i.content().content() = 123;
-
-    registry.check_counts (4, 3, 10, 0, 0, 0, 2, 9);
-
-    utility::assignable <test_type> d (std::move (c));
-    BOOST_CHECK_EQUAL (d.content().i.content().content(), 123);
-
-    registry.check_counts (4, 3, 11, 0, 0, 0, 2, 9);
-
-    a = b;
-    BOOST_CHECK_EQUAL (a.content().i.content().content(), 79);
-
-    registry.check_counts (4, 4, 11, 0, 0, 0, 3, 9);
-
-    a = std::move (d);
-    BOOST_CHECK_EQUAL (a.content().i.content().content(), 123);
-
-    registry.check_counts (4, 4, 12, 0, 0, 0, 4, 9);
-
-    utility::assignable <test_type> e (tracked (thrower,
-        utility::tracked <int> (registry, 156)));
-    BOOST_CHECK_EQUAL (e.content().i.content().content(), 156);
-
-    registry.check_counts (5, 4, 15, 0, 0, 0, 4, 12);
-
-    BOOST_MPL_ASSERT ((std::is_same <
-        decltype (e.move_content()), test_type &&>));
-
-    test_type content = e.move_content();
-
-    registry.check_counts (5, 4, 16, 0, 0, 0, 4, 12);
-
-    // Print a list of on which occasions this may have thrown.
-    std::cout << "Testing throwing at: " << std::boolalpha
-        << t1 << ' ' << t2 << ' ' << t3 << ' ' << t4 << ' ' << t5 << ' ' << t6
-        << std::endl;
-}
+};
 
 BOOST_AUTO_TEST_CASE (test_utility_assignable_exception_safety) {
-    utility::check_all_throw_points (
-        &test_assignable <true, true, true, true, true, true>);
+    utility::check_with_some_throw_toggles (test_assignable());
 }
 
-template <int throw_bits> void check_assignable_all_throw_points() {
-    utility::check_all_throw_points (test_assignable <
-        !(throw_bits & 0x01), !(throw_bits & 0x02), !(throw_bits & 0x04),
-        !(throw_bits & 0x08), !(throw_bits & 0x10), !(throw_bits & 0x20)>);
-    check_assignable_all_throw_points <throw_bits - 1>();
+BOOST_AUTO_TEST_CASE (test_utility_assignable_exception_safety_many) {
+    utility::check_with_many_throw_toggles (test_assignable());
 }
-
-template <> void check_assignable_all_throw_points <-1>() {}
 
 BOOST_AUTO_TEST_CASE (test_utility_assignable_exception_safety_all) {
-    check_assignable_all_throw_points <64>();
+    utility::check_with_all_throw_toggles (test_assignable());
 }
 
 BOOST_AUTO_TEST_CASE (test_utility_assignable_types) {
