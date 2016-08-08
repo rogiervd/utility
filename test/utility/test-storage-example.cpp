@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -158,33 +158,44 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
 }
 
 BOOST_AUTO_TEST_CASE (test_utility_storage_example_extensive) {
+    using utility::value_construct_count;
+    using utility::copy_count;
+    using utility::move_count;
+    using utility::copy_assign_count;
+    using utility::move_assign_count;
+    using utility::destruct_count;
+    using utility::destruct_moved_count;
     {
         utility::tracked_registry registry;
+
+        utility::tracked_counts before = registry.counts();
         simple_container <utility::tracked <int>> c (
             utility::tracked <int> (registry, 9));
         BOOST_CHECK_EQUAL (c.content().content(), 9);
-        // value_construct, copy, move, copy_assign, move_assign, swap,
-        // destruct, destruct_moved)
-        registry.check_counts (1, 0, 1, 0, 0, 0, 0, 1);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_count(1) + destruct_moved_count (1));
 
+        before = registry.counts();
         c.content() = utility::tracked <int> (registry, 91);
         BOOST_CHECK_EQUAL (c.content().content(), 91);
-        registry.check_counts (2, 0, 1, 0, 1, 0, 0, 2);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_assign_count(1) + destruct_moved_count (1));
 
+        before = registry.counts();
         utility::tracked <int> t (registry, 89);
         c.replace_with (t);
         BOOST_CHECK_EQUAL (c.content().content(), 89);
-        registry.check_counts (3, 0, 1, 1, 1, 0, 0, 2);
+        BOOST_CHECK_EQUAL (registry.since (before),
+            value_construct_count (1) + copy_assign_count(1));
     }
     // Initialise with lvalue reference.
     {
         utility::tracked_registry registry;
         utility::tracked <int> t (registry, 78);
+        utility::tracked_counts before = registry.counts();
         simple_container <utility::tracked <int>> c (t);
         BOOST_CHECK_EQUAL (c.content().content(), 78);
-        // value_construct, copy, move, copy_assign, move_assign, swap,
-        // destruct, destruct_moved)
-        registry.check_counts (1, 1, 0, 0, 0, 0, 0, 0);
+        BOOST_CHECK_EQUAL (registry.since (before), copy_count(1));
     }
     // Const container.
     {
@@ -198,16 +209,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_extensive) {
     // Const contents.
     {
         utility::tracked_registry registry;
+        utility::tracked_counts before = registry.counts();
         simple_container <utility::tracked <int> const> c (
             utility::tracked <int> (registry, 9));
         BOOST_CHECK_EQUAL (c.content().content(), 9);
-        // value_construct, copy, move, copy_assign, move_assign, swap,
-        // destruct, destruct_moved)
-        registry.check_counts (1, 0, 1, 0, 0, 0, 0, 1);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_count(1) + destruct_moved_count (1));
 
+        before = registry.counts();
         c.replace_with (utility::tracked <int> (registry, 91));
         BOOST_CHECK_EQUAL (c.content().content(), 91);
-        registry.check_counts (2, 0, 1, 0, 1, 0, 0, 2);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_assign_count(1) + destruct_moved_count (1));
     }
 }
 

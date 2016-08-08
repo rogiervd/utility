@@ -29,6 +29,7 @@ This is useful to test the behaviour of container-like types.
 #include <utility>
 #include <map>
 #include <algorithm>
+#include <iosfwd>
 
 #include <type_traits>
 
@@ -37,6 +38,163 @@ This is useful to test the behaviour of container-like types.
 namespace utility {
 
     template <class Content = void> class tracked;
+
+    /**
+    Counts for the number of items tracked by tracked_registry that are
+    constructed, assigned, swapped or destructed.
+    Objects of this class can be added and subtracted.
+    They can be compared, and they can be streamed to an ostream.
+    It is therefore possible to use testing code to check them for equality
+    directly.
+    */
+    struct tracked_counts {
+        int value_construct_count;
+        int copy_count;
+        int move_count;
+        int copy_assign_count;
+        int move_assign_count;
+        int swap_count;
+        int destruct_count;
+        int destruct_moved_count;
+
+        tracked_counts()
+        : value_construct_count (0), copy_count (0), move_count (0),
+        copy_assign_count (0), move_assign_count (0), swap_count (0),
+        destruct_count (0), destruct_moved_count (0) {}
+
+        tracked_counts (
+            int value_construct_count, int copy_count, int move_count,
+            int copy_assign_count, int move_assign_count,
+            int swap_count, int destruct_count, int destruct_moved_count)
+        : value_construct_count (value_construct_count),
+            copy_count (copy_count), move_count (move_count),
+            copy_assign_count (copy_assign_count),
+            move_assign_count (move_assign_count),
+            swap_count (swap_count), destruct_count (destruct_count),
+            destruct_moved_count (destruct_moved_count) {}
+
+        bool operator== (tracked_counts const & other) const {
+            return this->value_construct_count == other.value_construct_count
+                && this->copy_count == other.copy_count
+                && this->move_count == other.move_count
+                && this->copy_assign_count == other.copy_assign_count
+                && this->move_assign_count == other.move_assign_count
+                && this->swap_count == other.swap_count
+                && this->destruct_count == other.destruct_count
+                && this->destruct_moved_count == other.destruct_moved_count;
+        }
+
+        tracked_counts operator+ (tracked_counts const & other) const {
+            return tracked_counts {
+                this->value_construct_count + other.value_construct_count,
+                this->copy_count + other.copy_count,
+                this->move_count + other.move_count,
+                this->copy_assign_count + other.copy_assign_count,
+                this->move_assign_count + other.move_assign_count,
+                this->swap_count + other.swap_count,
+                this->destruct_count + other.destruct_count,
+                this->destruct_moved_count + other.destruct_moved_count
+            };
+        }
+
+        tracked_counts operator- (tracked_counts const & other) const {
+            return tracked_counts {
+                this->value_construct_count - other.value_construct_count,
+                this->copy_count - other.copy_count,
+                this->move_count - other.move_count,
+                this->copy_assign_count - other.copy_assign_count,
+                this->move_assign_count - other.move_assign_count,
+                this->swap_count - other.swap_count,
+                this->destruct_count - other.destruct_count,
+                this->destruct_moved_count - other.destruct_moved_count
+            };
+        }
+
+        int alive_count() const {
+            return (value_construct_count + copy_count + move_count)
+                - (destruct_count + destruct_moved_count);
+        }
+    };
+
+    /// Return a tracked_counts with counts 0 except for value_construct_count.
+    inline tracked_counts value_construct_count (int count) {
+        tracked_counts result;
+        result.value_construct_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for copy_count.
+    inline tracked_counts copy_count (int count) {
+        tracked_counts result;
+        result.copy_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for move_count.
+    inline tracked_counts move_count (int count) {
+        tracked_counts result;
+        result.move_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for copy_assign_count.
+    inline tracked_counts copy_assign_count (int count) {
+        tracked_counts result;
+        result.copy_assign_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for move_assign_count.
+    inline tracked_counts move_assign_count (int count) {
+        tracked_counts result;
+        result.move_assign_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for swap_count.
+    inline tracked_counts swap_count (int count) {
+        tracked_counts result;
+        result.swap_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for destruct_count.
+    inline tracked_counts destruct_count (int count) {
+        tracked_counts result;
+        result.destruct_count = count;
+        return result;
+    }
+
+    /// Return a tracked_counts with counts 0 except for destruct_moved_count.
+    inline tracked_counts destruct_moved_count (int count) {
+        tracked_counts result;
+        result.destruct_moved_count = count;
+        return result;
+    }
+
+    inline std::ostream & operator<< (
+        std::ostream & os, tracked_counts const & counts)
+    {
+        os << '(';
+        if (counts.value_construct_count != 0)
+            os << "value_construct: " << counts.value_construct_count << ", ";
+        if (counts.copy_count != 0)
+            os << "copy: " << counts.copy_count << ", ";
+        if (counts.move_count != 0)
+            os << "move: " << counts.move_count << ", ";
+        if (counts.copy_assign_count != 0)
+            os << "copy_assign: " << counts.copy_assign_count << ", ";
+        if (counts.move_assign_count != 0)
+            os << "move_assign: " << counts.move_assign_count << ", ";
+        if (counts.swap_count != 0)
+            os << "swap: " << counts.swap_count << ", ";
+        if (counts.destruct_count != 0)
+            os << "destruct: " << counts.destruct_count << ", ";
+        if (counts.destruct_moved_count != 0)
+            os << "destruct_moved: " << counts.destruct_moved_count << ", ";
+        os << ")";
+        return os;
+    }
 
     class tracked_registry {
         struct slot {
@@ -70,14 +228,7 @@ namespace utility {
 
         unsigned index;
 
-        int value_construct_count_;
-        int copy_count_;
-        int move_count_;
-        int copy_assign_count_;
-        int move_assign_count_;
-        int swap_count_;
-        int destruct_count_;
-        int destruct_moved_count_;
+        tracked_counts counts_;
 
         friend class tracked<>;
 
@@ -85,9 +236,7 @@ namespace utility {
 
     public:
         tracked_registry()
-        : index(), value_construct_count_(), copy_count_(),
-            move_count_(), copy_assign_count_(), move_assign_count_(),
-            swap_count_(), destruct_count_(), destruct_moved_count_() {}
+        : index(), counts_() {}
 
         ~tracked_registry() { check_done(); }
 
@@ -127,48 +276,27 @@ namespace utility {
             }
         }
 
+        /**
+        Check that all constructed objects have been destructed and use
+        BOOST_ERROR for those that are not.
+        */
         void check_done() const {
-            BOOST_CHECK (consistent());
+            BOOST_CHECK (finished());
             std::for_each (registry.begin(), registry.end(), &exists_error);
         }
 
-        int alive_count() const {
-            return (value_construct_count_ + copy_count_ + move_count_)
-                - (destruct_count_ + destruct_moved_count_);
+        /// Return whether all constructed objects have been destructed.
+        bool finished() const {
+            return counts_.alive_count() == 0;
         }
 
-        bool consistent() const {
-            // All constructed objects must have been destructed.
-            return alive_count() == 0;
-        }
+        /// Return the current counts.
+        tracked_counts const & counts() const { return counts_; }
 
-        int value_construct_count() const { return value_construct_count_; }
-        int copy_count() const { return copy_count_; }
-        int move_count() const { return move_count_; }
-        int copy_assign_count() const { return copy_assign_count_; }
-        int move_assign_count() const { return move_assign_count_; }
-        int swap_count() const { return swap_count_; }
-        int destruct_count() const { return destruct_count_; }
-        int destruct_moved_count() const { return destruct_moved_count_; }
-
-        void check_counts (int expected_value_construct_count,
-            int expected_copy_count, int expected_move_count,
-            int expected_copy_assign_count, int expected_move_assign_count,
-            int expected_swap_count,
-            int expected_destruct_count, int expected_destruct_moved_count)
-        const
-        {
-            BOOST_CHECK_EQUAL (value_construct_count(),
-                expected_value_construct_count);
-            BOOST_CHECK_EQUAL (copy_count(), expected_copy_count);
-            BOOST_CHECK_EQUAL (move_count(), expected_move_count);
-            BOOST_CHECK_EQUAL (copy_assign_count(), expected_copy_assign_count);
-            BOOST_CHECK_EQUAL (move_assign_count(), expected_move_assign_count);
-            BOOST_CHECK_EQUAL (swap_count(), expected_swap_count);
-            BOOST_CHECK_EQUAL (destruct_count(), expected_destruct_count);
-            BOOST_CHECK_EQUAL (destruct_moved_count(),
-                expected_destruct_moved_count);
-        }
+        /// Return the difference between the current counts and the counts at
+        /// a previous time.
+        tracked_counts since (tracked_counts const & start) const
+        { return counts_ - start; }
     };
 
     template<> class tracked<> {
@@ -190,15 +318,16 @@ namespace utility {
 
     protected:
         bool is_valid() const { return state_ == valid; }
-        bool is_moved() const { return state_ == moved; }
         bool is_invalid() const { return state_ == invalid; }
     public:
+        bool is_moved() const { return state_ == moved; }
+
         tracked (tracked_registry & registry,
             std::type_info const & type = typeid (void))
         : registry (registry), type (type), state_ (valid)
         {
             registry.insert (this, type);
-            ++ registry.value_construct_count_;
+            ++ registry.counts_.value_construct_count;
         }
 
         // Copy.
@@ -207,7 +336,7 @@ namespace utility {
         {
             BOOST_CHECK (other.is_valid());
             registry.insert (this, type);
-            ++ registry.copy_count_;
+            ++ registry.counts_.copy_count;
         }
 
         // Move.
@@ -217,15 +346,15 @@ namespace utility {
             BOOST_CHECK (other.is_valid());
             other.set_moved();
             registry.insert (this, type);
-            ++ registry.move_count_;
+            ++ registry.counts_.move_count;
         }
 
         ~tracked() {
             if (is_valid())
-                ++ registry.destruct_count_;
+                ++ registry.counts_.destruct_count;
             else {
                 BOOST_CHECK (is_moved());
-                ++ registry.destruct_moved_count_;
+                ++ registry.counts_.destruct_moved_count;
             }
             invalidate();
             registry.erase (this, type);
@@ -237,7 +366,7 @@ namespace utility {
             BOOST_CHECK (other.is_valid());
             this->set_valid();
 
-            ++ registry.copy_assign_count_;
+            ++ registry.counts_.copy_assign_count;
 
             registry.erase (this, type);
             type = other.type;
@@ -251,7 +380,7 @@ namespace utility {
             this->set_valid();
             other.set_moved();
 
-            ++ registry.move_assign_count_;
+            ++ registry.counts_.move_assign_count;
 
             registry.erase (this, type);
             type = other.type;
@@ -263,7 +392,7 @@ namespace utility {
             BOOST_CHECK_EQUAL (&registry, &other.registry);
             BOOST_CHECK (this->is_valid());
             BOOST_CHECK (other.is_valid());
-            ++ registry.swap_count_;
+            ++ registry.counts_.swap_count;
         }
     };
 

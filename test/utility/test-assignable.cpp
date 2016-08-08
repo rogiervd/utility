@@ -75,6 +75,11 @@ struct test_assignable {
     template <class ThrowToggles> void operator() (
         utility::thrower & thrower, ThrowToggles throw_toggles) const
     {
+        using utility::value_construct_count;
+        using utility::copy_count;
+        using utility::move_count;
+        using utility::destruct_count;
+        using utility::destruct_moved_count;
         utility::tracked_registry registry;
 
         typedef utility::throwing <utility::tracked <int>, ThrowToggles>
@@ -92,7 +97,7 @@ struct test_assignable {
         value_construct, copy, move, copy_assign, move_assign, swap, destruct,
         destruct_moved.
         */
-        registry.check_counts (3, 1, 6, 0, 0, 0, 0, 6);
+        auto before = registry.counts();
 
         // Copy-assignment: 1 destruction, 1 copy.
         try {
@@ -106,53 +111,58 @@ struct test_assignable {
             throw;
         }
         BOOST_CHECK_EQUAL (a.content().i.content().content(), 9);
+        BOOST_CHECK_EQUAL (registry.since (before),
+            copy_count(1) + destruct_count (1));
 
-        registry.check_counts (3, 2, 6, 0, 0, 0, 1, 6);
-
+        before = registry.counts();
         // Copy-assignment: 1 destruction, 1 move.
         a = std::move (k);
         BOOST_CHECK_EQUAL (a.content().i.content().content(), 24);
+        BOOST_CHECK_EQUAL (registry.since (before),
+            move_count (1) + destruct_count (1));
 
-        registry.check_counts (3, 2, 7, 0, 0, 0, 2, 6);
-
+        before = registry.counts();
         utility::assignable <test_type> b (tracked (thrower,
             utility::tracked <int> (registry, 79)));
         BOOST_CHECK_EQUAL (b.content().i.content().content(), 79);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_count (3) + destruct_moved_count (3));
 
-        registry.check_counts (4, 2, 10, 0, 0, 0, 2, 9);
-
+        before = registry.counts();
         utility::assignable <test_type> c (b);
         c.content().i.content().content() = 123;
+        BOOST_CHECK_EQUAL (registry.since (before), copy_count (1));
 
-        registry.check_counts (4, 3, 10, 0, 0, 0, 2, 9);
-
+        before = registry.counts();
         utility::assignable <test_type> d (std::move (c));
         BOOST_CHECK_EQUAL (d.content().i.content().content(), 123);
+        BOOST_CHECK_EQUAL (registry.since (before), move_count (1));
 
-        registry.check_counts (4, 3, 11, 0, 0, 0, 2, 9);
-
+        before = registry.counts();
         a = b;
         BOOST_CHECK_EQUAL (a.content().i.content().content(), 79);
+        BOOST_CHECK_EQUAL (registry.since (before),
+            copy_count (1) + destruct_count (1));
 
-        registry.check_counts (4, 4, 11, 0, 0, 0, 3, 9);
-
+        before = registry.counts();
         a = std::move (d);
         BOOST_CHECK_EQUAL (a.content().i.content().content(), 123);
+        BOOST_CHECK_EQUAL (registry.since (before),
+            move_count (1) + destruct_count (1));
 
-        registry.check_counts (4, 4, 12, 0, 0, 0, 4, 9);
-
+        before = registry.counts();
         utility::assignable <test_type> e (tracked (thrower,
             utility::tracked <int> (registry, 156)));
         BOOST_CHECK_EQUAL (e.content().i.content().content(), 156);
-
-        registry.check_counts (5, 4, 15, 0, 0, 0, 4, 12);
+        BOOST_CHECK_EQUAL (registry.since (before), value_construct_count (1)
+            + move_count (3) + destruct_moved_count (3));
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (e.move_content()), test_type &&>));
 
+        before = registry.counts();
         test_type content = e.move_content();
-
-        registry.check_counts (5, 4, 16, 0, 0, 0, 4, 12);
+        BOOST_CHECK_EQUAL (registry.since (before), move_count (1));
 
         // Print a list of on which occasions this may have thrown.
         std::cout << "Testing assignable: " << throw_toggles << std::endl;
