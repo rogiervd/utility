@@ -1,5 +1,5 @@
 /*
-Copyright 2012 Rogier van Dalen.
+Copyright 2012, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,10 +32,6 @@ using utility::storage::get_pointer;
 using utility::storage::pass;
 using utility::storage::pass_rvalue;
 
-template <class Target, class Source>
-    Target implicit_cast (Source && object)
-{ return std::forward <Source> (object); }
-
 template <class Type> Type test_storage_of (Type i, Type j) {
     typedef typename store <Type>::type storage_type;
     storage_type storage = std::forward <Type> (i);
@@ -44,7 +40,7 @@ template <class Type> Type test_storage_of (Type i, Type j) {
     std::cout << sizeof (storage) << alignof (storage_type) << std::endl;
     typename store <Type>::type * address = &storage;
     std::cout << address << std::endl;
-    return implicit_cast <typename get <Type>::type> (storage);
+    return get <Type>() (storage);
 }
 
 typedef int array_type [3];
@@ -105,6 +101,10 @@ struct structure {
 
     int member_1;
     int member_2;
+
+    // Completely silly implementation of operator& to test that it does not
+    // get used.
+    int operator&() const { return -57; }
 };
 
 typedef int (structure::* member_function_type) (double);
@@ -198,16 +198,16 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_store) {
     }
     // Function reference.
     {
-        int (& f) (double)
-            = test_storage_of <int (&) (double)> (function_1, function_2);
+        function_type & f
+            = test_storage_of <function_type &> (function_1, function_2);
         BOOST_CHECK_EQUAL (&f, &function_2);
     }
     // Function pointer.
     {
-        int (* f) (double)
-            = test_storage_of <int (*) (double)> (&function_1, &function_2);
+        function_type * f
+            = test_storage_of <function_type *> (&function_1, &function_2);
         BOOST_CHECK_EQUAL (f, &function_2);
-        f  = test_storage_of <int (*) (double)> (function_2, function_1);
+        f  = test_storage_of <function_type *> (function_2, function_1);
         BOOST_CHECK_EQUAL (f, &function_1);
     }
 
@@ -239,8 +239,11 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_store) {
         BOOST_CHECK_EQUAL (m, &structure::cv_member_function_2);
     }
 
-    // Error: void cannot be stored.
-    // BOOST_MPL_ASSERT ((is_same <typename store <void>::type, void>));
+    // void.
+    {
+        store <void>::type v;
+        get <void, structure>() (v);
+    }
 }
 
 template <class Type> struct test_container {
@@ -249,8 +252,21 @@ template <class Type> struct test_container {
 
     typename store <Type>::type value;
 
-    test_container (argument_type value)
+    explicit test_container (argument_type value)
     : value (std::forward <argument_type> (value)) {}
+};
+
+template<> struct test_container <void> {
+    typedef void value_type;
+    typedef typename pass <void>::type argument_type;
+
+    typename store <void>::type value;
+
+    // This overload is taken.
+    test_container() : value() {}
+
+    // This is not used but can be defined.
+    explicit test_container (argument_type value);
 };
 
 template <class Container> typename get <
@@ -266,9 +282,9 @@ template <class Container> typename get_pointer <
     typename std::decay <Container>::type::value_type, Container &&>::type
     inline extract_pointer (Container && container)
 {
-    get <typename std::decay <Container>::type::value_type, Container &>
+    get_pointer <typename std::decay <Container>::type::value_type, Container &>
         extractor;
-    return &extractor (container.value);
+    return extractor (container.value);
 }
 
 // Trick to be able to take addresses of rvalues.
@@ -276,16 +292,7 @@ template <class Type> typename std::add_pointer <Type>::type
     address_of (Type && object)
 { return &object; }
 
-/**
-Check whether a type expression is get_detail::incomplete_type.
-The exact type is an implementation detail, so maybe it ought to use a clever
-way of checking that it is any incomplete type instead of one specific one.
-*/
-#define CHECK_INCOMPLETE_TYPE(...) \
-    BOOST_MPL_ASSERT ((std::is_same <__VA_ARGS__, \
-        utility::storage::detail::incomplete_type>))
-
-BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
+BOOST_AUTO_TEST_CASE (test_utility_storage_get_and_get_pointer) {
     // Normal type.
     {
         test_container <int> c (4);
@@ -356,6 +363,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract_pointer (std::move (c))), int const *>));
     }
 
+    // get_pointer on structure, which has operator& overloaded.
+    {
+        structure s;
+        test_container <structure> c (s);
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (extract_pointer (c)), structure *>));
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (extract_pointer (std::move (c))), structure *>));
+        BOOST_CHECK_EQUAL (static_cast <void *> (extract_pointer (c)),
+            static_cast <void *> (&c));
+    }
+
     // Lvalue reference type.
     {
         int i = 7;
@@ -364,16 +383,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <int &, decltype (c)>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int &>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int &, decltype (std::move (c))>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int const i = 7;
@@ -382,16 +403,19 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &, decltype (c)>::type, int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int const &>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &, decltype (std::move (c))>::type,
+            int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int i = 7;
@@ -400,16 +424,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <int &, decltype (c)>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int &>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int &, decltype (std::move (c))>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int const i = 7;
@@ -418,16 +444,19 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &, decltype (c)>::type, int const*>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int const &>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (&extract (c), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &, decltype (std::move (c))>::type,
+            int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
 
     // Rvalue reference type.
@@ -438,16 +467,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &&, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <int &&, decltype (c)>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int &&>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &&, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int &&, decltype (std::move (c))>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int const i = 7;
@@ -457,16 +488,19 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &&, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &&, decltype (c)>::type, int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int const &&>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <int const &&, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &&, decltype (std::move (c))>::type,
+            int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int i = 7;
@@ -475,16 +509,18 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &&, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <int &&, decltype (c)>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int &&>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int &&, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int &&, decltype (std::move (c))>::type, int *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
     {
         int const i = 7;
@@ -494,16 +530,19 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <int const &&, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &&, decltype (c)>::type, int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), &i);
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), int const &&>));
         BOOST_CHECK_EQUAL (extract (c), 7);
         BOOST_CHECK_EQUAL (address_of (extract (c)), &i);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <int const &&, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <int const &&, decltype (std::move (c))>::type,
+            int const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)), &i);
     }
 
     // Array type.
@@ -607,8 +646,8 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract (c)), function_type &>));
         BOOST_CHECK_EQUAL (extract (c)(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <function_type, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type, decltype (c)>::type, function_type *>));
 
         // Compilers differ about whether the result of the function, a
         // reference to function, is an lvalue or rvalue reference.
@@ -619,8 +658,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             std::is_same <result_type, function_type &>>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <function_type, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type, decltype (std::move (c))>::type,
+            function_type *>));
     }
     {
         // Functions do not come const-qualified.
@@ -629,8 +669,8 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract (c)), function_type &>));
         BOOST_CHECK_EQUAL (extract (c)(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <function_type, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type, decltype (c)>::type, function_type *>));
 
         // Compilers differ about whether the result of the function, a
         // reference to function, is an lvalue or rvalue reference.
@@ -641,8 +681,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             std::is_same <result_type, function_type &>>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <function_type, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type, decltype (std::move (c))>::type,
+            function_type *>));
     }
 
     // Function reference.
@@ -652,15 +693,17 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract (c)), function_type &>));
         BOOST_CHECK_EQUAL (extract (c)(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <function_type &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type &, decltype (c)>::type,
+            function_type *>));
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), function_type &>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <function_type &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type &, decltype (std::move (c))>::type,
+            function_type *>));
     }
     {
         test_container <function_type &> const c (function_1);
@@ -668,15 +711,17 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract (c)), function_type &>));
         BOOST_CHECK_EQUAL (extract (c)(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (
-            typename get_pointer <function_type &, decltype (c)>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type &, decltype (c)>::type,
+            function_type *>));
 
         BOOST_MPL_ASSERT ((std::is_same <
             decltype (extract (std::move (c))), function_type &>));
         BOOST_CHECK_EQUAL (extract (std::move (c))(2.5), 1);
 
-        CHECK_INCOMPLETE_TYPE (typename
-            get_pointer <function_type &, decltype (std::move (c))>::type);
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <function_type &, decltype (std::move (c))>::type,
+            function_type *>));
     }
 
     // Function pointer.
@@ -844,6 +889,42 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get) {
             decltype (extract_pointer (std::move (c))),
             cv_member_function_type const *>));
     }
+
+    // void.
+    {
+        test_container <void> c;
+        BOOST_MPL_ASSERT ((std::is_same <decltype (extract (c)), void>));
+
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <void, decltype (c)>::type, void *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c), static_cast <void *> (&c));
+
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (extract (std::move (c))), void>));
+
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <void, decltype (std::move (c))>::type, void *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)),
+            static_cast <void *> (&c));
+    }
+    // void in a const container: only pointers can actually be to void const.
+    {
+        test_container <void> const c;
+        BOOST_MPL_ASSERT ((std::is_same <decltype (extract (c)), void>));
+
+        BOOST_MPL_ASSERT ((std::is_same <
+            typename get_pointer <void, decltype (c)>::type, void const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (c),
+            static_cast <void const *> (&c));
+
+        BOOST_MPL_ASSERT ((std::is_same <
+            decltype (extract (std::move (c))), void>));
+
+        BOOST_MPL_ASSERT ((std::is_same <typename
+            get_pointer <void, decltype (std::move (c))>::type, void const *>));
+        BOOST_CHECK_EQUAL (extract_pointer (std::move (c)),
+            static_cast <void const *> (&c));
+    }
 }
 
 template <class Type> int pass_to (typename pass <Type>::type)
@@ -852,7 +933,8 @@ template <class Type> int pass_to (typename pass_rvalue <Type>::type)
 { return 1; }
 
 BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
-    using utility::storage::detail::type_that_cannot_be_constructed;
+    using utility::storage::detail::type_that_cannot_be_constructed_1;
+    using utility::storage::detail::type_that_cannot_be_constructed_2;
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <int>::type, int const &>));
@@ -862,12 +944,12 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
     BOOST_MPL_ASSERT ((std::is_same <
         pass <int &>::type, int &>));
     BOOST_MPL_ASSERT ((std::is_same <
-        pass_rvalue <int &>::type, type_that_cannot_be_constructed>));
+        pass_rvalue <int &>::type, type_that_cannot_be_constructed_1>));
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <int &&>::type, int &&>));
     BOOST_MPL_ASSERT ((std::is_same <
-        pass_rvalue <int &&>::type, type_that_cannot_be_constructed>));
+        pass_rvalue <int &&>::type, type_that_cannot_be_constructed_1>));
 
     {
         double d = 4.5;
@@ -887,12 +969,12 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
     BOOST_MPL_ASSERT ((std::is_same <
         pass <int const &>::type, int const &>));
     BOOST_MPL_ASSERT ((std::is_same <
-        pass_rvalue <int const &>::type, type_that_cannot_be_constructed>));
+        pass_rvalue <int const &>::type, type_that_cannot_be_constructed_1>));
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <int const &&>::type, int const &&>));
     BOOST_MPL_ASSERT ((std::is_same <
-        pass_rvalue <int const &&>::type, type_that_cannot_be_constructed>));
+        pass_rvalue <int const &&>::type, type_that_cannot_be_constructed_1>));
 
     {
         double d = 4.5;
@@ -912,13 +994,13 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
     BOOST_MPL_ASSERT ((std::is_same <
         pass <array_type &>::type, array_type &>));
     BOOST_MPL_ASSERT ((std::is_same <
-        pass_rvalue <array_type &>::type, type_that_cannot_be_constructed>));
+        pass_rvalue <array_type &>::type, type_that_cannot_be_constructed_1>));
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <array_type &&>::type, array_type &&>));
     BOOST_MPL_ASSERT ((std::is_same <
         pass_rvalue <array_type &&>::type,
-        type_that_cannot_be_constructed>));
+        type_that_cannot_be_constructed_1>));
 
     {
         array_type a = {5,6,7};
@@ -939,13 +1021,13 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
         pass <array_type const &>::type, array_type const &>));
     BOOST_MPL_ASSERT ((std::is_same <
         pass_rvalue <array_type const &>::type,
-        type_that_cannot_be_constructed>));
+        type_that_cannot_be_constructed_1>));
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <array_type const &&>::type, array_type const &&>));
     BOOST_MPL_ASSERT ((std::is_same <
         pass_rvalue <array_type const &&>::type,
-        type_that_cannot_be_constructed>));
+        type_that_cannot_be_constructed_1>));
 
     {
         array_type a = {5,6,7};
@@ -972,13 +1054,13 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
         pass <function_type &>::type, function_type &>));
     BOOST_MPL_ASSERT ((std::is_same <
         pass_rvalue <function_type &>::type,
-        type_that_cannot_be_constructed>));
+        type_that_cannot_be_constructed_1>));
 
     BOOST_MPL_ASSERT ((std::is_same <
         pass <function_type &&>::type, function_type &&>));
     BOOST_MPL_ASSERT ((std::is_same <
         pass_rvalue <function_type &&>::type,
-        type_that_cannot_be_constructed>));
+        type_that_cannot_be_constructed_1>));
 
     {
         BOOST_CHECK_EQUAL (pass_to <function_type &> (function_1), 0);
@@ -1036,9 +1118,15 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_pass) {
         BOOST_CHECK_EQUAL (
             pass_to <member_function_type &&> (std::move (m)), 0);
     }
+
+    // void.
+    BOOST_MPL_ASSERT ((std::is_same <
+        pass <void>::type, type_that_cannot_be_constructed_1>));
+    BOOST_MPL_ASSERT ((std::is_same <
+        pass_rvalue <void>::type, type_that_cannot_be_constructed_2>));
 }
 
-BOOST_AUTO_TEST_CASE (test_utility_storage_get_pointer) {
+BOOST_AUTO_TEST_CASE (test_utility_storage_get_pointer_type) {
     using std::is_same;
     using utility::storage::get_pointer;
 
@@ -1054,11 +1142,31 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_get_pointer) {
     BOOST_MPL_ASSERT ((is_same <get_pointer <
         type const, container const>::type, type const *>));
 
-    // Compile error
-/*
-    get_pointer <void, container>::type error;
-    get_pointer <type &, container>::type error;
-*/
+    // Lvalue reference.
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type &, container>::type, type *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type const &, container>::type, type const *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type &, container const>::type, type *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type const &, container const>::type, type const *>));
+
+    // Rvalue reference.
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type &&, container>::type, type *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type const &&, container>::type, type const *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type &&, container const>::type, type *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        type const &&, container const>::type, type const *>));
+
+    // void.
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        void, container>::type, void *>));
+    BOOST_MPL_ASSERT ((is_same <get_pointer <
+        void, container const>::type, void const *>));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

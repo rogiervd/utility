@@ -1,5 +1,5 @@
 /*
-Copyright 2011, 2012, 2014 Rogier van Dalen.
+Copyright 2011, 2012, 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #define UTILITY_STORAGE_HPP_INCLUDED
 
 #include <utility>
+#include <memory>
 
 #include <meta/count.hpp>
 
@@ -35,6 +36,12 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 namespace utility { namespace storage {
 
     namespace detail {
+
+        /**
+        A type that can be used to represent void where a proper object is
+        required.
+        */
+        class void_ {};
 
         /**
         Wrap an rvalue reference.
@@ -128,12 +135,16 @@ namespace utility { namespace storage {
             array_wrapper_implementation <Type, N> implementation;
         };
 
-        struct incomplete_type;
+        struct type_that_cannot_be_constructed_1 {
+            type_that_cannot_be_constructed_1() = delete;
+            type_that_cannot_be_constructed_1 (
+                type_that_cannot_be_constructed_1 const &) = delete;
+        };
 
-        struct type_that_cannot_be_constructed {
-            type_that_cannot_be_constructed() = delete;
-            type_that_cannot_be_constructed (
-                type_that_cannot_be_constructed const &) = delete;
+        struct type_that_cannot_be_constructed_2 {
+            type_that_cannot_be_constructed_2() = delete;
+            type_that_cannot_be_constructed_2 (
+                type_that_cannot_be_constructed_2 const &) = delete;
         };
 
     } // namespace detail
@@ -179,20 +190,20 @@ namespace utility { namespace storage {
         struct store <Type const [N]>
     { typedef detail::array_wrapper <Type, N> type; };
 
-    // Don't try to store a void.
-    template <> struct store <void> {};
+    // void.
+    template <> struct store <void> {
+        typedef detail::void_ type;
+    };
 
 
     /**
     Suitably qualified version of Type that is contained in (qualified)
     Container.
 
-    Also, this has an operator() which takes a value of
-    <c>get \<Type, Container &>::type</c> (which a value of
-    <c>store \<Type>::type</c> is implicitly convertible to) and returns a value
-    of type type.
+    Also, this has an operator() which can take a lvalue reference to
+    <c>store \<Type, Container &>::type</c> returns a value of type \c type.
     (The only difference between these two types is potentially their
-    rvalue-ness.)
+    rvalue-ness, unless \a Type is void.)
 
     \tparam Type
         The type to be qualified appropriately.
@@ -250,51 +261,55 @@ namespace utility { namespace storage {
     } // namespace get_detail
 
     template <class Type, class Container> struct get
-    : get_detail::deal_with_reference <Type, Container>
     {
         typedef typename get_detail::deal_with_reference <Type, Container>::type
             type;
-        type inline operator() (typename get <Type, Container &>::type object)
+        inline type operator() (typename get <Type, Container &>::type object)
             const
         { return static_cast <type> (object); }
     };
 
-    template <class Container> struct get <void, Container>
-    { typedef void type; };
+    template <class Container> struct get <void, Container> {
+        typedef void type;
+        inline type operator() (detail::void_) {}
+    };
 
     /**
     Return a type that can serve as a pointer to a contained type.
-    For address of whatever's been returned by get() with an lvalue Container
-    type.
+    This gives the address of what get() returns with an lvalue Container type.
 
-    There are a number of types that it is not possible to meaningfully get a
-    pointer type to.
-    These are void, lvalue and rvalue references, and function types and
-    function reference.
+    Also, this has an operator() which can take a lvalue reference to
+    <c>store \<Type, Container &>::type</c> returns a pointer to it of type
+    \c type.
 
-    For these types, the returned type is an incomplete type.
-    This way, a method that returns this type can be declared, but will trigger
-    a compile error if it gets instantiated.
+    If \a Type is \c void, the pointer that is returned is to a const-qualified
+    void and points to the actual object saved.
+
+    If \a Type is a reference type, a pointer is returned to the referenced
+    object.
+    This means that it works well as a return type for \c operator->.
     */
-    template <class Type, class Container> struct get_pointer {
-        typedef typename get_detail::deal_with_const <Type,
-                typename std::remove_reference <Container>::type>::type * type;
+    template <class Type, class Container> class get_pointer {
+        struct unusable { typedef unusable type; };
+    public:
+        typedef typename std::add_pointer <typename
+            get_detail::deal_with_const <Type, typename
+                std::remove_reference <Container>::type>::type>::type type;
+
+        // This overload is used iff Type is not void.
+        inline type operator() (typename std::conditional <
+            !std::is_same <Type, void>::value,
+            get <Type, Container &>, unusable>::type::type object)
+            const
+        { return std::addressof (object); }
+
+        // These overloads will only be chosen if Type is void.
+        inline type operator() (detail::void_ & object) const
+        { return &object; }
+
+        inline type operator() (detail::void_ const & object) const
+        { return &object; }
     };
-
-    template <class Container>
-        struct get_pointer <void, Container>
-    { typedef detail::incomplete_type type; };
-
-    template <class Type, class Container>
-        struct get_pointer <Type &, Container>
-    { typedef detail::incomplete_type type; };
-    template <class Type, class Container>
-        struct get_pointer <Type &&, Container>
-    { typedef detail::incomplete_type type; };
-
-    template <class ReturnType, class ... Arguments, class Container>
-        struct get_pointer <ReturnType (Arguments ...), Container>
-    { typedef detail::incomplete_type type; };
 
     /**
     Return a type that is an argument type for copy-constructing an object of
@@ -308,12 +323,22 @@ namespace utility { namespace storage {
     this is possible and different from <c>pass \<Type>::type</c>.
     This type can be computed with <c>pass_rvalue \<Type>::type</c>.
 
+    If \a Type is void, then a type is returned that can never be constructed
+    and therefore never passed in.
+    <c>pass_rvalue \<Type>::type</c> will behave the same, but return a
+    different type, so that two overloads can be declared and neither of them
+    be instantiated.
+
     \sa pass_rvalue
     */
     template <class Type> struct pass
     { typedef Type const & type; };
+
     template <class Type> struct pass <Type &&>
     { typedef Type && type; };
+
+    template<> struct pass <void>
+    { typedef detail::type_that_cannot_be_constructed_1 type; };
 
     /**
     Return a type that is an argument type for move-constructing an object
@@ -335,10 +360,13 @@ namespace utility { namespace storage {
     { typedef typename std::remove_const <Type>::type && type; };
 
     template <class Type> struct pass_rvalue <Type &>
-    { typedef detail::type_that_cannot_be_constructed type; };
+    { typedef detail::type_that_cannot_be_constructed_1 type; };
 
     template <class Type> struct pass_rvalue <Type &&>
-    { typedef detail::type_that_cannot_be_constructed type; };
+    { typedef detail::type_that_cannot_be_constructed_1 type; };
+
+    template<> struct pass_rvalue <void>
+    { typedef detail::type_that_cannot_be_constructed_2 type; };
 
 }} // namespace utility::storage
 
