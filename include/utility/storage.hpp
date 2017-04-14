@@ -29,7 +29,7 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #include <utility>
 #include <memory>
 
-#include <meta/count.hpp>
+#include <meta/count_c.hpp>
 
 #include "config.hpp"
 
@@ -93,24 +93,24 @@ namespace utility { namespace storage {
             Type data_ [N];
 
             // This is the only way to initialise a std::initialiser_list.
-            template <class ... Indices>
+            template <std::size_t ... Indices>
                 array_wrapper_implementation (Type const (& data) [N],
-                    meta::vector <Indices ...>)
-            : data_ {data [Indices::value] ...} {}
+                    meta::size_t_vector <Indices ...>)
+            : data_ {data [Indices] ...} {}
 
-            void assign (Type const (& data) [N], meta::vector <>) {}
+            void assign (Type const (& data) [N], meta::size_t_vector <>) {}
 
-            template <class FirstIndex, class ... Indices>
+            template <std::size_t FirstIndex, std::size_t ... Indices>
                 void assign (Type const (& data) [N],
-                    meta::vector <FirstIndex, Indices ...>)
+                    meta::size_t_vector <FirstIndex, Indices ...>)
             {
-                data_ [FirstIndex::value] = data [FirstIndex::value];
-                assign (data, meta::vector <Indices ...>());
+                data_ [FirstIndex] = data [FirstIndex];
+                assign (data, meta::size_t_vector <Indices ...>());
             }
         };
 
         template <class Type, std::size_t N> class array_wrapper {
-            typedef typename meta::count <N>::type indices_type;
+            typedef typename meta::count_c <N>::type indices_type;
         public:
             typedef Type value_type [N];
 
