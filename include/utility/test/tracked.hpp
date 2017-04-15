@@ -1,5 +1,5 @@
 /*
-Copyright 2009, 2014, 2015 Rogier van Dalen.
+Copyright 2009, 2014, 2015, 2017 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -450,6 +450,11 @@ namespace utility {
     template <class Content>
     inline void swap (tracked <Content> & t1, tracked <Content> & t2)
     { t1.swap (t2); }
+
+    template <class Content>
+    inline std::ostream & operator<< (
+        std::ostream & os, tracked <Content> const & t)
+    { return os << t.content(); }
 
 } // namespace utility
 

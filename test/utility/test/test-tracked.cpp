@@ -1,5 +1,5 @@
 /*
-Copyright 2013-2015 Rogier van Dalen.
+Copyright 2013-2015, 2017 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -160,6 +160,17 @@ BOOST_AUTO_TEST_CASE (test_tracked_move) {
         tracked <int> copied (c, 127);
         moved2 = copied;
         BOOST_CHECK_EQUAL (moved2.content(), 127);
+    }
+}
+
+BOOST_AUTO_TEST_CASE (test_tracked_output) {
+    tracked_registry r;
+    {
+        std::ostringstream tracked_output;
+
+        tracked <int> t (r, 234);
+        tracked_output << t;
+        BOOST_CHECK_EQUAL (tracked_output.str(), "234");
     }
 }
 
