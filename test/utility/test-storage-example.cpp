@@ -1,5 +1,5 @@
 /*
-Copyright 2014, 2015 Rogier van Dalen.
+Copyright 2014, 2015, 2017 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -48,6 +48,15 @@ public:
     typename storage::get <Type, simple_container const &>::type
         content() const { return content_; }
 
+    // The two overloads below differ only in how the copy is produced, not in
+    // the type they return.
+    // These are templated so that they are only instantiated when they are
+    // called.
+    template <class Result = typename storage::get_value <Type>>
+        typename Result::type content_value() { return content_; }
+    template <class Result = typename storage::get_value <Type>>
+        typename Result::type content_value() const { return content_; }
+
     typename storage::get_pointer <Type, simple_container &>::type
         pointer() { return & content(); }
     typename storage::get_pointer <Type, simple_container const &>::type
@@ -66,15 +75,26 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
     {
         simple_container <int> c (7);
         BOOST_CHECK_EQUAL (c.content(), 7);
+        auto && content = c.content();
+        auto && content_value = c.content_value();
         c.content() = 8;
         BOOST_CHECK_EQUAL (c.content(), 8);
+        BOOST_CHECK_EQUAL (c.content_value(), 8);
+        // "content" should be a reference to the original value:
+        BOOST_CHECK_EQUAL (content, 8);
+        // "content_value" should be a reference to a temporary that's kept
+        // alive:
+        BOOST_CHECK_EQUAL (content_value, 7);
     }
     // const container.
     {
         simple_container <int> const c (-7);
         BOOST_CHECK_EQUAL (c.content(), -7);
-        BOOST_MPL_ASSERT ((
-            std::is_same <decltype (c.content()), int const &>));
+        BOOST_CHECK_EQUAL (c.content_value(), -7);
+        static_assert (
+            std::is_same <decltype (c.content()), int const &>::value, "");
+        static_assert (
+            std::is_same <decltype (c.content_value()), int>::value, "");
     }
     // Contain a reference.
     {
@@ -94,6 +114,7 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
         c.content() = 13;
         BOOST_CHECK_EQUAL (i2, 13);
         BOOST_CHECK_EQUAL (i, 15);
+        BOOST_CHECK_EQUAL (c.content_value(), 13);
     }
     // const container to a reference.
     {
@@ -117,6 +138,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_simple) {
 
         BOOST_CHECK_EQUAL ((*c.pointer())[0], 5);
         BOOST_CHECK_EQUAL ((*c.pointer())[3], 7);
+
+        // This is not defined because arrays cannot be returned:
+        // c.content_value();
     }
     {
         int const is [2] {27};
@@ -187,6 +211,11 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_extensive) {
         BOOST_CHECK_EQUAL (c.content().content(), 89);
         BOOST_CHECK_EQUAL (registry.since (before),
             value_construct_count (1) + copy_assign_count(1));
+
+        before = registry.counts();
+        auto value = c.content_value();
+        BOOST_CHECK_EQUAL (value.content(), 89);
+        BOOST_CHECK_EQUAL (registry.since (before), copy_count(1));
     }
     // Initialise with lvalue reference.
     {
@@ -203,8 +232,8 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_extensive) {
         simple_container <utility::tracked <int>> const c (
             utility::tracked <int> (registry, 9));
         BOOST_CHECK_EQUAL (c.content().content(), 9);
-        BOOST_MPL_ASSERT ((std::is_same <decltype (c.content()),
-            utility::tracked <int> const &>));
+        static_assert (std::is_same <decltype (c.content()),
+            utility::tracked <int> const &>::value, "");
     }
     // Const contents.
     {
@@ -256,6 +285,7 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
         BOOST_CHECK_EQUAL (&c.content(), &example_function_1);
         c.replace_with (example_function_2);
         BOOST_CHECK_EQUAL (&c.content(), &example_function_2);
+        BOOST_CHECK_EQUAL (&c.content_value(), &example_function_2);
     }
     // Function reference.
     {
@@ -265,6 +295,7 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
 
         c.replace_with (example_function_2);
         BOOST_CHECK_EQUAL (&c.content(), &example_function_2);
+        BOOST_CHECK_EQUAL (&c.content_value(), &example_function_2);
         BOOST_CHECK_EQUAL (c.content() (1., ""), 1);
     }
     // Function pointer.
@@ -275,7 +306,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
 
         c.replace_with (example_function_2);
         BOOST_CHECK_EQUAL (c.content(), &example_function_2);
+        BOOST_CHECK_EQUAL (c.content_value(), &example_function_2);
         BOOST_CHECK_EQUAL (c.content() (1., ""), 1);
+        BOOST_CHECK_EQUAL (c.content_value() (1., ""), 1);
     }
 
     // Member functions.
@@ -285,6 +318,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
             &example_struct::example_function_1);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_1);
         auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+        member_function = c.content_value();
         BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
             0);
 
@@ -302,6 +338,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
         auto member_function = c.content();
         BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
             0);
+        member_function = c.content_value();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
 
         c.replace_with (&example_struct::example_function_4);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_4);
@@ -317,6 +356,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
         auto member_function = c.content();
         BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
             0);
+        member_function = c.content_value();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
 
         c.replace_with (&example_struct::example_function_6);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_6);
@@ -330,6 +372,9 @@ BOOST_AUTO_TEST_CASE (test_utility_storage_example_functions) {
             &example_struct::example_function_7);
         BOOST_CHECK_EQUAL (c.content(), &example_struct::example_function_7);
         auto member_function = c.content();
+        BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
+            0);
+        member_function = c.content_value();
         BOOST_CHECK_EQUAL (CALL_MEMBER_FUNCTION (s, member_function) ("", 1.),
             0);
 

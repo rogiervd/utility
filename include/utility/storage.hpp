@@ -1,5 +1,5 @@
 /*
-Copyright 2011, 2012, 2014, 2015 Rogier van Dalen.
+Copyright 2011, 2012, 2014, 2015, 2017 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -258,21 +258,66 @@ namespace utility { namespace storage {
             struct deal_with_reference <Type &&, Container &>
         { typedef typename deal_with_const <Type &&, Container>::type type; };
 
+        /// Return \c Type, unless it is a function type, in which case it is
+        /// converted into a function reference.
+        template <class Type> struct value { typedef Type type; };
+
+        template <class Result, class ... Arguments>
+            struct value <Result (Arguments ...)>
+        { typedef Result (& type) (Arguments ...); };
+
     } // namespace get_detail
 
     template <class Type, class Container> struct get
     {
         typedef typename get_detail::deal_with_reference <Type, Container>::type
             type;
-        inline type operator() (typename get <Type, Container &>::type object)
-            const
+        type operator() (typename get <Type, Container &>::type object) const
         { return static_cast <type> (object); }
     };
 
     template <class Container> struct get <void, Container> {
         typedef void type;
-        inline type operator() (detail::void_) {}
+        type operator() (detail::void_) {}
     };
+
+    /** \brief
+    Contain a suitably qualified version of Type that can be returned as a
+    value.
+
+    The value will remain valid after the container is destructed (unlike, in
+    general, <c>get \<...>::type</c>).
+
+    Normally, \a Type itself is returned.
+    However, if \a Type is a function type, a function reference is returned.
+
+    If Type is an array type, which cannot be returned, this does not contain
+    \c type at all.
+    To allow a member function to disappear in that case, the following idiom
+    can be used:
+    \code
+        template <class Result = typename storage::get_value <Type>>
+            typename Result::type value() const
+    \endcode
+
+    Unlike \c get, this class does not provide any runtime behaviour.
+    This is intentional.
+    A function or member function returning <c>get_value \<...>::type</c> can
+    use <c>get \<Type, Container></c> internally.
+    Here, \c Container must be qualified, and how Container is qualified makes a
+    difference.
+    This means that a move or a copy may end up being used, which should be the
+    correct behaviour.
+
+    \tparam Type
+        The type to be qualified appropriately.
+    */
+    template <class Type> struct get_value
+    : get_detail::value <Type> {};
+
+    // Specialisation for arrays: do not contain "type".
+    template <class Type, std::size_t Number> struct get_value <Type[Number]>
+    {};
 
     /**
     Return a type that can serve as a pointer to a contained type.
