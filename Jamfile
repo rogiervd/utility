@@ -8,5 +8,5 @@ project /utility
 alias utility : : : :
     <include>include
     # Require C++11.
-    <toolset>gcc:<cxxflags>-std=gnu++0x <toolset>clang:<cxxflags>-std=c++11
+    <toolset>gcc:<cxxflags>-std=c++14 <toolset>clang:<cxxflags>-std=c++14
     ;
