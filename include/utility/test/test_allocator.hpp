@@ -69,7 +69,7 @@ namespace utility {
                         (p, allocation (current_index, type, n)));
                     ++ current_index;
                 } else {
-                    BOOST_MESSAGE ("Allocating zero objects of type "
+                    BOOST_TEST_MESSAGE ("Allocating zero objects of type "
                         << type.name() << ".");
                 }
             }
