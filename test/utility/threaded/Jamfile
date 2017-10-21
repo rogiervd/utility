@@ -4,6 +4,7 @@
 
 project
     : requirements
+        <threading>multi
         <library>/boost//thread
         <library>/boost//system
         # The following line works textually.
