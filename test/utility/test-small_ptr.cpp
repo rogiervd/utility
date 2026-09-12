@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #define BOOST_TEST_MODULE test_utility_small_ptr
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 
@@ -331,7 +331,7 @@ template <bool recursive> struct test_small_ptr {
             BOOST_CHECK_EQUAL (p->value(), -23);
 
             // Self copy assignment.
-            p = p;
+            p = *&p;
             BOOST_CHECK (!p.empty());
             BOOST_CHECK_EQUAL (p.use_count(), 1);
             BOOST_CHECK_EQUAL (p->value(), -23);
