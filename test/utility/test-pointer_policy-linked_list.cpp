@@ -25,7 +25,7 @@ This file tries to cause a stack overflow.
 */
 
 #define BOOST_TEST_MODULE test_utility_pointer_policy_linked_list
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include "utility/small_ptr.hpp"
 

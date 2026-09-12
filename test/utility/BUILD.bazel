@@ -1,0 +1,47 @@
+# To run all test in all packages:
+#   bazel test //...
+
+# load("@rules_cc//cc:defs.bzl", "cc_test")
+load(":cc_test_utility.bzl", "cc_test_utility")
+
+cc_test_utility(test_name = "test-aligned_union")
+
+cc_test_utility(test_name = "test-assignable")
+
+cc_test_utility(test_name = "test-copy_or_move")
+
+cc_test_utility(test_name = "test-disable_if_same")
+
+cc_test_utility(test_name = "test-enable_if_compiles")
+
+cc_test_utility(test_name = "test-is_assignable")
+
+cc_test_utility(test_name = "test-is_default_constructible")
+
+cc_test_utility(test_name = "test-nested_callable")
+
+cc_test_utility(test_name = "test-overload_order")
+
+cc_test_utility(test_name = "test-pointee")
+
+cc_test_utility(test_name = "test-pointer_policy-linked_list")
+
+cc_test_utility(test_name = "test-pointer_policy")
+
+cc_test_utility(test_name = "test-returns")
+
+cc_test_utility(test_name = "test-shared")
+
+cc_test_utility(test_name = "test-small_ptr")
+
+cc_test_utility(test_name = "test-storage-example")
+
+cc_test_utility(test_name = "test-storage")
+
+cc_test_utility(test_name = "test-type_sequence_traits-unary")
+
+cc_test_utility(test_name = "test-type_sequence_traits")
+
+cc_test_utility(test_name = "test-unique_ptr")
+
+cc_test_utility(test_name = "test-with_allocator")

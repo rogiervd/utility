@@ -20,7 +20,7 @@ limitations under the License.
 #include <new>
 #include <type_traits>
 
-#include <boost/detail/atomic_count.hpp>
+#include <boost/smart_ptr/detail/atomic_count.hpp>
 #include <boost/utility/enable_if.hpp>
 
 #include "with_allocator.hpp"
