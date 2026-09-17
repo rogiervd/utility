@@ -337,7 +337,7 @@ template <bool recursive> struct test_small_ptr {
             BOOST_CHECK_EQUAL (p->value(), -23);
 
             // Self move assignment.
-            p = std::move (p);
+            p = std::move (*&p);
             BOOST_CHECK (!p.empty());
             BOOST_CHECK_EQUAL (p.use_count(), 1);
             BOOST_CHECK_EQUAL (p->value(), -23);
