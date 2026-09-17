@@ -20,10 +20,10 @@ build:gcc --repo_env=CC=gcc
 # Some external libraries (e.g. Boost's header-only packages) opt into
 # "parse_headers", which makes Bazel compile each header standalone as a syntax
 # check.
-# GCC spuriously triggers -Wpragma-once-outside-header on headers that correctly
-# use #pragma once, and this generates a build error because of -Werror above.
-# Disable the feature for GCC only.
-build:gcc --features=-parse_headers
+# This can trigger -Wpragma-once-outside-header , and this generates a build
+# error because of -Werror above.
+# So disable the feature for GCC only.
+build --features=-parse_headers
 
 # Clang Configuration using your custom suite
 build:clang --crosstool_top=//toolchain:clang_suite
