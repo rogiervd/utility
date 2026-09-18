@@ -1,0 +1,39 @@
+# To run all test in all packages:
+#   bazel test //...
+
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+[
+    cc_test(
+        name = test_name,
+        size = "small",
+        srcs = [test_name + ".cpp"],
+        deps = [
+            "//:utility",
+            "@boost.test//:unit_test_main",
+        ],
+    )
+    for test_name in [
+        "test-aligned_union",
+        "test-assignable",
+        "test-copy_or_move",
+        "test-disable_if_same",
+        "test-enable_if_compiles",
+        "test-is_assignable",
+        "test-is_default_constructible",
+        "test-nested_callable",
+        "test-overload_order",
+        "test-pointee",
+        "test-pointer_policy-linked_list",
+        "test-pointer_policy",
+        "test-returns",
+        "test-shared",
+        "test-small_ptr",
+        "test-storage-example",
+        "test-storage",
+        "test-type_sequence_traits-unary",
+        "test-type_sequence_traits",
+        "test-unique_ptr",
+        "test-with_allocator",
+    ]
+]

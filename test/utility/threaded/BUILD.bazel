@@ -1,0 +1,12 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "test-shared-threaded",
+    size = "small",
+    srcs = ["test-shared-threaded.cpp"],
+    deps = [
+        "//:utility",
+        "@boost.thread",
+        "@boost.test//:unit_test_main",
+    ],
+)
