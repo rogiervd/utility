@@ -1,0 +1,36 @@
+name: Tag release
+# Runs after a "release-vX.Y.Z" branch (created by tool/release.py) is
+# merged into main. Creates a draft GitHub release targeting the merge
+# commit, named after the version from MODULE.bazel; GitHub automatically
+# attaches a source archive (zip and tar.gz) to every release. The tag
+# itself, and the release, are only created for real once the draft is
+# published on GitHub.
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+jobs:
+  tag:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v')
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+      - name: Extract version from MODULE.bazel
+        id: version
+        run: |
+          version=$(grep -m1 -E '^\s*version\s*=' MODULE.bazel | sed -E 's/.*"([^"]+)".*/\1/')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" \
+            --repo "${{ github.repository }}" \
+            --title "v${{ steps.version.outputs.version }}" \
+            --target "${{ github.event.pull_request.merge_commit_sha }}" \
+            --generate-notes \
+            --draft
