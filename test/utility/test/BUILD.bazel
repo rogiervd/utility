@@ -10,7 +10,6 @@ cc_test(
     ],
 )
 
-
 cc_test(
     name = "test-thrower",
     size = "small",
@@ -21,7 +20,6 @@ cc_test(
     ],
 )
 
-
 cc_test(
     name = "test-throwing",
     size = "small",
@@ -31,7 +29,6 @@ cc_test(
         "@boost.test//:unit_test_main",
     ],
 )
-
 
 cc_test(
     name = "test-tracked",
