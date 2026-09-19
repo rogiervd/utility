@@ -139,7 +139,7 @@ typedef int (structure::*member_function_type)(double);
 typedef int (structure::*c_member_function_type)(double) const;
 typedef int (structure::*v_member_function_type)(double) volatile;
 typedef int (structure::*cv_member_function_type)(double) const volatile;
-typedef int(structure::* member_type);
+typedef int(structure::*member_type);
 
 /**
 Wrap an int so that it does not lose its cv-qualification automatically.
