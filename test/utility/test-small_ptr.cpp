@@ -331,13 +331,17 @@ template <bool recursive> struct test_small_ptr {
             BOOST_CHECK_EQUAL (p->value(), -23);
 
             // Self copy assignment.
-            p = p;
+            // *& is a workaround for compiler warnings about self-assignment.
+            p = *&p;
             BOOST_CHECK (!p.empty());
             BOOST_CHECK_EQUAL (p.use_count(), 1);
             BOOST_CHECK_EQUAL (p->value(), -23);
 
             // Self move assignment.
-            p = std::move (p);
+            // Defining the alias is a workaround for compiler warnings about
+            // self-assignment.
+            auto& also_p = p;
+            p = std::move (also_p);
             BOOST_CHECK (!p.empty());
             BOOST_CHECK_EQUAL (p.use_count(), 1);
             BOOST_CHECK_EQUAL (p->value(), -23);
