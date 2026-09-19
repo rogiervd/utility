@@ -21,15 +21,16 @@ limitations under the License.
 
 namespace utility {
 
-    /** \brief
-    Compute the pointed-to type from a pointer type.
+/** \brief
+Compute the pointed-to type from a pointer type.
 
-    The resulting type is not reference-qualified, but it may be
-    const-qualified.
-    */
-    template <class Pointer> struct pointee
-    : std::remove_reference <decltype (*std::declval <Pointer>())> {};
+The resulting type is not reference-qualified, but it may be
+const-qualified.
+*/
+template <class Pointer> struct pointee
+: std::remove_reference<decltype(*std::declval<Pointer>())>
+{};
 
-} // namespace utility
+}  // namespace utility
 
-#endif // UTILITY_POINTEE_HPP_INCLUDED
+#endif  // UTILITY_POINTEE_HPP_INCLUDED

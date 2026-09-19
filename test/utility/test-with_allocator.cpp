@@ -23,12 +23,14 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_with_allocator)
 
-struct container : utility::with_allocator <std::allocator <int>> {
+struct container : utility::with_allocator<std::allocator<int>>
+{
     int i;
 };
 
-BOOST_AUTO_TEST_CASE (test_utility_with_allocator) {
-    BOOST_CHECK_EQUAL (sizeof (container), sizeof (int));
+BOOST_AUTO_TEST_CASE(test_utility_with_allocator)
+{
+    BOOST_CHECK_EQUAL(sizeof(container), sizeof(int));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
