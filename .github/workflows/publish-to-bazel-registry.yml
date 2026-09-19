@@ -1,0 +1,35 @@
+name: Publish to Bazel registry
+# Runs when a GitHub release is published (including manually publishing a
+# draft release created by the "Tag release" workflow) and opens a pull
+# request against our Bazel registry with the new module version.
+# The module name and version are read from MODULE.bazel by publish-to-bcr
+# itself, so nothing here needs to hard-code them.
+# See https://github.com/bazel-contrib/publish-to-bcr.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to publish, e.g. v1.2.3
+        required: true
+        type: string
+jobs:
+  publish:
+    uses: bazel-contrib/publish-to-bcr/.github/workflows/publish.yaml@v1.5.0
+    with:
+      tag_name: ${{ inputs.tag_name || github.event.release.tag_name }}
+      # Our own Bazel registry, rather than the Bazel Central Registry.
+      registry: rogiervd/bazel-registry
+      # We push straight to the registry we own; no separate fork is needed.
+      registry_fork: rogiervd/bazel-registry
+      # Provenance attestations require the bazel-contrib release_ruleset
+      # workflow, which this repository does not use.
+      attest: false
+    permissions:
+      contents: read
+    secrets:
+      # A classic PAT (repo + workflow scopes) for rogiervd, stored as a
+      # repository secret. Needed to push a branch and open the pull request
+      # against rogiervd/bazel-registry.
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}
