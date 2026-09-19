@@ -1,0 +1,21 @@
+module(
+    name = "utility",
+    version = "0.1.0",
+)
+
+bazel_dep(name = "rules_cc", version = "0.2.22")
+bazel_dep(name = "meta", version = "1.1.0")
+bazel_dep(name = "boost.test", version = "1.90.0.bcr.1")
+bazel_dep(name = "boost.thread", version = "1.90.0.bcr.1")
+
+# IDEs as well as other tools can use a compile_commands.json databse to know
+# how files are compiled.
+# This is used, for example, for clang-tidy.
+# To generate the compile_commands.json file, run
+#   bazel run --config=clang @hedron_compile_commands//:refresh_all
+bazel_dep(name = "hedron_compile_commands", dev_dependency = True)
+git_override(
+    module_name = "hedron_compile_commands",
+    commit = "6eb3ff1de6445355552ef4230be0caf3e1dd27e5",
+    remote = "https://github.com/helly25/bazel-compile-commands-extractor.git",
+)
