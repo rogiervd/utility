@@ -24,34 +24,32 @@ Define an aligned_union type that takes a compile-time type list.
 
 #include <type_traits>
 
-#include <boost/mpl/sizeof.hpp>
 #include <boost/mpl/placeholders.hpp>
+#include <boost/mpl/sizeof.hpp>
 
-#include "meta/transform.hpp"
 #include "meta/max_element.hpp"
+#include "meta/transform.hpp"
 
 namespace utility {
 
-    /**
-    Compute a POD type that can be used as aligned storage for each of the
-    types in type container Types.
-    */
-    template <typename Types> struct aligned_union {
-    private:
-        typedef boost::mpl::_ _;
-        typedef meta::transform <std::alignment_of <_>, Types> alignments;
-        static const size_t alignment
-            = meta::max_element <alignments>::type::value;
+/**
+Compute a POD type that can be used as aligned storage for each of the
+types in type container Types.
+*/
+template <typename Types> struct aligned_union
+{
+private:
+    typedef boost::mpl::_ _;
+    typedef meta::transform<std::alignment_of<_>, Types> alignments;
+    static const size_t alignment = meta::max_element<alignments>::type::value;
 
-        typedef meta::transform <boost::mpl::sizeof_ <_>, Types> sizeofs;
-        static const size_t storage_size
-            = meta::max_element <sizeofs>::type::value;
+    typedef meta::transform<boost::mpl::sizeof_<_>, Types> sizeofs;
+    static const size_t storage_size = meta::max_element<sizeofs>::type::value;
 
-    public:
-        typedef typename std::aligned_storage <storage_size, alignment>::type
-            type;
-    };
+public:
+    typedef typename std::aligned_storage<storage_size, alignment>::type type;
+};
 
-} // namespace utility
+}  // namespace utility
 
-#endif // UTILITY_ALIGNED_UNION_HPP_INCLUDED
+#endif  // UTILITY_ALIGNED_UNION_HPP_INCLUDED
