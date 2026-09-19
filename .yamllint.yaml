@@ -1,0 +1,8 @@
+extends: default
+rules:
+  document-start:
+    present: False
+  comments: enable
+  line-length:
+    level: warning
+    allow-non-breakable-inline-mappings: True
