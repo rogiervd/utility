@@ -31,123 +31,135 @@ Unary traits are not provided; they are probably easy enough to write as, e.g.,
 
 #include "meta/vector.hpp"
 
-#include "is_default_constructible.hpp"
 #include "is_assignable.hpp"
+#include "is_default_constructible.hpp"
 
 namespace utility {
 
-    namespace type_sequence_traits_detail {
-
-        /**
-        \return true iff all of the boolean predicates are true.
-        */
-        template <class ... Booleans> struct all;
-
-        template <class First, class ... Rest> struct all <First, Rest ...>
-        : std::conditional <First::value, all <Rest ...>, std::false_type>::type
-        {};
-
-        template <> struct all<>
-        : std::true_type {};
-
-        // Make a two-argument version.
-        template <class Type1, class Type2> struct is_constructible
-        : std::is_constructible <Type1, Type2> {};
-
-        template <class Type1, class Type2> struct is_nothrow_constructible
-        : std::is_nothrow_constructible <Type1, Type2> {};
-
-    } // namespace type_sequence_traits_detail
+namespace type_sequence_traits_detail {
 
     /**
-    Evaluate to \c true iff Predicate returns true for each type in meta range
-    Types.
+    \return true iff all of the boolean predicates are true.
     */
-    template <template <class> class Predicate, class Types>
-    struct all_unary
-    : all_unary <Predicate, typename meta::as_vector <Types>::type> {};
+    template <class... Booleans> struct all;
 
-    template <template <class> class Predicate, class ... Types>
-    struct all_unary <Predicate, meta::vector <Types ...>>
-    : type_sequence_traits_detail::all <Predicate <Types> ...> {};
-
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    Predicate returns true for each pair of types.
-    */
-    template <template <class, class> class Predicate,
-        class Types1, class Types2, class Enable = void>
-    struct all_binary
-    : all_binary <Predicate, typename meta::as_vector <Types1>::type,
-        typename meta::as_vector <Types2>::type> {};
-
-    // Different lengths: always false.
-    template <template <class, class> class Predicate,
-        class ... Types1, class ... Types2>
-    struct all_binary <Predicate,
-        meta::vector <Types1 ...>, meta::vector <Types2 ...>, typename
-        std::enable_if <sizeof ... (Types1) != sizeof ... (Types2)>::type>
-    : std::false_type {};
-
-    // The same length.
-    template <template <class, class> class Predicate,
-        class ... Types1, class ... Types2>
-    struct all_binary <Predicate,
-        meta::vector <Types1 ...>, meta::vector <Types2 ...>, typename
-        std::enable_if <sizeof ... (Types1) == sizeof ... (Types2)>::type>
-    : type_sequence_traits_detail::all <
-        Predicate <Types1, Types2> ...> {};
-
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    their types are pairwise convertible.
-    */
-    template <class Types1, class Types2> struct are_convertible
-    : all_binary <std::is_convertible, Types1, Types2> {};
-
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    their types are constructible.
-    */
-    template <class Types1, class Types2> struct are_constructible
-    : all_binary <type_sequence_traits_detail::is_constructible, Types1, Types2>
+    template <class First, class... Rest> struct all<First, Rest...>
+    : std::conditional<First::value, all<Rest...>, std::false_type>::type
     {};
 
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    their types are nothrow constructible.
-    */
-    template <class Types1, class Types2> struct are_nothrow_constructible
-    : all_binary <type_sequence_traits_detail::is_nothrow_constructible,
-        Types1, Types2> {};
+    template <> struct all<> : std::true_type
+    {};
 
-    /**
-    Evaluate to \c true iff all types in \a Types are default-constructible.
-    */
-    template <class Types> struct are_default_constructible
-    : all_unary <is_default_constructible, Types> {};
+    // Make a two-argument version.
+    template <class Type1, class Type2> struct is_constructible
+    : std::is_constructible<Type1, Type2>
+    {};
 
-    /**
-    Evaluate to \c true iff all types in \a Types are default-constructible
-    without exceptions.
-    */
-    template <class Types> struct are_nothrow_default_constructible
-    : all_unary <is_nothrow_default_constructible, Types> {};
+    template <class Type1, class Type2> struct is_nothrow_constructible
+    : std::is_nothrow_constructible<Type1, Type2>
+    {};
 
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    their types are assignable.
-    */
-    template <class Types1, class Types2> struct are_assignable
-    : all_binary <utility::is_assignable, Types1, Types2> {};
+}  // namespace type_sequence_traits_detail
 
-    /**
-    Evaluate to \c true iff the two meta ranges are of the same length, and
-    their types are nothrow assignable.
-    */
-    template <class Types1, class Types2> struct are_nothrow_assignable
-    : all_binary <utility::is_nothrow_assignable, Types1, Types2> {};
+/**
+Evaluate to \c true iff Predicate returns true for each type in meta range
+Types.
+*/
+template <template <class> class Predicate, class Types> struct all_unary
+: all_unary<Predicate, typename meta::as_vector<Types>::type>
+{};
 
-} // namespace math
+template <template <class> class Predicate, class... Types>
+struct all_unary<Predicate, meta::vector<Types...>>
+: type_sequence_traits_detail::all<Predicate<Types>...>
+{};
 
-#endif // UTILITY_TYPE_SEQUENCE_TRAITS_HPP_INCLUDED
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+Predicate returns true for each pair of types.
+*/
+template <
+    template <class, class> class Predicate, class Types1, class Types2,
+    class Enable = void>
+struct all_binary : all_binary<
+                        Predicate, typename meta::as_vector<Types1>::type,
+                        typename meta::as_vector<Types2>::type>
+{};
+
+// Different lengths: always false.
+template <
+    template <class, class> class Predicate, class... Types1, class... Types2>
+struct all_binary<
+    Predicate, meta::vector<Types1...>, meta::vector<Types2...>,
+    typename std::enable_if<sizeof...(Types1) != sizeof...(Types2)>::type>
+: std::false_type
+{};
+
+// The same length.
+template <
+    template <class, class> class Predicate, class... Types1, class... Types2>
+struct all_binary<
+    Predicate, meta::vector<Types1...>, meta::vector<Types2...>,
+    typename std::enable_if<sizeof...(Types1) == sizeof...(Types2)>::type>
+: type_sequence_traits_detail::all<Predicate<Types1, Types2>...>
+{};
+
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+their types are pairwise convertible.
+*/
+template <class Types1, class Types2> struct are_convertible
+: all_binary<std::is_convertible, Types1, Types2>
+{};
+
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+their types are constructible.
+*/
+template <class Types1, class Types2> struct are_constructible
+: all_binary<type_sequence_traits_detail::is_constructible, Types1, Types2>
+{};
+
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+their types are nothrow constructible.
+*/
+template <class Types1, class Types2> struct are_nothrow_constructible
+: all_binary<
+      type_sequence_traits_detail::is_nothrow_constructible, Types1, Types2>
+{};
+
+/**
+Evaluate to \c true iff all types in \a Types are default-constructible.
+*/
+template <class Types> struct are_default_constructible
+: all_unary<is_default_constructible, Types>
+{};
+
+/**
+Evaluate to \c true iff all types in \a Types are default-constructible
+without exceptions.
+*/
+template <class Types> struct are_nothrow_default_constructible
+: all_unary<is_nothrow_default_constructible, Types>
+{};
+
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+their types are assignable.
+*/
+template <class Types1, class Types2> struct are_assignable
+: all_binary<utility::is_assignable, Types1, Types2>
+{};
+
+/**
+Evaluate to \c true iff the two meta ranges are of the same length, and
+their types are nothrow assignable.
+*/
+template <class Types1, class Types2> struct are_nothrow_assignable
+: all_binary<utility::is_nothrow_assignable, Types1, Types2>
+{};
+
+}  // namespace utility
+
+#endif  // UTILITY_TYPE_SEQUENCE_TRAITS_HPP_INCLUDED
