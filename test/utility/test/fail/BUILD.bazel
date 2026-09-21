@@ -4,6 +4,8 @@ cc_test(
     name = "test-test_allocator-leak",
     size = "small",
     srcs = ["test-test_allocator-leak.cpp"],
+    # This test deliberately leaks, which AddressSanitizer would report.
+    tags = ["noasan"],
     deps = [
         "//:utility",
         "@boost.test//:unit_test_main",
