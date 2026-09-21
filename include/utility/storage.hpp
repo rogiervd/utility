@@ -26,8 +26,8 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #ifndef UTILITY_STORAGE_HPP_INCLUDED
 #define UTILITY_STORAGE_HPP_INCLUDED
 
-#include <utility>
 #include <memory>
+#include <utility>
 
 #include <meta/count_c.hpp>
 
@@ -39,34 +39,36 @@ namespace utility { namespace storage {
         A type that can be used to represent void where a proper object is
         required.
         */
-        class void_ {};
+        class void_
+        {};
 
         /**
         Wrap an rvalue reference.
         This works similarly to \c std::reference_wrapper.
         This is assignable, but convertible to an rvalue reference.
         */
-        template <class Type> class rvalue_reference_wrapper {
+        template <class Type> class rvalue_reference_wrapper
+        {
             Type * location;
-        public:
-            rvalue_reference_wrapper (Type && object) : location (&object) {}
 
-            operator Type && () const
-            { return static_cast <Type &&> (*location); }
+        public:
+            rvalue_reference_wrapper(Type && object) : location(&object) {}
+
+            operator Type &&() const { return static_cast<Type &&>(*location); }
         };
 
         /**
         Wrap a function (not a function reference or a function pointer).
         Functions are not really values, so they are saved as a pointer type.
         */
-        template <class FunctionType> class function_wrapper {
+        template <class FunctionType> class function_wrapper
+        {
         public:
             typedef FunctionType * pointer_type;
             typedef FunctionType & reference_type;
             typedef FunctionType function_type;
 
-            function_wrapper (pointer_type pointer)
-            : pointer_ (pointer) {}
+            function_wrapper(pointer_type pointer) : pointer_(pointer) {}
 
             operator pointer_type() const { return pointer_; }
             operator reference_type() const { return *pointer_; }
@@ -88,64 +90,72 @@ namespace utility { namespace storage {
         // Implementation type that is constructed with a list of indices.
         template <class Type, std::size_t N> struct array_wrapper_implementation
         {
-            Type data_ [N];
+            Type data_[N];
 
             // This is the only way to initialise a std::initialiser_list.
-            template <std::size_t ... Indices>
-                array_wrapper_implementation (Type const (& data) [N],
-                    meta::size_t_vector <Indices ...>)
-            : data_ {data [Indices] ...} {}
+            template <std::size_t... Indices> array_wrapper_implementation(
+                Type const (&data)[N], meta::size_t_vector<Indices...>)
+            : data_ {data[Indices]...}
+            {}
 
-            void assign (Type const (& data) [N], meta::size_t_vector <>) {}
+            void assign(Type const (&data)[N], meta::size_t_vector<>) {}
 
-            template <std::size_t FirstIndex, std::size_t ... Indices>
-                void assign (Type const (& data) [N],
-                    meta::size_t_vector <FirstIndex, Indices ...>)
+            template <std::size_t FirstIndex, std::size_t... Indices>
+            void assign(
+                Type const (&data)[N],
+                meta::size_t_vector<FirstIndex, Indices...>)
             {
-                data_ [FirstIndex] = data [FirstIndex];
-                assign (data, meta::size_t_vector <Indices ...>());
+                data_[FirstIndex] = data[FirstIndex];
+                assign(data, meta::size_t_vector<Indices...>());
             }
         };
 
-        template <class Type, std::size_t N> class array_wrapper {
-            typedef typename meta::count_c <N>::type indices_type;
+        template <class Type, std::size_t N> class array_wrapper
+        {
+            typedef typename meta::count_c<N>::type indices_type;
+
         public:
-            typedef Type value_type [N];
+            typedef Type value_type[N];
 
-            typedef Type (& reference_type) [N];
-            typedef Type const (& const_reference_type) [N];
+            typedef Type (&reference_type)[N];
+            typedef Type const (&const_reference_type)[N];
 
-            array_wrapper (Type const (& data) [N])
-            : implementation (data, indices_type()) {}
+            array_wrapper(Type const (&data)[N])
+            : implementation(data, indices_type())
+            {}
 
-            operator reference_type()
-            { return implementation.data_; }
+            operator reference_type() { return implementation.data_; }
 
             operator const_reference_type() const
-            { return implementation.data_; }
+            {
+                return implementation.data_;
+            }
 
-            array_wrapper & operator= (Type const (& data) [N]) {
-                implementation.assign (data, indices_type());
+            array_wrapper & operator=(Type const (&data)[N])
+            {
+                implementation.assign(data, indices_type());
                 return *this;
             }
 
         private:
-            array_wrapper_implementation <Type, N> implementation;
+            array_wrapper_implementation<Type, N> implementation;
         };
 
-        struct type_that_cannot_be_constructed_1 {
+        struct type_that_cannot_be_constructed_1
+        {
             type_that_cannot_be_constructed_1() = delete;
-            type_that_cannot_be_constructed_1 (
+            type_that_cannot_be_constructed_1(
                 type_that_cannot_be_constructed_1 const &) = delete;
         };
 
-        struct type_that_cannot_be_constructed_2 {
+        struct type_that_cannot_be_constructed_2
+        {
             type_that_cannot_be_constructed_2() = delete;
-            type_that_cannot_be_constructed_2 (
+            type_that_cannot_be_constructed_2(
                 type_that_cannot_be_constructed_2 const &) = delete;
         };
 
-    } // namespace detail
+    }  // namespace detail
 
     /**
     Returns a type that can be used to store a user-specified type.
@@ -160,36 +170,49 @@ namespace utility { namespace storage {
     template <class Type> struct store;
 
     template <class Type> struct store
-    { typedef Type type; };
+    {
+        typedef Type type;
+    };
 
     // References: store as reference_wrapper's.
-    template <class Type> struct store <Type &>
-    { typedef std::reference_wrapper <Type> type; };
+    template <class Type> struct store<Type &>
+    {
+        typedef std::reference_wrapper<Type> type;
+    };
 
-    template <class Type> struct store <Type &&>
-    { typedef detail::rvalue_reference_wrapper <Type> type; };
+    template <class Type> struct store<Type &&>
+    {
+        typedef detail::rvalue_reference_wrapper<Type> type;
+    };
 
     // Const: store non-const.
-    template <class Type> struct store <Type const>
-    { typedef Type type; };
+    template <class Type> struct store<Type const>
+    {
+        typedef Type type;
+    };
 
     // Function: store as a function pointer.
     // (Function pointers and function reference need no special treatment.)
-    template <class Result, typename ... Arguments>
-        struct store <Result (Arguments ...)>
-    { typedef detail::function_wrapper <Result (Arguments ...)> type; };
+    template <class Result, typename... Arguments>
+    struct store<Result(Arguments...)>
+    {
+        typedef detail::function_wrapper<Result(Arguments...)> type;
+    };
 
     // Arrays.
-    template <class Type, std::size_t N>
-        struct store <Type [N]>
-    { typedef detail::array_wrapper <Type, N> type; };
+    template <class Type, std::size_t N> struct store<Type[N]>
+    {
+        typedef detail::array_wrapper<Type, N> type;
+    };
     // Disambiguate const arrays.
-    template <class Type, std::size_t N>
-        struct store <Type const [N]>
-    { typedef detail::array_wrapper <Type, N> type; };
+    template <class Type, std::size_t N> struct store<Type const[N]>
+    {
+        typedef detail::array_wrapper<Type, N> type;
+    };
 
     // void.
-    template <> struct store <void> {
+    template <> struct store<void>
+    {
         typedef detail::void_ type;
     };
 
@@ -228,55 +251,79 @@ namespace utility { namespace storage {
         template <class Type, class Container> struct deal_with_const;
 
         template <class Type, class Container> struct deal_with_const
-        { typedef Type type; };
+        {
+            typedef Type type;
+        };
         template <class Type, class Container>
-            struct deal_with_const <Type, Container const>
-        { typedef Type const type; };
+        struct deal_with_const<Type, Container const>
+        {
+            typedef Type const type;
+        };
 
         // Rvalue container -> rvalue type.
         template <class Type, class Container>
-            struct deal_with_reference <Type, Container &&>
-        { typedef typename deal_with_const <Type, Container>::type && type; };
+        struct deal_with_reference<Type, Container &&>
+        {
+            typedef typename deal_with_const<Type, Container>::type && type;
+        };
         template <class Type, class Container>
-            struct deal_with_reference <Type &, Container &&>
-        { typedef typename deal_with_const <Type &, Container>::type type; };
+        struct deal_with_reference<Type &, Container &&>
+        {
+            typedef typename deal_with_const<Type &, Container>::type type;
+        };
         template <class Type, class Container>
-            struct deal_with_reference <Type &&, Container &&>
-        { typedef typename deal_with_const <Type &&, Container>::type type; };
+        struct deal_with_reference<Type &&, Container &&>
+        {
+            typedef typename deal_with_const<Type &&, Container>::type type;
+        };
 
         // Lvalue container -> lvalue type.
         template <class Type, class Container>
-            struct deal_with_reference <Type, Container &>
-        { typedef typename deal_with_const <Type, Container>::type & type; };
+        struct deal_with_reference<Type, Container &>
+        {
+            typedef typename deal_with_const<Type, Container>::type & type;
+        };
         // Except if the type is an rvalue.
         template <class Type, class Container>
-            struct deal_with_reference <Type &, Container &>
-        { typedef typename deal_with_const <Type &, Container>::type type; };
+        struct deal_with_reference<Type &, Container &>
+        {
+            typedef typename deal_with_const<Type &, Container>::type type;
+        };
         template <class Type, class Container>
-            struct deal_with_reference <Type &&, Container &>
-        { typedef typename deal_with_const <Type &&, Container>::type type; };
+        struct deal_with_reference<Type &&, Container &>
+        {
+            typedef typename deal_with_const<Type &&, Container>::type type;
+        };
 
         /// Return \c Type, unless it is a function type, in which case it is
         /// converted into a function reference.
-        template <class Type> struct value { typedef Type type; };
+        template <class Type> struct value
+        {
+            typedef Type type;
+        };
 
-        template <class Result, class ... Arguments>
-            struct value <Result (Arguments ...)>
-        { typedef Result (& type) (Arguments ...); };
+        template <class Result, class... Arguments>
+        struct value<Result(Arguments...)>
+        {
+            typedef Result (&type)(Arguments...);
+        };
 
-    } // namespace get_detail
+    }  // namespace get_detail
 
     template <class Type, class Container> struct get
     {
-        typedef typename get_detail::deal_with_reference <Type, Container>::type
+        typedef typename get_detail::deal_with_reference<Type, Container>::type
             type;
-        type operator() (typename get <Type, Container &>::type object) const
-        { return static_cast <type> (object); }
+        type operator()(typename get<Type, Container &>::type object) const
+        {
+            return static_cast<type>(object);
+        }
     };
 
-    template <class Container> struct get <void, Container> {
+    template <class Container> struct get<void, Container>
+    {
         typedef void type;
-        type operator() (detail::void_) {}
+        type operator()(detail::void_) {}
     };
 
     /** \brief
@@ -310,11 +357,11 @@ namespace utility { namespace storage {
     \tparam Type
         The type to be qualified appropriately.
     */
-    template <class Type> struct get_value
-    : get_detail::value <Type> {};
+    template <class Type> struct get_value : get_detail::value<Type>
+    {};
 
     // Specialisation for arrays: do not contain "type".
-    template <class Type, std::size_t Number> struct get_value <Type[Number]>
+    template <class Type, std::size_t Number> struct get_value<Type[Number]>
     {};
 
     /**
@@ -332,26 +379,34 @@ namespace utility { namespace storage {
     object.
     This means that it works well as a return type for \c operator->.
     */
-    template <class Type, class Container> class get_pointer {
-        struct unusable { typedef unusable type; };
+    template <class Type, class Container> class get_pointer
+    {
+        struct unusable
+        {
+            typedef unusable type;
+        };
+
     public:
-        typedef typename std::add_pointer <typename
-            get_detail::deal_with_const <Type, typename
-                std::remove_reference <Container>::type>::type>::type type;
+        typedef typename std::add_pointer<typename get_detail::deal_with_const<
+            Type, typename std::remove_reference<Container>::type>::type>::type
+            type;
 
         // This overload is used iff Type is not void.
-        inline type operator() (typename std::conditional <
-            !std::is_same <Type, void>::value,
-            get <Type, Container &>, unusable>::type::type object)
-            const
-        { return std::addressof (object); }
+        inline type operator()(
+            typename std::conditional<
+                !std::is_same<Type, void>::value, get<Type, Container &>,
+                unusable>::type::type object) const
+        {
+            return std::addressof(object);
+        }
 
         // These overloads will only be chosen if Type is void.
-        inline type operator() (detail::void_ & object) const
-        { return &object; }
+        inline type operator()(detail::void_ & object) const { return &object; }
 
-        inline type operator() (detail::void_ const & object) const
-        { return &object; }
+        inline type operator()(detail::void_ const & object) const
+        {
+            return &object;
+        }
     };
 
     /**
@@ -375,13 +430,19 @@ namespace utility { namespace storage {
     \sa pass_rvalue
     */
     template <class Type> struct pass
-    { typedef Type const & type; };
+    {
+        typedef Type const & type;
+    };
 
-    template <class Type> struct pass <Type &&>
-    { typedef Type && type; };
+    template <class Type> struct pass<Type &&>
+    {
+        typedef Type && type;
+    };
 
-    template<> struct pass <void>
-    { typedef detail::type_that_cannot_be_constructed_1 type; };
+    template <> struct pass<void>
+    {
+        typedef detail::type_that_cannot_be_constructed_1 type;
+    };
 
     /**
     Return a type that is an argument type for move-constructing an object
@@ -400,17 +461,25 @@ namespace utility { namespace storage {
     with \c std::move.
     */
     template <class Type, class Dummy = void> struct pass_rvalue
-    { typedef typename std::remove_const <Type>::type && type; };
+    {
+        typedef typename std::remove_const<Type>::type && type;
+    };
 
-    template <class Type> struct pass_rvalue <Type &>
-    { typedef detail::type_that_cannot_be_constructed_1 type; };
+    template <class Type> struct pass_rvalue<Type &>
+    {
+        typedef detail::type_that_cannot_be_constructed_1 type;
+    };
 
-    template <class Type> struct pass_rvalue <Type &&>
-    { typedef detail::type_that_cannot_be_constructed_1 type; };
+    template <class Type> struct pass_rvalue<Type &&>
+    {
+        typedef detail::type_that_cannot_be_constructed_1 type;
+    };
 
-    template<> struct pass_rvalue <void>
-    { typedef detail::type_that_cannot_be_constructed_2 type; };
+    template <> struct pass_rvalue<void>
+    {
+        typedef detail::type_that_cannot_be_constructed_2 type;
+    };
 
-}} // namespace utility::storage
+}}  // namespace utility::storage
 
-#endif // UTILITY_STORAGE_HPP_INCLUDED
+#endif  // UTILITY_STORAGE_HPP_INCLUDED

@@ -35,35 +35,43 @@ This is useful to overload a function with Type && that is really supposed to
 receive only a const-reference or an unqualifed rvalue reference to a specific
 type.
 */
-template <class Target> inline
-    typename std::decay <Target>::type const &
-    copy_or_move (Target const & argument)
-{ return argument; }
+template <class Target>
+inline typename std::decay<Target>::type const & copy_or_move(
+    Target const & argument)
+{
+    return argument;
+}
 
-template <class Target> inline
-    typename std::decay <Target>::type &&
-    copy_or_move (Target && argument)
-{ return static_cast <Target &&> (argument); }
+template <class Target>
+inline typename std::decay<Target>::type && copy_or_move(Target && argument)
+{
+    return static_cast<Target &&>(argument);
+}
 
 /**
 Forward an argument of type Source (qualified, like one would for std::forward)
 as either a const-reference or an unqualified rvalue reference.
 */
-template <class Target, class Source> inline
-    auto forward_copy_or_move (
-        typename std::remove_reference <Source>::type & argument)
--> decltype (copy_or_move <Target> (std::declval <Source &&>()))
-{ return copy_or_move <Target> (static_cast <Source &&> (argument)); }
+template <class Target, class Source> inline auto forward_copy_or_move(
+    typename std::remove_reference<Source>::type & argument)
+    -> decltype(copy_or_move<Target>(std::declval<Source &&>()))
+{
+    return copy_or_move<Target>(static_cast<Source &&>(argument));
+}
 
 namespace detail {
     template <class Container, class Member> struct forward_member_result
-    { typedef typename std::remove_reference <Member>::type && type; };
+    {
+        typedef typename std::remove_reference<Member>::type && type;
+    };
 
     template <class Container, class Member>
-        struct forward_member_result <Container &, Member>
-    { typedef typename std::remove_reference <Member>::type & type; };
+    struct forward_member_result<Container &, Member>
+    {
+        typedef typename std::remove_reference<Member>::type & type;
+    };
 
-} // namespace detail
+}  // namespace detail
 
 /**
 Forward a member with the reference qualification of its container.
@@ -73,13 +81,14 @@ This can be used to forward a member of a struct or an element of a container.
 This is not as safe to use as std::forward.
 */
 template <class Container, class Member>
-    typename detail::forward_member_result <Container, Member>::type
-    forward_member (Member & member)
+typename detail::forward_member_result<Container, Member>::type forward_member(
+    Member & member)
 {
-    return static_cast <typename
-        detail::forward_member_result <Container, Member>::type> (member);
+    return static_cast<
+        typename detail::forward_member_result<Container, Member>::type>(
+        member);
 }
 
-} // namespace utility
+}  // namespace utility
 
-#endif // UTILITY_COPY_OR_MOVE_HPP_INCLUDED
+#endif  // UTILITY_COPY_OR_MOVE_HPP_INCLUDED

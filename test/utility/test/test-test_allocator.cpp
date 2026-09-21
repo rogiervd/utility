@@ -23,67 +23,68 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_test_allocator)
 
-BOOST_AUTO_TEST_CASE (test_utility_test_allocator) {
+BOOST_AUTO_TEST_CASE(test_utility_test_allocator)
+{
     utility::thrower thrower;
-    utility::test_allocator <std::allocator <int>> allocator (thrower);
+    utility::test_allocator<std::allocator<int>> allocator(thrower);
 
     {
-        utility::test_allocator <std::allocator <int>> allocator2 (thrower);
-        BOOST_CHECK (allocator != allocator2);
-        BOOST_CHECK (!(allocator == allocator2));
+        utility::test_allocator<std::allocator<int>> allocator2(thrower);
+        BOOST_CHECK(allocator != allocator2);
+        BOOST_CHECK(!(allocator == allocator2));
     }
 
-    std::vector <int, utility::test_allocator <std::allocator <int>>>
-        v (allocator);
-    BOOST_CHECK_EQUAL (thrower.count(), 0);
+    std::vector<int, utility::test_allocator<std::allocator<int>>> v(allocator);
+    BOOST_CHECK_EQUAL(thrower.count(), 0);
     int i;
-    for (i = 0; i != 10; ++ i)
-        v.push_back (i);
-    BOOST_CHECK_EQUAL (v.front(), 0);
+    for (i = 0; i != 10; ++i)
+        v.push_back(i);
+    BOOST_CHECK_EQUAL(v.front(), 0);
     size_t allocation_count_10 = thrower.count();
-    BOOST_CHECK (allocation_count_10 != 0);
+    BOOST_CHECK(allocation_count_10 != 0);
 
-    for (; i != 100; ++ i)
-        v.push_back (i);
+    for (; i != 100; ++i)
+        v.push_back(i);
     size_t allocation_count_100 = thrower.count();
-    BOOST_CHECK (allocation_count_100 != allocation_count_10);
+    BOOST_CHECK(allocation_count_100 != allocation_count_10);
     size_t difference_100 = allocation_count_100 - allocation_count_10;
 
-    for (; i != 1000; ++ i)
-        v.push_back (i);
-    BOOST_CHECK_EQUAL (v.back(), 999);
+    for (; i != 1000; ++i)
+        v.push_back(i);
+    BOOST_CHECK_EQUAL(v.back(), 999);
     size_t allocation_count_1000 = thrower.count();
     size_t difference_1000 = allocation_count_1000 - allocation_count_100;
     // Allocating the extra 900 should cause in the same order of allocations
     // as allocating the extra 90.
-    BOOST_CHECK (difference_100 / 2 < difference_1000);
-    BOOST_CHECK (difference_1000 < difference_100 * 2);
+    BOOST_CHECK(difference_100 / 2 < difference_1000);
+    BOOST_CHECK(difference_1000 < difference_100 * 2);
 
-    for (; i != 10000; ++ i)
-        v.push_back (i);
+    for (; i != 10000; ++i)
+        v.push_back(i);
     size_t allocation_count_10000 = thrower.count();
     size_t difference_10000 = allocation_count_10000 - allocation_count_1000;
     // Allocating the extra 900 should cause in the same order of allocations
     // as allocating the extra 90.
-    BOOST_CHECK (difference_1000 / 2 < difference_10000);
-    BOOST_CHECK (difference_10000 < difference_1000 * 2);
+    BOOST_CHECK(difference_1000 / 2 < difference_10000);
+    BOOST_CHECK(difference_10000 < difference_1000 * 2);
 
     // Playground for creating error messages:
-    int * p = allocator.allocate (4);
-    allocator.deallocate (p, 4);
+    int * p = allocator.allocate(4);
+    allocator.deallocate(p, 4);
 }
 
-BOOST_AUTO_TEST_CASE (test_utility_test_allocator_swap) {
+BOOST_AUTO_TEST_CASE(test_utility_test_allocator_swap)
+{
     utility::thrower thrower;
-    utility::test_allocator <std::allocator <int>> allocator_1 (thrower);
-    utility::test_allocator <std::allocator <int>> allocator_2 (thrower);
+    utility::test_allocator<std::allocator<int>> allocator_1(thrower);
+    utility::test_allocator<std::allocator<int>> allocator_2(thrower);
 
     // Allocate with allocator_1
     auto temporary = allocator_1.allocate(1);
 
-    swap (allocator_1, allocator_2);
+    swap(allocator_1, allocator_2);
     // Deallocate an object allocated with allocator_1.
-    allocator_2.deallocate (temporary, 1);
+    allocator_2.deallocate(temporary, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -48,9 +48,10 @@ This macro simplifies those expressions to the above
 This requires a semicolon after the macro invocation, so that simple parsers
 (for example, for inline documentation) do not get confused.
 */
-#define RETURNS(...) -> decltype((__VA_ARGS__)) { return __VA_ARGS__; } \
-    struct BOOST_PP_CAT (utility_returns_should_be_followed_by_a_semicolon, \
-        __LINE__)
+#define RETURNS(...)                                  \
+    ->decltype((__VA_ARGS__)) { return __VA_ARGS__; } \
+    struct BOOST_PP_CAT(                              \
+        utility_returns_should_be_followed_by_a_semicolon, __LINE__)
 
 /** \brief
 Make a type declaration (returning a decayed type) and an implementation for a
@@ -63,10 +64,12 @@ auto f (...) RETURNS (x);
 
 This is like \ref RETURNS but returns the decayed type.
 */
-#define RETURNS_DECAYED(...) \
-    -> typename std::decay <decltype((__VA_ARGS__))>::type \
-    { return __VA_ARGS__; } \
-    struct BOOST_PP_CAT (utility_returns_should_be_followed_by_a_semicolon, \
-        __LINE__)
+#define RETURNS_DECAYED(...)                             \
+    ->typename std::decay<decltype((__VA_ARGS__))>::type \
+    {                                                    \
+        return __VA_ARGS__;                              \
+    }                                                    \
+    struct BOOST_PP_CAT(                                 \
+        utility_returns_should_be_followed_by_a_semicolon, __LINE__)
 
-#endif // UTILITY_RETURNS_HPP_INCLUDED
+#endif  // UTILITY_RETURNS_HPP_INCLUDED
