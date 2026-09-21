@@ -33,8 +33,10 @@ for example using \c decltype.
     If not given, \c type is \c void.
 */
 template <class Condition, class Type = void> struct enable_if_compiles
-{ typedef Type type; };
+{
+    typedef Type type;
+};
 
-} // namespace utility
+}  // namespace utility
 
-#endif // UTILITY_ENABLE_IF_COMPILES_INCLUDED
+#endif  // UTILITY_ENABLE_IF_COMPILES_INCLUDED
