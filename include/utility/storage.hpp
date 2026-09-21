@@ -31,8 +31,6 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 
 #include <meta/count_c.hpp>
 
-#include "config.hpp"
-
 namespace utility { namespace storage {
 
     namespace detail {

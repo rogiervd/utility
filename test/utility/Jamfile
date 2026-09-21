@@ -1,5 +1,0 @@
-build-project config ;
-run_glob *.cpp ;
-build-project test ;
-build-project threaded ;
-build-project python ;

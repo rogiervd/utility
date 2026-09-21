@@ -14,8 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-#define BOOST_TEST_MODULE fail_utility_test_tracked_3
-#include "utility/test/boost_unit_test.hpp"
+#define BOOST_TEST_MODULE test_utility_test_tracked
+#include <boost/test/unit_test.hpp>
 
 #include "utility/test/tracked.hpp"
 
@@ -28,7 +28,39 @@ BOOST_AUTO_TEST_SUITE(test_utility_tracked)
 using utility::tracked_registry;
 using utility::tracked;
 
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(test_tracked, 2)
+
+
 BOOST_AUTO_TEST_CASE (test_tracked) {
+    tracked_registry r;
+
+    char memory [sizeof (tracked <int>)];
+    tracked <int> * t = reinterpret_cast <tracked <int> *> (&memory [0]);
+
+    new (t) tracked <int> (r, 5);
+
+    // Don't destruct.
+}
+
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(test_tracked_2, 2)
+
+BOOST_AUTO_TEST_CASE (test_tracked_2) {
+    tracked_registry r;
+
+    char memory [sizeof (tracked <int>)];
+    tracked <int> * t = reinterpret_cast <tracked <int> *> (&memory [0]);
+
+    new (t) tracked <int> (r, 5);
+    // New object where one already existed.
+    new (t) tracked <int> (r, 7);
+
+    t->~tracked <int>();
+}
+
+
+BOOST_AUTO_TEST_CASE_EXPECTED_FAILURES(test_tracked_3, 3)
+
+BOOST_AUTO_TEST_CASE (test_tracked_3) {
     tracked_registry r;
 
     char memory [sizeof (tracked <int>)];
@@ -39,5 +71,4 @@ BOOST_AUTO_TEST_CASE (test_tracked) {
     // Second destruction.
     t->~tracked <int>();
 }
-
 BOOST_AUTO_TEST_SUITE_END()
