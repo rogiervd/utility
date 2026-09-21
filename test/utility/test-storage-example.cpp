@@ -20,7 +20,7 @@ Give an example, and test, of how to use the classes defined in
 */
 
 #define BOOST_TEST_MODULE test_utility_storage
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include "utility/storage.hpp"
 
