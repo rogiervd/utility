@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #define BOOST_TEST_MODULE test_utility_enable_if_compiles
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include "utility/enable_if_compiles.hpp"
 
@@ -27,41 +27,44 @@ Return the object times two.
 This is implemented either as <c>2*object</c> if it is an \c int,
 or <c>object.twice()</c>.
 */
-int times_two (int object)
-{ return 2 * object; }
+int times_two(int object) { return 2 * object; }
 
-template <class Type>
-    typename utility::enable_if_compiles <
-        decltype (std::declval <Type const &>().twice()), Type>::type
-    times_two (Type const & object)
-{ return object.twice(); }
+template <class Type> typename utility::enable_if_compiles<
+    decltype(std::declval<Type const &>().twice()), Type>::type
+    times_two(Type const & object)
+{
+    return object.twice();
+}
 
 /**
 Evaluate to \c true if \a Type has a member \c begin().
 */
-template <class Type, class Enable = void> struct has_begin
-: std::false_type {};
+template <class Type, class Enable = void> struct has_begin : std::false_type
+{};
 
-template <class Type>
-    struct has_begin <Type, typename utility::enable_if_compiles <
-        decltype (std::declval <Type>().begin())>::type>
-: std::true_type {};
+template <class Type> struct has_begin<
+    Type,
+    typename utility::enable_if_compiles<
+        decltype(std::declval<Type>().begin())>::type> : std::true_type
+{};
 
 BOOST_AUTO_TEST_SUITE(test_utility_enable_if_compiles)
 
-struct twiceable {
+struct twiceable
+{
     int i;
-    twiceable (int i) : i (i) {}
-    twiceable twice() const { return twiceable (2*i); }
+    twiceable(int i) : i(i) {}
+    twiceable twice() const { return twiceable(2 * i); }
 };
 
-BOOST_AUTO_TEST_CASE (enable_if_compiles) {
-    BOOST_CHECK_EQUAL (times_two (5), 10);
-    twiceable a (27);
-    BOOST_CHECK_EQUAL (times_two (a).i, 54);
+BOOST_AUTO_TEST_CASE(enable_if_compiles)
+{
+    BOOST_CHECK_EQUAL(times_two(5), 10);
+    twiceable a(27);
+    BOOST_CHECK_EQUAL(times_two(a).i, 54);
 
-    static_assert (!has_begin <int>::value, "");
-    static_assert (has_begin <std::vector <int>>::value, "");
+    static_assert(!has_begin<int>::value, "");
+    static_assert(has_begin<std::vector<int>>::value, "");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

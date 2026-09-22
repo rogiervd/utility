@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 #define BOOST_TEST_MODULE test_utility_small_ptr
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 
@@ -25,61 +25,65 @@ limitations under the License.
 
 #include "utility/small_ptr.hpp"
 
-template <bool recursive, class ThrowToggles>
-    class shared_object;
+template <bool recursive, class ThrowToggles> class shared_object;
 
 namespace utility { namespace pointer_policy {
 
     template <class ThrowToggles>
-        struct move_recursive_next <
-            shared_object <true, ThrowToggles>>
+    struct move_recursive_next<shared_object<true, ThrowToggles>>
     {
-        typedef shared_object <true, ThrowToggles> object_type;
-        typedef utility::test_allocator <std::allocator <object_type>, true>
+        typedef shared_object<true, ThrowToggles> object_type;
+        typedef utility::test_allocator<std::allocator<object_type>, true>
             allocator_type;
-        utility::small_ptr <object_type, allocator_type> &&
-            operator() (object_type * object) const
-        { return std::move (object->next()); }
+        utility::small_ptr<object_type, allocator_type> && operator()(
+            object_type * object) const
+        {
+            return std::move(object->next());
+        }
     };
 
-}} // namespace utility::pointer_policy
+}}  // namespace utility::pointer_policy
 
-template <bool recursive, class ThrowToggles>
-    class shared_object : public utility::shared
+template <bool recursive, class ThrowToggles> class shared_object
+: public utility::shared
 {
-    typedef utility::test_allocator <std::allocator <shared_object>, true>
+    typedef utility::test_allocator<std::allocator<shared_object>, true>
         test_allocator;
+
 public:
     /**
     Initialise with a value but not a
     */
-    shared_object (utility::thrower & thrower,
-        utility::tracked_registry & registry, int value)
-        : value_ (thrower, utility::tracked <int> (registry, value)),
-        next_ (test_allocator (thrower)) {}
+    shared_object(
+        utility::thrower & thrower, utility::tracked_registry & registry,
+        int value)
+    : value_(thrower, utility::tracked<int>(registry, value)),
+      next_(test_allocator(thrower))
+    {}
 
-    shared_object (utility::thrower & thrower,
-        utility::tracked_registry & registry, int value,
-        utility::small_ptr <shared_object, test_allocator> const & next)
-        : value_ (thrower, utility::tracked <int> (registry, value)),
-        next_ (next) {}
+    shared_object(
+        utility::thrower & thrower, utility::tracked_registry & registry,
+        int value,
+        utility::small_ptr<shared_object, test_allocator> const & next)
+    : value_(thrower, utility::tracked<int>(registry, value)), next_(next)
+    {}
 
     ~shared_object() noexcept {}
 
     int value() { return value_.content().content(); }
 
-    void set_next (utility::small_ptr <shared_object> const & n)
-    { next_ = n; }
+    void set_next(utility::small_ptr<shared_object> const & n) { next_ = n; }
 
-    utility::small_ptr <shared_object, test_allocator> const & next() const
-    { return next_; }
+    utility::small_ptr<shared_object, test_allocator> const & next() const
+    {
+        return next_;
+    }
 
-    utility::small_ptr <shared_object, test_allocator> & next()
-    { return next_; }
+    utility::small_ptr<shared_object, test_allocator> & next() { return next_; }
 
 private:
-    utility::throwing <utility::tracked <int>, ThrowToggles> value_;
-    utility::small_ptr <shared_object, test_allocator> next_;
+    utility::throwing<utility::tracked<int>, ThrowToggles> value_;
+    utility::small_ptr<shared_object, test_allocator> next_;
 };
 
 
@@ -89,332 +93,339 @@ BOOST_AUTO_TEST_SUITE(test_suite_utility_small_ptr)
 Assuming operator == works correctly and operator < does something, test whether
 the other comparison operators are consistent with them.
 */
-template <class Type> void check_comparison (Type const & o1, Type const o2) {
+template <class Type> void check_comparison(Type const & o1, Type const o2)
+{
     if (o1 == o2) {
-        BOOST_CHECK (! (o1 != o2));
-        BOOST_CHECK (! (o1 < o2));
-        BOOST_CHECK (! (o1 > o2));
-        BOOST_CHECK (o1 <= o2);
-        BOOST_CHECK (o1 >= o2);
+        BOOST_CHECK(!(o1 != o2));
+        BOOST_CHECK(!(o1 < o2));
+        BOOST_CHECK(!(o1 > o2));
+        BOOST_CHECK(o1 <= o2);
+        BOOST_CHECK(o1 >= o2);
     } else {
         if (o1 < o2) {
-            BOOST_CHECK (o1 != o2);
-            BOOST_CHECK (!(o1 > o2));
-            BOOST_CHECK (o1 < o2);
-            BOOST_CHECK (!(o1 >= o2));
+            BOOST_CHECK(o1 != o2);
+            BOOST_CHECK(!(o1 > o2));
+            BOOST_CHECK(o1 < o2);
+            BOOST_CHECK(!(o1 >= o2));
         } else {
-            BOOST_CHECK (o1 != o2);
-            BOOST_CHECK (o1 > o2);
-            BOOST_CHECK (! (o1 < o2));
-            BOOST_CHECK (o1 >= o2);
+            BOOST_CHECK(o1 != o2);
+            BOOST_CHECK(o1 > o2);
+            BOOST_CHECK(!(o1 < o2));
+            BOOST_CHECK(o1 >= o2);
         }
     }
 }
 
-template <bool recursive> struct test_small_ptr {
+template <bool recursive> struct test_small_ptr
+{
     template <class ThrowToggles>
-        void operator() (utility::thrower & thrower, ThrowToggles)
+    void operator()(utility::thrower & thrower, ThrowToggles)
     {
-        typedef shared_object <recursive, ThrowToggles> shared_object;
-        typedef utility::test_allocator <std::allocator <shared_object>, true>
+        typedef shared_object<recursive, ThrowToggles> shared_object;
+        typedef utility::test_allocator<std::allocator<shared_object>, true>
             test_allocator;
         utility::tracked_registry registry;
-        test_allocator allocator (thrower);
-        typedef utility::small_ptr <shared_object, test_allocator> small_ptr;
+        test_allocator allocator(thrower);
+        typedef utility::small_ptr<shared_object, test_allocator> small_ptr;
         {
-            test_allocator allocator1 (thrower);
-            auto empty1 = small_ptr (allocator1);
-            BOOST_CHECK (empty1.empty());
-            BOOST_CHECK (empty1 == empty1);
-            BOOST_CHECK (!empty1);
-            BOOST_CHECK (!empty1.unique());
-            BOOST_CHECK_EQUAL (empty1.use_count(), 0);
-            BOOST_CHECK (empty1.allocator() == allocator1);
-            BOOST_CHECK (empty1.get() == nullptr);
+            test_allocator allocator1(thrower);
+            auto empty1 = small_ptr(allocator1);
+            BOOST_CHECK(empty1.empty());
+            BOOST_CHECK(empty1 == empty1);
+            BOOST_CHECK(!empty1);
+            BOOST_CHECK(!empty1.unique());
+            BOOST_CHECK_EQUAL(empty1.use_count(), 0);
+            BOOST_CHECK(empty1.allocator() == allocator1);
+            BOOST_CHECK(empty1.get() == nullptr);
 
-            test_allocator allocator2 (thrower);
-            auto empty2 = small_ptr (allocator2);
-            BOOST_CHECK (empty2.empty());
-            BOOST_CHECK (!empty2);
-            BOOST_CHECK (empty2 == empty2);
-            BOOST_CHECK (empty1 == empty2);
-            BOOST_CHECK (!empty2.unique());
-            BOOST_CHECK (empty2.allocator() == allocator2);
+            test_allocator allocator2(thrower);
+            auto empty2 = small_ptr(allocator2);
+            BOOST_CHECK(empty2.empty());
+            BOOST_CHECK(!empty2);
+            BOOST_CHECK(empty2 == empty2);
+            BOOST_CHECK(empty1 == empty2);
+            BOOST_CHECK(!empty2.unique());
+            BOOST_CHECK(empty2.allocator() == allocator2);
 
             // Copy empty to empty.
             {
-                auto empty3 = small_ptr (allocator2);
-                BOOST_CHECK (empty3.allocator() == empty2.allocator());
+                auto empty3 = small_ptr(allocator2);
+                BOOST_CHECK(empty3.allocator() == empty2.allocator());
 
                 empty3 = empty1;
-                BOOST_CHECK (empty3.empty());
-                BOOST_CHECK (empty3.allocator() == allocator1);
+                BOOST_CHECK(empty3.empty());
+                BOOST_CHECK(empty3.allocator() == allocator1);
             }
             // Move empty to empty
             {
-                auto empty3 = small_ptr (allocator2);
-                BOOST_CHECK (empty3.allocator() == empty2.allocator());
+                auto empty3 = small_ptr(allocator2);
+                BOOST_CHECK(empty3.allocator() == empty2.allocator());
 
-                empty3 = std::move (empty1);
-                BOOST_CHECK (empty3.empty());
-                BOOST_CHECK (empty3.allocator() == allocator1);
+                empty3 = std::move(empty1);
+                BOOST_CHECK(empty3.empty());
+                BOOST_CHECK(empty3.allocator() == allocator1);
             }
         }
         {
-            test_allocator allocator1 (thrower);
-            auto empty1 = small_ptr (allocator1);
+            test_allocator allocator1(thrower);
+            auto empty1 = small_ptr(allocator1);
 
-            test_allocator allocator2 (thrower);
-            auto empty2 = small_ptr (allocator2);
+            test_allocator allocator2(thrower);
+            auto empty2 = small_ptr(allocator2);
 
-            BOOST_CHECK (empty1.allocator() != empty2.allocator());
+            BOOST_CHECK(empty1.allocator() != empty2.allocator());
 
             // Constructing from a pointer is possible, but not recommended.
             shared_object * object_pointer_1;
-            object_pointer_1 = allocator1.allocate (1);
+            object_pointer_1 = allocator1.allocate(1);
             try {
-                new (object_pointer_1) shared_object (thrower, registry, 26);
+                new (object_pointer_1) shared_object(thrower, registry, 26);
             } catch (...) {
-                allocator1.deallocate (object_pointer_1, 1);
+                allocator1.deallocate(object_pointer_1, 1);
                 throw;
             }
-            small_ptr object1 = small_ptr (object_pointer_1, allocator1);
-            BOOST_CHECK (!object1.empty());
-            BOOST_CHECK_EQUAL (object1.get(), object_pointer_1);
-            BOOST_CHECK_EQUAL (object1.use_count(), 1);
+            small_ptr object1 = small_ptr(object_pointer_1, allocator1);
+            BOOST_CHECK(!object1.empty());
+            BOOST_CHECK_EQUAL(object1.get(), object_pointer_1);
+            BOOST_CHECK_EQUAL(object1.use_count(), 1);
 
-            BOOST_CHECK_EQUAL (object1->value(), 26);
+            BOOST_CHECK_EQUAL(object1->value(), 26);
 
             shared_object * object_pointer_2;
-            object_pointer_2 = allocator1.allocate (1);
+            object_pointer_2 = allocator1.allocate(1);
             try {
-                new (object_pointer_2) shared_object (thrower, registry, 126);
+                new (object_pointer_2) shared_object(thrower, registry, 126);
             } catch (...) {
-                allocator1.deallocate (object_pointer_2, 1);
+                allocator1.deallocate(object_pointer_2, 1);
                 throw;
             }
-            small_ptr object2 = small_ptr (object_pointer_2, allocator1);
-            BOOST_CHECK (!object2.empty());
-            BOOST_CHECK_EQUAL (object2->value(), 126);
-            BOOST_CHECK (object2.unique());
-            BOOST_CHECK_EQUAL (object2.use_count(), 1);
+            small_ptr object2 = small_ptr(object_pointer_2, allocator1);
+            BOOST_CHECK(!object2.empty());
+            BOOST_CHECK_EQUAL(object2->value(), 126);
+            BOOST_CHECK(object2.unique());
+            BOOST_CHECK_EQUAL(object2.use_count(), 1);
 
-            small_ptr object2_again (object_pointer_2, allocator1);
-            BOOST_CHECK_EQUAL (object2_again->value(), 126);
-            BOOST_CHECK (!object2.unique());
-            BOOST_CHECK (!object2_again.unique());
-            BOOST_CHECK_EQUAL (object2.use_count(), 2);
+            small_ptr object2_again(object_pointer_2, allocator1);
+            BOOST_CHECK_EQUAL(object2_again->value(), 126);
+            BOOST_CHECK(!object2.unique());
+            BOOST_CHECK(!object2_again.unique());
+            BOOST_CHECK_EQUAL(object2.use_count(), 2);
         }
         {
-            test_allocator allocator1 (thrower);
-            test_allocator allocator2 (thrower);
-            small_ptr empty1 (allocator1);
-            small_ptr p1 = small_ptr::construct (
-                allocator1, thrower, registry, 75);
-            small_ptr p2 = small_ptr::construct (
-                allocator2, thrower, registry, 93);
+            test_allocator allocator1(thrower);
+            test_allocator allocator2(thrower);
+            small_ptr empty1(allocator1);
+            small_ptr p1 =
+                small_ptr::construct(allocator1, thrower, registry, 75);
+            small_ptr p2 =
+                small_ptr::construct(allocator2, thrower, registry, 93);
 
-            BOOST_CHECK (!p1.empty());
-            BOOST_CHECK (!!p1);
-            BOOST_CHECK (!p2.empty());
-            BOOST_CHECK (!!p2);
-            BOOST_CHECK (p1.unique());
-            BOOST_CHECK (p2.unique());
-            BOOST_CHECK (p1 != empty1);
-            BOOST_CHECK (p1 != p2);
-            BOOST_CHECK_EQUAL (p1.use_count(), 1);
-            BOOST_CHECK_EQUAL (p2.use_count(), 1);
+            BOOST_CHECK(!p1.empty());
+            BOOST_CHECK(!!p1);
+            BOOST_CHECK(!p2.empty());
+            BOOST_CHECK(!!p2);
+            BOOST_CHECK(p1.unique());
+            BOOST_CHECK(p2.unique());
+            BOOST_CHECK(p1 != empty1);
+            BOOST_CHECK(p1 != p2);
+            BOOST_CHECK_EQUAL(p1.use_count(), 1);
+            BOOST_CHECK_EQUAL(p2.use_count(), 1);
 
-            BOOST_CHECK_EQUAL (p1->value(), 75);
-            BOOST_CHECK_EQUAL (p2->value(), 93);
-            BOOST_CHECK_EQUAL ((*p1).value(), 75);
-            BOOST_CHECK_EQUAL ((*p2).value(), 93);
+            BOOST_CHECK_EQUAL(p1->value(), 75);
+            BOOST_CHECK_EQUAL(p2->value(), 93);
+            BOOST_CHECK_EQUAL((*p1).value(), 75);
+            BOOST_CHECK_EQUAL((*p2).value(), 93);
 
-            BOOST_CHECK (p1.allocator() == empty1.allocator());
-            BOOST_CHECK (p1.allocator() != p2.allocator());
-            BOOST_CHECK (p2.allocator() != empty1.allocator());
+            BOOST_CHECK(p1.allocator() == empty1.allocator());
+            BOOST_CHECK(p1.allocator() != p2.allocator());
+            BOOST_CHECK(p2.allocator() != empty1.allocator());
 
             // swap member.
-            p1.swap (p2);
-            BOOST_CHECK_EQUAL (p1->value(), 93);
-            BOOST_CHECK_EQUAL (p2->value(), 75);
+            p1.swap(p2);
+            BOOST_CHECK_EQUAL(p1->value(), 93);
+            BOOST_CHECK_EQUAL(p2->value(), 75);
 
-            BOOST_CHECK (p1 != p2);
+            BOOST_CHECK(p1 != p2);
 
-            BOOST_CHECK (p2.allocator() == empty1.allocator());
-            BOOST_CHECK (p1.allocator() != p2.allocator());
-            BOOST_CHECK (p1.allocator() != empty1.allocator());
+            BOOST_CHECK(p2.allocator() == empty1.allocator());
+            BOOST_CHECK(p1.allocator() != p2.allocator());
+            BOOST_CHECK(p1.allocator() != empty1.allocator());
 
             // Copy construction: shared object.
-            small_ptr p3 (p1);
-            BOOST_CHECK (p1 == p3);
-            BOOST_CHECK (!p3.empty());
-            BOOST_CHECK (!p1.unique());
-            BOOST_CHECK (!p3.unique());
-            BOOST_CHECK_EQUAL (p1.use_count(), 2);
-            BOOST_CHECK_EQUAL (p3.use_count(), 2);
-            BOOST_CHECK_EQUAL (p3->value(), 93);
-            BOOST_CHECK (p3.allocator() == p1.allocator());
+            small_ptr p3(p1);
+            BOOST_CHECK(p1 == p3);
+            BOOST_CHECK(!p3.empty());
+            BOOST_CHECK(!p1.unique());
+            BOOST_CHECK(!p3.unique());
+            BOOST_CHECK_EQUAL(p1.use_count(), 2);
+            BOOST_CHECK_EQUAL(p3.use_count(), 2);
+            BOOST_CHECK_EQUAL(p3->value(), 93);
+            BOOST_CHECK(p3.allocator() == p1.allocator());
 
-            check_comparison (p1, p3);
-            check_comparison (p3, p1);
-            check_comparison (p2, p3);
-            check_comparison (p1, p2);
+            check_comparison(p1, p3);
+            check_comparison(p3, p1);
+            check_comparison(p2, p3);
+            check_comparison(p1, p2);
 
             // Move construction.
-            small_ptr p4 (std::move (p2));
-            BOOST_CHECK (p2.empty());
-            BOOST_CHECK (!p2);
-            BOOST_CHECK (p4 != p1);
-            BOOST_CHECK (p4 != p2);
-            BOOST_CHECK (p4.unique());
-            BOOST_CHECK_EQUAL (p4->value(), 75);
+            small_ptr p4(std::move(p2));
+            BOOST_CHECK(p2.empty());
+            BOOST_CHECK(!p2);
+            BOOST_CHECK(p4 != p1);
+            BOOST_CHECK(p4 != p2);
+            BOOST_CHECK(p4.unique());
+            BOOST_CHECK_EQUAL(p4->value(), 75);
             // The allocator remains, though.
-            BOOST_CHECK (p4.allocator() == p2.allocator());
-            BOOST_CHECK (p4.allocator() != p1.allocator());
+            BOOST_CHECK(p4.allocator() == p2.allocator());
+            BOOST_CHECK(p4.allocator() != p1.allocator());
 
             // Copy assignment if the assignee is empty.
             {
-                small_ptr p5 (allocator2);
-                BOOST_CHECK (p5.empty());
-                BOOST_CHECK (!p5);
-                BOOST_CHECK (p5.allocator() != p4.allocator());
+                small_ptr p5(allocator2);
+                BOOST_CHECK(p5.empty());
+                BOOST_CHECK(!p5);
+                BOOST_CHECK(p5.allocator() != p4.allocator());
                 p5 = p4;
-                BOOST_CHECK (p5 == p4);
-                BOOST_CHECK (!p4.unique());
-                BOOST_CHECK (!p5.unique());
-                BOOST_CHECK_EQUAL (p5->value(), 75);
-                BOOST_CHECK (p5.allocator() == p4.allocator());
+                BOOST_CHECK(p5 == p4);
+                BOOST_CHECK(!p4.unique());
+                BOOST_CHECK(!p5.unique());
+                BOOST_CHECK_EQUAL(p5->value(), 75);
+                BOOST_CHECK(p5.allocator() == p4.allocator());
             }
             // Copy assignment if the assignee is not empty.
             {
-                small_ptr p5 = small_ptr::construct (allocator2,
-                    thrower, registry, -2);
-                BOOST_CHECK (!p5.empty());
-                BOOST_CHECK (p5.unique());
-                BOOST_CHECK (p5.allocator() != p4.allocator());
+                small_ptr p5 =
+                    small_ptr::construct(allocator2, thrower, registry, -2);
+                BOOST_CHECK(!p5.empty());
+                BOOST_CHECK(p5.unique());
+                BOOST_CHECK(p5.allocator() != p4.allocator());
                 p5 = p4;
-                BOOST_CHECK (p5 == p4);
-                BOOST_CHECK (!p4.unique());
-                BOOST_CHECK (!p5.unique());
-                BOOST_CHECK_EQUAL (p5->value(), 75);
-                BOOST_CHECK (p5.allocator() == p4.allocator());
+                BOOST_CHECK(p5 == p4);
+                BOOST_CHECK(!p4.unique());
+                BOOST_CHECK(!p5.unique());
+                BOOST_CHECK_EQUAL(p5->value(), 75);
+                BOOST_CHECK(p5.allocator() == p4.allocator());
             }
 
             // Move assignment if the assignee is empty.
-            small_ptr p5 (allocator2);
-            BOOST_CHECK (p5.allocator() != p4.allocator());
-            p5 = std::move (p4);
-            BOOST_CHECK (p4.empty());
-            BOOST_CHECK (!p5.empty());
-            BOOST_CHECK (p5.unique());
-            BOOST_CHECK (p5 != p4);
-            BOOST_CHECK_EQUAL (p5->value(), 75);
-            BOOST_CHECK (p5.allocator() == p4.allocator());
+            small_ptr p5(allocator2);
+            BOOST_CHECK(p5.allocator() != p4.allocator());
+            p5 = std::move(p4);
+            BOOST_CHECK(p4.empty());
+            BOOST_CHECK(!p5.empty());
+            BOOST_CHECK(p5.unique());
+            BOOST_CHECK(p5 != p4);
+            BOOST_CHECK_EQUAL(p5->value(), 75);
+            BOOST_CHECK(p5.allocator() == p4.allocator());
 
             // swap free function.
-            BOOST_CHECK (p1 == p3);
-            using std::swap; // Should not be picked up.
-            swap (p1, p2);
-            BOOST_CHECK (p2 == p3);
-            BOOST_CHECK (p1 != p3);
+            BOOST_CHECK(p1 == p3);
+            using std::swap;  // Should not be picked up.
+            swap(p1, p2);
+            BOOST_CHECK(p2 == p3);
+            BOOST_CHECK(p1 != p3);
         }
 
         // Check self-assignment.
         {
-            test_allocator allocator1 (thrower);
+            test_allocator allocator1(thrower);
 
-            small_ptr p = small_ptr::construct (
-                allocator1, thrower, registry, -23);
-            BOOST_CHECK (!p.empty());
-            BOOST_CHECK_EQUAL (p.use_count(), 1);
-            BOOST_CHECK_EQUAL (p->value(), -23);
+            small_ptr p =
+                small_ptr::construct(allocator1, thrower, registry, -23);
+            BOOST_CHECK(!p.empty());
+            BOOST_CHECK_EQUAL(p.use_count(), 1);
+            BOOST_CHECK_EQUAL(p->value(), -23);
 
             // Self copy assignment.
-            p = p;
-            BOOST_CHECK (!p.empty());
-            BOOST_CHECK_EQUAL (p.use_count(), 1);
-            BOOST_CHECK_EQUAL (p->value(), -23);
+            // *& is a workaround for compiler warnings about self-assignment.
+            p = *&p;
+            BOOST_CHECK(!p.empty());
+            BOOST_CHECK_EQUAL(p.use_count(), 1);
+            BOOST_CHECK_EQUAL(p->value(), -23);
 
             // Self move assignment.
-            p = std::move (p);
-            BOOST_CHECK (!p.empty());
-            BOOST_CHECK_EQUAL (p.use_count(), 1);
-            BOOST_CHECK_EQUAL (p->value(), -23);
+            // Defining the alias is a workaround for compiler warnings about
+            // self-assignment.
+            auto & also_p = p;
+            p = std::move(also_p);
+            BOOST_CHECK(!p.empty());
+            BOOST_CHECK_EQUAL(p.use_count(), 1);
+            BOOST_CHECK_EQUAL(p->value(), -23);
 
             // Self swap: member function.
-            p.swap (p);
-            BOOST_CHECK (!p.empty());
-            BOOST_CHECK_EQUAL (p.use_count(), 1);
-            BOOST_CHECK_EQUAL (p->value(), -23);
+            p.swap(p);
+            BOOST_CHECK(!p.empty());
+            BOOST_CHECK_EQUAL(p.use_count(), 1);
+            BOOST_CHECK_EQUAL(p->value(), -23);
 
             // Self swap: member function.
-            swap (p, p);
-            BOOST_CHECK (!p.empty());
-            BOOST_CHECK_EQUAL (p.use_count(), 1);
-            BOOST_CHECK_EQUAL (p->value(), -23);
+            swap(p, p);
+            BOOST_CHECK(!p.empty());
+            BOOST_CHECK_EQUAL(p.use_count(), 1);
+            BOOST_CHECK_EQUAL(p->value(), -23);
         }
 
         // Check singly-linked lists
         {
-            small_ptr list = small_ptr::construct (allocator,
-                thrower, registry, 10);
-            BOOST_CHECK_EQUAL (list->value(), 10);
+            small_ptr list =
+                small_ptr::construct(allocator, thrower, registry, 10);
+            BOOST_CHECK_EQUAL(list->value(), 10);
             // Prepend 11.
-            list = small_ptr::construct (
-                allocator, thrower, registry, 11, list);
-            BOOST_CHECK_EQUAL (list->value(), 11);
-            BOOST_CHECK_EQUAL (list->next()->value(), 10);
+            list = small_ptr::construct(allocator, thrower, registry, 11, list);
+            BOOST_CHECK_EQUAL(list->value(), 11);
+            BOOST_CHECK_EQUAL(list->next()->value(), 10);
             // Prepend 12, moving.
-            list = small_ptr::construct (allocator,
-                thrower, registry, 12, std::move (list));
-            BOOST_CHECK_EQUAL (list->value(), 12);
-            BOOST_CHECK_EQUAL (list->next()->value(), 11);
+            list = small_ptr::construct(
+                allocator, thrower, registry, 12, std::move(list));
+            BOOST_CHECK_EQUAL(list->value(), 12);
+            BOOST_CHECK_EQUAL(list->next()->value(), 11);
             // Prepend 12, moving.
-            list = small_ptr::construct (allocator,
-                thrower, registry, 13, std::move (list));
-            BOOST_CHECK_EQUAL (list->value(), 13);
-            BOOST_CHECK_EQUAL (list->next()->value(), 12);
-            BOOST_CHECK_EQUAL (list->next()->next()->value(), 11);
-            BOOST_CHECK_EQUAL (list->next()->next()->next()->value(), 10);
-            BOOST_CHECK (!list->next()->next()->next()->next());
+            list = small_ptr::construct(
+                allocator, thrower, registry, 13, std::move(list));
+            BOOST_CHECK_EQUAL(list->value(), 13);
+            BOOST_CHECK_EQUAL(list->next()->value(), 12);
+            BOOST_CHECK_EQUAL(list->next()->next()->value(), 11);
+            BOOST_CHECK_EQUAL(list->next()->next()->next()->value(), 10);
+            BOOST_CHECK(!list->next()->next()->next()->next());
 
             // Pop the front.
             list = list->next();
-            BOOST_CHECK_EQUAL (list->value(), 12);
-            BOOST_CHECK_EQUAL (list->next()->value(), 11);
+            BOOST_CHECK_EQUAL(list->value(), 12);
+            BOOST_CHECK_EQUAL(list->next()->value(), 11);
 
-            list = std::move (list->next());
-            BOOST_CHECK_EQUAL (list->value(), 11);
-            BOOST_CHECK_EQUAL (list->next()->value(), 10);
+            list = std::move(list->next());
+            BOOST_CHECK_EQUAL(list->value(), 11);
+            BOOST_CHECK_EQUAL(list->next()->value(), 10);
 
             // This is not proper use of the shared_object class, to move one of
             // its members, but it does have defined behaviour in this case.
-            small_ptr new_list = std::move (list->next());
-            BOOST_CHECK_EQUAL (list->value(), 11);
-            BOOST_CHECK (!list->next());
+            small_ptr new_list = std::move(list->next());
+            BOOST_CHECK_EQUAL(list->value(), 11);
+            BOOST_CHECK(!list->next());
 
-            BOOST_CHECK_EQUAL (new_list->value(), 10);
-            BOOST_CHECK (!new_list->next());
+            BOOST_CHECK_EQUAL(new_list->value(), 10);
+            BOOST_CHECK(!new_list->next());
         }
     }
 };
 
-BOOST_AUTO_TEST_CASE (test_utility_small_ptr) {
+BOOST_AUTO_TEST_CASE(test_utility_small_ptr)
+{
     // This is, assuming that std::allocator is empty.
-    BOOST_CHECK_EQUAL (
-        sizeof (utility::small_ptr <int, std::allocator <int> >),
-        sizeof (void *));
+    BOOST_CHECK_EQUAL(
+        sizeof(utility::small_ptr<int, std::allocator<int>>), sizeof(void *));
 }
 
 /** Check all configurations for throwing. */
-BOOST_AUTO_TEST_CASE (test_utility_small_ptr_exception_safety_some) {
-    utility::check_with_some_throw_toggles (test_small_ptr <false>());
-    utility::check_with_some_throw_toggles (test_small_ptr <true>());
+BOOST_AUTO_TEST_CASE(test_utility_small_ptr_exception_safety_some)
+{
+    utility::check_with_some_throw_toggles(test_small_ptr<false>());
+    utility::check_with_some_throw_toggles(test_small_ptr<true>());
 }
 
-BOOST_AUTO_TEST_CASE (test_utility_small_ptr_exception_safety_all) {
-    utility::check_with_all_throw_toggles (test_small_ptr <false>());
+BOOST_AUTO_TEST_CASE(test_utility_small_ptr_exception_safety_all)
+{
+    utility::check_with_all_throw_toggles(test_small_ptr<false>());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

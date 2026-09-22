@@ -1,0 +1,19 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+[
+    cc_test(
+        name = test_name,
+        size = "small",
+        srcs = [test_name + ".cpp"],
+        deps = [
+            "//:utility",
+            "@boost.test//:unit_test_main",
+        ],
+    )
+    for test_name in [
+        "test-test_allocator",
+        "test-thrower",
+        "test-throwing",
+        "test-tracked",
+    ]
+]

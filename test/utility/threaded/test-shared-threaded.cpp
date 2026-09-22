@@ -22,7 +22,7 @@ To test the test, temporarily turn the atomic counter in "shared.hpp" into
 */
 
 #define BOOST_TEST_MODULE test_utility_shared_atomicity
-#include "utility/test/boost_unit_test.hpp"
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 
@@ -32,33 +32,38 @@ To test the test, temporarily turn the atomic counter in "shared.hpp" into
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_shared)
 
-class test_object : public utility::shared {
+class test_object : public utility::shared
+{
     int i;
-public:
-    test_object (int i) : i (i) {}
 
-    void increment()  { ++ i; }
-    void decrement()  { -- i; }
+public:
+    test_object(int i) : i(i) {}
+
+    void increment() { ++i; }
+    void decrement() { --i; }
 };
 
-class hammer {
-    typedef utility::small_ptr <test_object> small_ptr;
+class hammer
+{
+    typedef utility::small_ptr<test_object> small_ptr;
     small_ptr object1;
     small_ptr object2;
+
 public:
     hammer()
-    : object1 (small_ptr::construct (std::allocator <test_object>(), 1)),
-        object2 (small_ptr::construct (std::allocator <test_object>(), 1))
+    : object1(small_ptr::construct(std::allocator<test_object>(), 1)),
+      object2(small_ptr::construct(std::allocator<test_object>(), 1))
     {}
 
-    void operator() () const {
-        for (int i = 0; i != 10000; ++ i) {
+    void operator()() const
+    {
+        for (int i = 0; i != 10000; ++i) {
             small_ptr extra_object1 = object1;
             extra_object1->increment();
             small_ptr extra_object2 = object2;
             extra_object2->increment();
         }
-        for (int i = 0; i != 10000; ++ i) {
+        for (int i = 0; i != 10000; ++i) {
             small_ptr extra_object2 = object2;
             extra_object2->decrement();
             small_ptr extra_object1 = object1;
@@ -67,12 +72,13 @@ public:
     }
 };
 
-BOOST_AUTO_TEST_CASE (test_utility_shared_atomicity) {
+BOOST_AUTO_TEST_CASE(test_utility_shared_atomicity)
+{
     hammer action;
 
     // This causes random crashes if the use counter is not atomic.
-    boost::thread t1 (std::ref (action));
-    boost::thread t2 (std::ref (action));
+    boost::thread t1(std::ref(action));
+    boost::thread t2(std::ref(action));
 
     t2.join();
     t1.join();

@@ -1,0 +1,3 @@
+# Ignore all bazel-* symlinks.
+# The exact names can change depending on circumstances.
+/bazel-*

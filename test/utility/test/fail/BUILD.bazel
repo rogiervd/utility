@@ -1,0 +1,23 @@
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+cc_test(
+    name = "test-test_allocator-leak",
+    size = "small",
+    srcs = ["test-test_allocator-leak.cpp"],
+    # This test deliberately leaks, which AddressSanitizer would report.
+    tags = ["noasan"],
+    deps = [
+        "//:utility",
+        "@boost.test//:unit_test_main",
+    ],
+)
+
+cc_test(
+    name = "test-tracked",
+    size = "small",
+    srcs = ["test-tracked.cpp"],
+    deps = [
+        "//:utility",
+        "@boost.test//:unit_test_main",
+    ],
+)

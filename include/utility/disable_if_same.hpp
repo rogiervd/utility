@@ -34,11 +34,12 @@ This class can be used to disable the templated overload if the copy and/or
 move constructor should be used.
 */
 template <class Target, class Source, class Type = void>
-    struct disable_if_same_or_derived
-: std::enable_if <
-    !std::is_same <Target, typename std::decay <Source>::type>::value &&
-    !std::is_base_of <Target,
-        typename std::remove_reference <Source>::type>::value> {};
+struct disable_if_same_or_derived
+: std::enable_if<
+      !std::is_same<Target, typename std::decay<Source>::type>::value
+      && !std::is_base_of<
+          Target, typename std::remove_reference<Source>::type>::value>
+{};
 
 /**
 Contain a type (which is always \c void) only if \a Sources is not one type
@@ -48,14 +49,17 @@ If Sources is a type list of zero or more than 1 types, always contain \c void.
 This differs from disable_if_same_or_derived in that this allows a variadic
 Sources argument, but no explicit type to contain.
 */
-template <class Target, class ... Sources>
-    struct disable_if_variadic_same_or_derived
-{ typedef void type; };
+template <class Target, class... Sources>
+struct disable_if_variadic_same_or_derived
+{
+    typedef void type;
+};
 
 template <class Target, class Source>
-    struct disable_if_variadic_same_or_derived <Target, Source>
-: disable_if_same_or_derived <Target, Source> {};
+struct disable_if_variadic_same_or_derived<Target, Source>
+: disable_if_same_or_derived<Target, Source>
+{};
 
-} // namespace utility
+}  // namespace utility
 
-#endif // UTILITY_DISABLE_IF_SAME_INCLUDED
+#endif  // UTILITY_DISABLE_IF_SAME_INCLUDED

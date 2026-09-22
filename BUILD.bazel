@@ -1,0 +1,23 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+# The main target that should be used by other modules that want to depend on
+# this library.
+cc_library(
+    name = "utility",
+    # Headers that a user of this library can include.
+    hdrs = glob([
+        "include/utility/*.hpp",
+        "include/utility/test/*.hpp",
+    ]),
+    # The prefix to be added to the include path.
+    # If the include directory can be set to "include", then include_prefix
+    # should be set to "".
+    include_prefix = "",
+    # The prefix to be stripped from the include path.
+    strip_include_prefix = "include/",
+    visibility = ["//visibility:public"],
+    # Dependencies of this library.
+    deps = [
+        "@meta",
+    ],
+)

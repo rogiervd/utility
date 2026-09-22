@@ -1,0 +1,74 @@
+# Use bzlmod (Bazel Modules) for dependency handling.
+common --enable_bzlmod
+
+common --registry https://raw.githubusercontent.com/rogiervd/bazel-registry/main
+
+# The standard Bazel registry (this gets removed when entries are added
+# explicitly so it needs to be added back explicitly).
+common --registry https://bcr.bazel.build/
+
+# Arguments for C++ builds.
+# All warnings are switched on and generate errors.
+# TODO does this work on Windows?
+build --cxxopt=-std=c++14
+build --cxxopt=-Werror
+build --cxxopt=-Wall
+
+# GCC Configuration
+build:gcc --repo_env=CC=gcc
+
+# Some external libraries (e.g. Boost's header-only packages) opt into
+# "parse_headers", which makes Bazel compile each header standalone as a syntax
+# check.
+# This can trigger -Wpragma-once-outside-header , and this generates a build
+# error because of -Werror above.
+# So disable the feature for GCC only.
+build --features=-parse_headers
+
+# Clang Configuration using your custom suite
+build:clang --crosstool_top=//toolchain:clang_suite
+build:clang --compiler=clang
+
+# Configuration for builds with address sanitiser.
+# This can be selected with
+#   bazel ... --config asan
+build:asan --strip=never
+# Options: https://github.com/google/sanitizers/wiki/AddressSanitizer
+build:asan --copt -fsanitize=address
+build:asan --linkopt -fsanitize=address
+# If this is too slow, -O1 may be a good tradeoff.
+build:asan --copt -O0
+# Nicer stack traces
+build:asan --copt -fno-omit-frame-pointer
+# Skip tests that are tagged "noasan" (e.g. ones that leak on purpose).
+build:asan --test_tag_filters=-noasan
+
+# Configuration for builds with the Undefined Behavior Sanitizer.
+# These flags have been found by trying ones mentioned at
+# https://github.com/bazelbuild/bazel/issues/11122
+# until it runs on GitHub.
+# This can be selected with
+#   bazel ... --config ubsan
+# Is this useful? --copt -Og
+build:ubsan --strip=never
+build:ubsan --copt -fsanitize=undefined
+build:ubsan --linkopt -fsanitize=undefined
+build:ubsan --copt -fno-omit-frame-pointer
+build:ubsan --linkopt -fsanitize-link-c++-runtime
+
+# Settings for generating code coverage for tests.
+coverage --instrumentation_filter='-googletest'
+coverage --combined_report=lcov
+
+# On macOS, this should be run with (from
+# <https://github.com/bazelbuild/bazel/issues/14970#issuecomment-1894565761>)
+
+# LLVM_PROFDATA=`xcrun -f llvm-profdata`
+# LLVM_COV=`xcrun -f llvm-cov`
+
+# bazel coverage //... \
+#     --experimental_generate_llvm_lcov \
+#     --test_env=COVERAGE_GCOV_PATH=${LLVM_PROFDATA} \
+#     --test_env=LLVM_COV=${LLVM_COV} \
+#     --copt=-ffile-compilation-dir=. \
+#     --nocache_test_results
