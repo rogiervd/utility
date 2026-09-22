@@ -1,0 +1,10 @@
+matrix:
+  platform: ["ubuntu1604", "macos"]
+  bazel: [9.x]
+tasks:
+  run_tests:
+    name: "Run unit tests"
+    platform: ${{ platform }}
+    bazel: ${{ bazel }}
+    test_targets:
+      - "//test/..."
