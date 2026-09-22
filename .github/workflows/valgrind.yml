@@ -1,0 +1,23 @@
+name: Unit tests under Valgrind
+# Run tests with Clang and three different sanitizer.
+on:
+  push:
+    branches: [main, develop, test-github-actions]
+  pull_request:
+    branches: [main, develop, test-github-actions]
+  workflow_dispatch:
+jobs:
+  test-valgrind:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Store build cache per workflow.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+      - run: sudo apt update && sudo apt install -y valgrind
+      - run: bazel test //test/... --test_output=errors --run_under=valgrind

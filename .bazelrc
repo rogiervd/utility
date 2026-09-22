@@ -40,6 +40,8 @@ build:asan --linkopt -fsanitize=address
 build:asan --copt -O0
 # Nicer stack traces
 build:asan --copt -fno-omit-frame-pointer
+# Skip tests that are tagged "noasan" (e.g. ones that leak on purpose).
+build:asan --test_tag_filters=-noasan
 
 # Configuration for builds with the Undefined Behavior Sanitizer.
 # These flags have been found by trying ones mentioned at
