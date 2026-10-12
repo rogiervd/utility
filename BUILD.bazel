@@ -9,6 +9,9 @@ cc_library(
         "include/utility/*.hpp",
         "include/utility/test/*.hpp",
     ]),
+    # Allow each header to be compiled on its own, to check that it includes
+    # everything it needs, by passing Bazel --process_headers_in_dependencies.
+    features = ["parse_headers"],
     # The prefix to be added to the include path.
     # If the include directory can be set to "include", then include_prefix
     # should be set to "".
