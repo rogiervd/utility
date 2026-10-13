@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+#
+# SPDX-License-Identifier: Apache-2.0
+name: Self-contained headers
+on:
+  push:
+    branches: [main, develop, test-github-actions]
+  pull_request:
+    branches: [main, develop, test-github-actions]
+  workflow_dispatch:
+jobs:
+  parse-headers:
+    runs-on: ubuntu-26.04
+    strategy:
+      matrix:
+        # Run this only for GCC. There is likely no difference with clang.
+        compiler: [gcc]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Store build cache per workflow.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+      # Compile each header (with "parse_headers" in BUILD.bazel) on its own.
+      # This is run when you use --process_headers_in_dependencies
+      # (which is slightly misnamed).
+      # --output_groups=compilation_outputs: Only the headers of this project
+      # itself are compiled, not those of dependencies.
+      - run: bazel build --keep_going --config=${{ matrix.compiler }} --process_headers_in_dependencies --output_groups=compilation_outputs //:utility
