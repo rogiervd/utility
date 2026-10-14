@@ -1,0 +1,56 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["* * 1 5,11 *"],
+  "minimumReleaseAge": "14 days",
+  "pre-commit": { "enabled": true },
+  "pip_requirements": { "enabled": false },
+  "customManagers": [
+    {
+      "description": "Follow the main branch of the hedron_compile_commands fork, which has no tags",
+      "customType": "regex",
+      "managerFilePatterns": ["/^MODULE\\.bazel$/"],
+      "matchStrings": [
+        "module_name = \"hedron_compile_commands\",\\s*commit = \"(?<currentDigest>[0-9a-f]{40})\",\\s*remote = \"(?<packageName>[^\"]+)\""
+      ],
+      "depNameTemplate": "hedron_compile_commands",
+      "datasourceTemplate": "git-refs",
+      "currentValueTemplate": "main"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Wait longer before major and minor updates; patch and other updates use the 14 days above",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "90 days"
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "minimumReleaseAge": "40 days"
+    },
+    {
+      "description": "Updated by the custom manager above instead",
+      "matchManagers": ["bazel-module"],
+      "matchDepNames": ["hedron_compile_commands"],
+      "enabled": false
+    },
+    {
+      "matchDepNames": ["rules_cc", "rules_python", "sphinxdocs"],
+      "groupName": "Bazel rules"
+    },
+    {
+      "matchDepNames": ["boost.**"],
+      "groupName": "Boost"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "clang-format can change the formatting, so update it separately",
+      "matchManagers": ["pre-commit"],
+      "matchDepNames": ["!pre-commit/mirrors-clang-format"],
+      "groupName": "pre-commit hooks"
+    }
+  ]
+}
