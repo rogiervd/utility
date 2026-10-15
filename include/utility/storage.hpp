@@ -27,6 +27,7 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #define UTILITY_STORAGE_HPP_INCLUDED
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include <meta/count_c.hpp>
@@ -256,7 +257,9 @@ namespace utility { namespace storage {
         template <class Type, class Container>
         struct deal_with_const<Type, Container const>
         {
-            typedef Type const type;
+            // Type can be a function type, to which const does not apply.
+            // Writing "Type const" would then cause a warning on MSVC.
+            typedef typename std::add_const<Type>::type type;
         };
 
         // Rvalue container -> rvalue type.
@@ -428,7 +431,10 @@ namespace utility { namespace storage {
     */
     template <class Type> struct pass
     {
-        typedef Type const & type;
+        // Type can be a function type, to which const does not apply.
+        // Writing "Type const &" would then cause a warning on MSVC.
+        typedef typename std::add_lvalue_reference<
+            typename std::add_const<Type>::type>::type type;
     };
 
     template <class Type> struct pass<Type &&>
