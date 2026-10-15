@@ -21,26 +21,18 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_disable_if_same)
 
-struct base
-{};
+struct base {};
 
-struct derived : base
-{};
+struct derived : base {};
 
-template <class Type> struct type
-{};
+template <class Type> struct type {};
 
-struct got_int
-{};
-struct got_int_temporary
-{};
-struct got_base
-{};
-struct got_base_temporary
-{};
+struct got_int {};
+struct got_int_temporary {};
+struct got_base {};
+struct got_base_temporary {};
 
-template <class... Type> struct got_something_else
-{};
+template <class... Type> struct got_something_else {};
 
 // Specific overloads.
 got_int call(int const &) { return got_int(); }

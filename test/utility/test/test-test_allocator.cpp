@@ -37,20 +37,23 @@ BOOST_AUTO_TEST_CASE(test_utility_test_allocator)
     std::vector<int, utility::test_allocator<std::allocator<int>>> v(allocator);
     BOOST_CHECK_EQUAL(thrower.count(), 0);
     int i;
-    for (i = 0; i != 10; ++i)
+    for (i = 0; i != 10; ++i) {
         v.push_back(i);
+    }
     BOOST_CHECK_EQUAL(v.front(), 0);
     size_t allocation_count_10 = thrower.count();
     BOOST_CHECK(allocation_count_10 != 0);
 
-    for (; i != 100; ++i)
+    for (; i != 100; ++i) {
         v.push_back(i);
+    }
     size_t allocation_count_100 = thrower.count();
     BOOST_CHECK(allocation_count_100 != allocation_count_10);
     size_t difference_100 = allocation_count_100 - allocation_count_10;
 
-    for (; i != 1000; ++i)
+    for (; i != 1000; ++i) {
         v.push_back(i);
+    }
     BOOST_CHECK_EQUAL(v.back(), 999);
     size_t allocation_count_1000 = thrower.count();
     size_t difference_1000 = allocation_count_1000 - allocation_count_100;
@@ -59,8 +62,9 @@ BOOST_AUTO_TEST_CASE(test_utility_test_allocator)
     BOOST_CHECK(difference_100 / 2 < difference_1000);
     BOOST_CHECK(difference_1000 < difference_100 * 2);
 
-    for (; i != 10000; ++i)
+    for (; i != 10000; ++i) {
         v.push_back(i);
+    }
     size_t allocation_count_10000 = thrower.count();
     size_t difference_10000 = allocation_count_10000 - allocation_count_1000;
     // Allocating the extra 900 should cause in the same order of allocations

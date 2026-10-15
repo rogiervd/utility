@@ -35,10 +35,10 @@ namespace detail {
         struct allocation
         {
             unsigned index;
-            std::reference_wrapper<const std::type_info> type;
+            std::reference_wrapper<std::type_info const> type;
             size_t n;
 
-            allocation(unsigned index, const std::type_info & type, size_t n)
+            allocation(unsigned index, std::type_info const & type, size_t n)
             : index(index), type(type), n(n)
             {}
         };
@@ -46,7 +46,7 @@ namespace detail {
         unsigned current_index;
         std::map<void *, allocation> allocations;
 
-        static void error_leak(const std::pair<void *, allocation> & a)
+        static void error_leak(std::pair<void *, allocation> const & a)
         {
             if (a.second.n == 1) {
                 BOOST_ERROR(
@@ -69,7 +69,7 @@ namespace detail {
 
         ~test_allocator_registry() { check_done(); }
 
-        void insert(void * p, const std::type_info & type, size_t n)
+        void insert(void * p, std::type_info const & type, size_t n)
         {
             if (n) {
                 allocations.insert(
@@ -81,7 +81,7 @@ namespace detail {
             }
         }
 
-        void erase(void * p, const std::type_info & type, size_t n)
+        void erase(void * p, std::type_info const & type, size_t n)
         {
             std::map<void *, allocation>::iterator i;
             i = allocations.find(p);
@@ -123,18 +123,18 @@ namespace detail {
                 new test_allocator_registry);
         }
 
-        test_allocator_checker(const test_allocator_checker & other)
+        test_allocator_checker(test_allocator_checker const & other)
         : registry(other.registry)
         {}
 
         ~test_allocator_checker() {}
 
-        void check_allocation(void * p, const std::type_info & type, size_t n)
+        void check_allocation(void * p, std::type_info const & type, size_t n)
         {
             registry->insert(p, type, n);
         }
 
-        void check_deallocation(void * p, const std::type_info & type, size_t n)
+        void check_deallocation(void * p, std::type_info const & type, size_t n)
         {
             registry->erase(p, type, n);
         }
@@ -166,7 +166,7 @@ namespace detail {
         explicit test_allocator_checker_thrower(thrower & t) : t(t) {}
 
         test_allocator_checker_thrower(
-            const test_allocator_checker_thrower & other)
+            test_allocator_checker_thrower const & other)
         : test_allocator_checker(other), t(other.t)
         {}
 
@@ -251,7 +251,7 @@ public:
     {}
 
     template <typename BaseAlloc2> test_allocator(
-        const test_allocator<BaseAlloc2, ThrowOnAllocation> & other) noexcept
+        test_allocator<BaseAlloc2, ThrowOnAllocation> const & other) noexcept
     : base_allocator(other.base_allocator), checker(other.checker)
     {}
 
@@ -274,7 +274,7 @@ public:
     /**
     n may be 0, but the result is undefined.
     */
-    pointer allocate(size_type n, const void * hint = 0)
+    pointer allocate(size_type n, void const * hint = 0)
     {
         checker.throw_point();
         // allocate with hint is optional though!
@@ -302,23 +302,24 @@ public:
 
     size_type max_size() const noexcept { return base_allocator.max_size(); }
 
-    void construct(pointer p, const value_type & t)
+    void construct(pointer p, value_type const & t)
     {
         base_allocator.construct(p, t);
     }
 
     void destroy(pointer p) { base_allocator.destroy(p); }
 
-    bool operator==(const test_allocator & other) const
+    bool operator==(test_allocator const & other) const
     {
         if (checker == other.checker) {
             assert(base_allocator == other.base_allocator);
             return true;
-        } else
+        } else {
             return false;
+        }
     }
 
-    bool operator!=(const test_allocator & other) const
+    bool operator!=(test_allocator const & other) const
     {
         return !(*this == other);
     }

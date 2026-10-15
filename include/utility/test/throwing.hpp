@@ -63,18 +63,24 @@ template <int Bits> struct throw_toggles
     friend std::ostream & operator<<(std::ostream & os, throw_toggles t)
     {
         os << "throw on (";
-        if (throw_on_construction)
+        if (throw_on_construction) {
             os << "construction, ";
-        if (throw_on_copy)
+        }
+        if (throw_on_copy) {
             os << "copy, ";
-        if (throw_on_move)
+        }
+        if (throw_on_move) {
             os << "move, ";
-        if (throw_on_copy_assign)
+        }
+        if (throw_on_copy_assign) {
             os << "copy assignment, ";
-        if (throw_on_move_assign)
+        }
+        if (throw_on_move_assign) {
             os << "move assignment, ";
-        if (throw_on_conversion)
+        }
+        if (throw_on_conversion) {
             os << "conversion";
+        }
         return os << ')';
     }
 
@@ -155,7 +161,7 @@ public:
         return *this;
     }
 
-    const Content & content() const { return content_; }
+    Content const & content() const { return content_; }
     Content & content() { return content_; }
 
     operator Content() const noexcept(!Toggles::throw_on_conversion)
@@ -164,15 +170,14 @@ public:
         return content();
     }
 
-    bool operator==(const throwing & o) const { return content_ == o.content_; }
+    bool operator==(throwing const & o) const { return content_ == o.content_; }
 };
 
-template <class T> struct is_throwing : public boost::mpl::bool_<false>
-{};
+template <class T> struct is_throwing : public boost::mpl::bool_<false> {};
 
 template <class Content, class Toggles>
-struct is_throwing<throwing<Content, Toggles>> : public boost::mpl::bool_<true>
-{};
+struct is_throwing<throwing<Content, Toggles>>
+: public boost::mpl::bool_<true> {};
 
 /**
 Call a function that takes a thrower and a ThrowToggles object a few times

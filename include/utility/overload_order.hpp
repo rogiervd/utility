@@ -25,11 +25,9 @@ Use a pointer to this class as an argument type, with different values for
 "priority" for each overloaded function.
 Then call the class with "pick_overload()" for that argument.
 */
-template <int priority> struct overload_order : overload_order<priority + 1>
-{};
+template <int priority> struct overload_order : overload_order<priority + 1> {};
 
-template <> struct overload_order<32>
-{};
+template <> struct overload_order<32> {};
 
 inline overload_order<0> * pick_overload() { return nullptr; }
 

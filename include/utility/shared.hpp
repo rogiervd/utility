@@ -145,8 +145,9 @@ private:
 
         ~guard() noexcept
         {
-            if (set)
+            if (set) {
                 allocator.deallocate(object, 1);
+            }
         }
 
         void dismiss() noexcept { set = false; }

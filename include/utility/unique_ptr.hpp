@@ -29,12 +29,10 @@ namespace utility {
 
 namespace detail {
 
-    template <class Type> struct is_unique_ptr : std::false_type
-    {};
+    template <class Type> struct is_unique_ptr : std::false_type {};
 
     template <class Type, class Deleter>
-    struct is_unique_ptr<std::unique_ptr<Type, Deleter>> : std::true_type
-    {};
+    struct is_unique_ptr<std::unique_ptr<Type, Deleter>> : std::true_type {};
 
 }  // namespace detail
 
@@ -44,8 +42,7 @@ Metafunction that detects whether a type is a unique_ptr.
 The unique_ptr can be qualified.
 */
 template <class Type> struct is_unique_ptr
-: detail::is_unique_ptr<typename std::decay<Type>::type>
-{};
+: detail::is_unique_ptr<typename std::decay<Type>::type> {};
 
 /** \brief
 Produce a new object of type Type with "new" and return a std::unique_ptr

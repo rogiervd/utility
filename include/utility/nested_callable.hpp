@@ -49,12 +49,11 @@ template <class Type> struct result_of
 template <class Function, class... Arguments>
 struct result_of<Function(Arguments...)>
 : std::result_of<typename result_of<Function>::type(
-      typename result_of<Arguments>::type...)>
-{};
+      typename result_of<Arguments>::type...)> {};
 
 template <class Function, class... Arguments>
-struct result_of<Function (*)(Arguments...)> : result_of<Function(Arguments...)>
-{};
+struct result_of<Function (*)(Arguments...)>
+: result_of<Function(Arguments...)> {};
 
 namespace detail {
 
@@ -69,8 +68,7 @@ namespace detail {
     : boost::mpl::apply<
           Predicate,
           typename result_of<Function>::type(
-              typename result_of<Arguments>::type...)>::type
-    {};
+              typename result_of<Arguments>::type...)>::type {};
 
 }  // namespace detail
 
@@ -88,8 +86,7 @@ evaluate to false, false is returned immediately.
 In the example, if the predicate returned false on times (int, float), then
 it is not evaluated on plus (double, ...).
 */
-template <class Predicate, class Expression> struct all : boost::mpl::true_
-{};
+template <class Predicate, class Expression> struct all : boost::mpl::true_ {};
 
 template <class Predicate, class Function, class... Arguments>
 struct all<Predicate, Function(Arguments...)>
@@ -97,21 +94,18 @@ struct all<Predicate, Function(Arguments...)>
       meta::all_of_c<
           all<Predicate, Function>::value, all<Predicate, Arguments>::value...>,
       detail::shallow<Predicate, Function(Arguments...)>,
-      boost::mpl::false_>::type
-{};
+      boost::mpl::false_>::type {};
 
 template <class Predicate, class Function, class... Arguments>
 struct all<Predicate, Function (*)(Arguments...)>
-: all<Predicate, Function(Arguments...)>
-{};
+: all<Predicate, Function(Arguments...)> {};
 
 /**
 Compute whether a predicate is false for any function call within a nested
 function call.
 This is the opposite of \c all.
 */
-template <class Predicate, class Expression> struct any : boost::mpl::false_
-{};
+template <class Predicate, class Expression> struct any : boost::mpl::false_ {};
 
 template <class Predicate, class Function, class... Arguments>
 struct any<Predicate, Function(Arguments...)>
@@ -119,13 +113,11 @@ struct any<Predicate, Function(Arguments...)>
       meta::any_of_c<
           any<Predicate, Function>::value, any<Predicate, Arguments>::value...>,
       boost::mpl::true_,
-      detail::shallow<Predicate, Function(Arguments...)>>::type
-{};
+      detail::shallow<Predicate, Function(Arguments...)>>::type {};
 
 template <class Predicate, class Function, class... Arguments>
 struct any<Predicate, Function (*)(Arguments...)>
-: any<Predicate, Function(Arguments...)>
-{};
+: any<Predicate, Function(Arguments...)> {};
 
 }  // namespace nested_callable
 

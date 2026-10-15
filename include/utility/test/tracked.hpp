@@ -187,22 +187,30 @@ inline std::ostream & operator<<(
     std::ostream & os, tracked_counts const & counts)
 {
     os << '(';
-    if (counts.value_construct_count != 0)
+    if (counts.value_construct_count != 0) {
         os << "value_construct: " << counts.value_construct_count << ", ";
-    if (counts.copy_count != 0)
+    }
+    if (counts.copy_count != 0) {
         os << "copy: " << counts.copy_count << ", ";
-    if (counts.move_count != 0)
+    }
+    if (counts.move_count != 0) {
         os << "move: " << counts.move_count << ", ";
-    if (counts.copy_assign_count != 0)
+    }
+    if (counts.copy_assign_count != 0) {
         os << "copy_assign: " << counts.copy_assign_count << ", ";
-    if (counts.move_assign_count != 0)
+    }
+    if (counts.move_assign_count != 0) {
         os << "move_assign: " << counts.move_assign_count << ", ";
-    if (counts.swap_count != 0)
+    }
+    if (counts.swap_count != 0) {
         os << "swap: " << counts.swap_count << ", ";
-    if (counts.destruct_count != 0)
+    }
+    if (counts.destruct_count != 0) {
         os << "destruct: " << counts.destruct_count << ", ";
-    if (counts.destruct_moved_count != 0)
+    }
+    if (counts.destruct_moved_count != 0) {
         os << "destruct_moved: " << counts.destruct_moved_count << ", ";
+    }
     os << ")";
     return os;
 }
@@ -211,16 +219,16 @@ class tracked_registry
 {
     struct slot
     {
-        const std::type_info & info;
+        std::type_info const & info;
         unsigned index;
 
-        slot(const std::type_info & info, unsigned index)
+        slot(std::type_info const & info, unsigned index)
         : info(info), index(index)
         {}
     };
 
     friend std::ostream & operator<<(
-        std::ostream & os, const std::pair<tracked<> *, slot> & object)
+        std::ostream & os, std::pair<tracked<> *, slot> const & object)
     {
         return os << "tracked<" << object.second.info.name() << "> object at "
                   << object.first << " (allocation " << object.second.index
@@ -231,7 +239,7 @@ class tracked_registry
     registry_type registry;
 
     // Emit error about non-destructed object
-    static void exists_error(const std::pair<tracked<> *, slot> & object)
+    static void exists_error(std::pair<tracked<> *, slot> const & object)
     {
         BOOST_ERROR(
             "tracked<" << object.second.info.name() << "> object at "
@@ -245,14 +253,14 @@ class tracked_registry
 
     friend class tracked<>;
 
-    tracked_registry(const tracked_registry &) = delete;
+    tracked_registry(tracked_registry const &) = delete;
 
 public:
     tracked_registry() : index(), counts_() {}
 
     ~tracked_registry() { check_done(); }
 
-    void insert(tracked<> * object, const std::type_info & type)
+    void insert(tracked<> * object, std::type_info const & type)
     {
         registry_type::iterator i = registry.find(object);
         if (i != registry.end()) {
@@ -262,12 +270,13 @@ public:
                            << ") already exists where a tracked<" << type.name()
                            << "> object is now constructed (allocation "
                            << index << ")");
-        } else
+        } else {
             registry.insert(i, std::make_pair(object, slot(type, index)));
+        }
         ++index;
     }
 
-    void erase(tracked<> * object, const std::type_info & type)
+    void erase(tracked<> * object, std::type_info const & type)
     {
         registry_type::iterator i = registry.find(object);
         if (i == registry.end()) {
@@ -366,9 +375,9 @@ public:
 
     ~tracked()
     {
-        if (is_valid())
+        if (is_valid()) {
             ++registry.counts_.destruct_count;
-        else {
+        } else {
             BOOST_CHECK(is_moved());
             ++registry.counts_.destruct_moved_count;
         }
