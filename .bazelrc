@@ -34,6 +34,10 @@ build:windows --features=external_include_paths
 # matches, so exclude both the path (external/...) and the label
 # (@@<repository>+//...) of files in dependencies.
 build:windows --per_file_copt=.*,-^external/,-[+]//@/W4,/WX
+# rules_cc's Windows toolchains define _WIN32_WINNT=0x0601 by default, but
+# Boost.WinAPI (used by Boost.Thread) defines _WIN32_WINNT=0x0A00.
+# clang-cl warns about the redefinition, so make the toolchain agree.
+build:windows --repo_env=BAZEL_WIN32_WINNT=/D_WIN32_WINNT=0x0A00
 
 # Compiler selection.
 # These use the C++ toolchain that rules_cc auto-configures from the compiler
