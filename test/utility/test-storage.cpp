@@ -73,7 +73,7 @@ struct array_data
     array_data(int a, int b, int c) : a(a), b(b), c(c) {}
 };
 
-array_data test_storage_of_array(array_type & i, array_type & j)
+array_data test_storage_of_array(array_type &, array_type & j)
 {
     typedef typename store<array_type>::type storage_type;
     storage_type storage = j;
@@ -83,7 +83,7 @@ array_data test_storage_of_array(array_type & i, array_type & j)
     return array_data(storage[0], storage[1], storage[2]);
 }
 
-array_data test_storage_of_array(const_array_type & i, const_array_type & j)
+array_data test_storage_of_array(const_array_type &, const_array_type & j)
 {
     typedef typename store<const_array_type>::type storage_type;
     storage_type storage = j;
