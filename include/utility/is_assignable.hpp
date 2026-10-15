@@ -57,6 +57,15 @@ namespace detail {
             std::is_same<decltype(test<Destination, Source>(1)), yes>::value;
     };
 
+#if defined(_MSC_VER)
+#    pragma warning(push)
+// If the assignment converts, e.g. from double to int, MSVC warns about the
+// conversion (C4244), even though the expression is not evaluated.
+// The question whether the assignment is noexcept is legitimate, so switch the
+// warning off.
+#    pragma warning(disable : 4244)
+#endif
+
     /**
     Assuming is_assignable is true, is this noexcept?
     */
@@ -64,6 +73,10 @@ namespace detail {
     : std::integral_constant<
           bool,
           noexcept(std::declval<Destination>() = std::declval<Source>())> {};
+
+#if defined(_MSC_VER)
+#    pragma warning(pop)
+#endif
 
 }  // namespace detail
 
