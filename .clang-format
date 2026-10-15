@@ -1,19 +1,22 @@
-# Formatting definition for use with clang-format (version 10).
+# Formatting definition for use with clang-format (version 23).
 # This is a continual work in progress.
 
 ---
 Language:        Cpp
 # BasedOnStyle:  Google
 AccessModifierOffset: -4
-AlignAfterOpenBracket: AlwaysBreak
-AlignConsecutiveMacros: false
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
+AlignAfterOpenBracket: true
+BreakAfterOpenBracketBracedList: true
+BreakAfterOpenBracketFunction: true
+BreakAfterOpenBracketIf: true
+AlignConsecutiveMacros: None
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
 AlignEscapedNewlines: Left
-AlignOperands: false
+AlignOperands: DontAlign
 AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: true
-AllowAllConstructorInitializersOnNextLine: true
+PackConstructorInitializers: BinPack
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: false
@@ -21,12 +24,15 @@ AllowShortFunctionsOnASingleLine: All
 AllowShortLambdasOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
+AllowShortRecordOnASingleLine: Empty
 AlwaysBreakAfterDefinitionReturnType: None
-AlwaysBreakAfterReturnType: None
+BreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: true
-AlwaysBreakTemplateDeclarations: No
-BinPackArguments: true
-BinPackParameters: true
+BreakTemplateDeclarations: No
+PackArguments:
+  BinPack: BinPack
+PackParameters:
+  BinPack: BinPack
 
 BreakBeforeBraces: Custom
 BraceWrapping:
@@ -48,21 +54,18 @@ BraceWrapping:
   SplitEmptyNamespace: false
 
 BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeInheritanceComma: false
 BreakInheritanceList: BeforeColon
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
 ColumnLimit:     80
 CommentPragmas:  '^ IWYU pragma:'
 CompactNamespaces: true
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
-DeriveLineEnding: false
+LineEnding: LF
 DerivePointerAlignment: false
 DisableFormat:   false
 FixNamespaceComments: true
@@ -93,9 +96,13 @@ IndentGotoLabels: true
 IndentPPDirectives: AfterHash
 IndentWidth:     4
 IndentWrappedFunctionNames: true
+InsertBraces: true
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
-KeepEmptyLinesAtTheStartOfBlocks: false
+KeepEmptyLines:
+  AtEndOfFile: false
+  AtStartOfBlock: false
+  AtStartOfFile: true
 MacroBlockBegin: ''
 MacroBlockEnd:   ''
 MaxEmptyLinesToKeep: 2
@@ -113,6 +120,7 @@ PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Middle
+QualifierAlignment: Right
 RawStringFormats:
   - Language:        Cpp
     Delimiters:
@@ -142,6 +150,7 @@ RawStringFormats:
     CanonicalDelimiter: ''
     BasedOnStyle:    google
 ReflowComments:  true
+RemoveSemicolon: true
 SortIncludes:    true
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: true
@@ -153,21 +162,17 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: ControlStatements
 SpaceBeforeRangeBasedForLoopColon: true
-SpaceInEmptyBlock: false
-SpaceInEmptyParentheses: false
+SpaceInEmptyBraces: Never
 SpacesBeforeTrailingComments: 2
 SpacesInAngles:  false
-SpacesInConditionalStatement: false
 SpacesInContainerLiterals: true
-SpacesInCStyleCastParentheses: false
-SpacesInParentheses: false
+SpacesInParens: Never
 SpacesInSquareBrackets: false
 SpaceBeforeSquareBrackets: false
-Standard:        c++14
+Standard:        c++17
 StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
 TabWidth:        4
-UseCRLF:         false
 UseTab:          Never
 ...
