@@ -27,8 +27,7 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_shared)
 
-struct shared : utility::shared
-{};
+struct shared : utility::shared {};
 
 BOOST_AUTO_TEST_CASE(test_utility_shared_basic)
 {

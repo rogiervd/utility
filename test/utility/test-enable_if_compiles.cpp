@@ -39,14 +39,13 @@ template <class Type> typename utility::enable_if_compiles<
 /**
 Evaluate to \c true if \a Type has a member \c begin().
 */
-template <class Type, class Enable = void> struct has_begin : std::false_type
-{};
+template <class Type, class Enable = void> struct has_begin : std::false_type {
+};
 
 template <class Type> struct has_begin<
     Type,
     typename utility::enable_if_compiles<
-        decltype(std::declval<Type>().begin())>::type> : std::true_type
-{};
+        decltype(std::declval<Type>().begin())>::type> : std::true_type {};
 
 BOOST_AUTO_TEST_SUITE(test_utility_enable_if_compiles)
 

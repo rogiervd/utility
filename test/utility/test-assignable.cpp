@@ -38,8 +38,7 @@ struct disable_if_same_or_derived<Target, Source>
 : std::enable_if<
       !std::is_same<Target, typename std::decay<Source>::type>::value
       && !std::is_base_of<
-          Target, typename std::remove_reference<Source>::type>::value>
-{};
+          Target, typename std::remove_reference<Source>::type>::value> {};
 
 template <class Content> struct non_assignable
 {
@@ -213,8 +212,7 @@ BOOST_AUTO_TEST_CASE(test_utility_assignable_types)
     }
 }
 
-struct trivial
-{};
+struct trivial {};
 struct pretty_trivial
 {
     int i;

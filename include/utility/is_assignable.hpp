@@ -36,10 +36,8 @@ namespace detail {
     template <class Destination, class Source> struct is_assignable
     {
     private:
-        struct no
-        {};
-        struct yes
-        {};
+        struct no {};
+        struct yes {};
         template <class Type> struct make_yes
         {
             typedef yes type;
@@ -55,7 +53,7 @@ namespace detail {
         template <class, class> static no test(...);
 
     public:
-        static const bool value =
+        static bool const value =
             std::is_same<decltype(test<Destination, Source>(1)), yes>::value;
     };
 
@@ -64,8 +62,8 @@ namespace detail {
     */
     template <class Destination, class Source> struct is_nothrow_assignable
     : std::integral_constant<
-          bool, noexcept(std::declval<Destination>() = std::declval<Source>())>
-    {};
+          bool,
+          noexcept(std::declval<Destination>() = std::declval<Source>())> {};
 
 }  // namespace detail
 
@@ -75,8 +73,7 @@ provide it.
 */
 template <class Destination, class Source> struct is_assignable
 : std::integral_constant<
-      bool, detail::is_assignable<Destination, Source>::value>
-{};
+      bool, detail::is_assignable<Destination, Source>::value> {};
 
 /**
 Implementation of std::is_nothrow_assignable in case the standard library
@@ -85,8 +82,8 @@ does not provide it.
 template <class Destination, class Source> struct is_nothrow_assignable
 : std::conditional<
       is_assignable<Destination, Source>::value,
-      detail::is_nothrow_assignable<Destination, Source>, std::false_type>::type
-{};
+      detail::is_nothrow_assignable<Destination, Source>,
+      std::false_type>::type {};
 
 }  // namespace utility
 

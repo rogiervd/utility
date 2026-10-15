@@ -23,8 +23,7 @@ limitations under the License.
 
 namespace utility {
 
-class thrower_exception : public std::exception
-{};
+class thrower_exception : public std::exception {};
 
 /**
 Static class that throws every once in a while when throw_point_if is

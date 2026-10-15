@@ -23,8 +23,7 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_utility_aligned_union)
 
-struct s1
-{};
+struct s1 {};
 
 struct s2
 {

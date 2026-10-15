@@ -50,8 +50,7 @@ framework.
 
 namespace utility { namespace pointer_policy {
 
-    template <class ConstructType> struct construct_as
-    {};
+    template <class ConstructType> struct construct_as {};
 
     /* Storage policies. */
 
@@ -124,8 +123,9 @@ namespace utility { namespace pointer_policy {
 
             ~guard() noexcept
             {
-                if (set)
+                if (set) {
                     allocator.deallocate(object, 1);
+                }
             }
 
             void dismiss() noexcept { set = false; }
@@ -277,8 +277,7 @@ namespace utility { namespace pointer_policy {
     };
 
     // Dummy class.
-    struct move_recursive_next_not_available
-    {};
+    struct move_recursive_next_not_available {};
 
     /**
     Class that is default-constructed and called with a plain pointer
@@ -298,8 +297,7 @@ namespace utility { namespace pointer_policy {
     move_recursive_next_not_available so this can be detected.
     */
     template <class Type> struct move_recursive_next
-    : move_recursive_next_not_available
-    {};
+    : move_recursive_next_not_available {};
 
     /**
     Storage policy that wraps another storage policy and deals with objects that
@@ -336,8 +334,9 @@ namespace utility { namespace pointer_policy {
             move_recursive_next<typename Storage::value_type> move_next;
             auto && next = move_next(Storage::object());
             typedef typename std::decay<decltype(next)>::type pointer_type;
-            if (!next.empty())
+            if (!next.empty()) {
                 pointer_type::release_chain(std::move(next));
+            }
 
             // Destruct this object (with the pointer to the next object set
             // to null.)
@@ -434,10 +433,11 @@ namespace utility { namespace pointer_policy {
         */
         long use_count() const
         {
-            if (!Storage::empty())
+            if (!Storage::empty()) {
                 return shared::get_count(Storage::object());
-            else
+            } else {
                 return 0;
+            }
         }
 
         /**
@@ -449,14 +449,16 @@ namespace utility { namespace pointer_policy {
     private:
         void acquire() const noexcept
         {
-            if (!Storage::empty())
+            if (!Storage::empty()) {
                 shared::acquire(Storage::object());
+            }
         }
 
         void release() noexcept
         {
-            if (!Storage::empty() && shared::release_count(Storage::object()))
+            if (!Storage::empty() && shared::release_count(Storage::object())) {
                 Storage::destruct();
+            }
         }
 
         template <class Storage2> friend class with_recursive_type;

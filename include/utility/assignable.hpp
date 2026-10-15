@@ -97,8 +97,7 @@ namespace assignable_detail {
           (!std::is_constructible<Type, Type const &>::value
            || std::is_nothrow_constructible<Type, Type const &>::value)
               && (!std::is_constructible<Type, Type &&>::value
-                  || std::is_nothrow_constructible<Type, Type &&>::value)>
-    {};
+                  || std::is_nothrow_constructible<Type, Type &&>::value)> {};
 
 }  // namespace assignable_detail
 
@@ -169,8 +168,9 @@ public:
 
     ~assignable()
     {
-        if (this->constructed())
+        if (this->constructed()) {
             destruct();
+        }
     }
 
     assignable & operator=(assignable const & that)

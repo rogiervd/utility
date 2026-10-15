@@ -41,10 +41,10 @@ template <typename Types> struct aligned_union
 private:
     typedef boost::mpl::_ _;
     typedef meta::transform<std::alignment_of<_>, Types> alignments;
-    static const size_t alignment = meta::max_element<alignments>::type::value;
+    static size_t const alignment = meta::max_element<alignments>::type::value;
 
     typedef meta::transform<boost::mpl::sizeof_<_>, Types> sizeofs;
-    static const size_t storage_size = meta::max_element<sizeofs>::type::value;
+    static size_t const storage_size = meta::max_element<sizeofs>::type::value;
 
 public:
     typedef typename std::aligned_storage<storage_size, alignment>::type type;

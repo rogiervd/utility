@@ -23,8 +23,7 @@ limitations under the License.
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_copy_or_move)
 
-template <class Type> struct type
-{};
+template <class Type> struct type {};
 
 template <class Argument> inline type<Argument> destination(Argument &&)
 {

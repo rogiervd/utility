@@ -25,12 +25,9 @@ limitations under the License.
 #include "utility/returns.hpp"
 
 /* For result_of. */
-struct a
-{};
-struct b
-{};
-struct c
-{};
+struct a {};
+struct b {};
+struct c {};
 
 struct function1
 {
@@ -59,38 +56,32 @@ This is where "all" is useful.
 If any operation in the nested call is approximate, then the whole call is.
 This is where "any" is useful.
 */
-struct unimplemented
-{};
-struct approximate
-{};
+struct unimplemented {};
+struct approximate {};
 
 template <class Operation> struct is_apply_implemented;
 template <class Function, class... Arguments>
 struct is_apply_implemented<Function(Arguments...)>
 : boost::mpl::not_<std::is_base_of<
-      unimplemented, typename Function::template apply<Arguments...>>>
-{};
+      unimplemented, typename Function::template apply<Arguments...>>> {};
 
 template <class Operation> struct is_apply_approximate;
 template <class Function, class... Arguments>
 struct is_apply_approximate<Function(Arguments...)>
-: std::is_base_of<approximate, typename Function::template apply<Arguments...>>
-{};
+: std::is_base_of<
+      approximate, typename Function::template apply<Arguments...>> {};
 
 template <class Expression> struct is_implemented
-: nested_callable::all<is_apply_implemented<boost::mpl::_1>, Expression>
-{};
+: nested_callable::all<is_apply_implemented<boost::mpl::_1>, Expression> {};
 
 template <class Expression> struct is_approximate
-: nested_callable::any<is_apply_approximate<boost::mpl::_1>, Expression>
-{};
+: nested_callable::any<is_apply_approximate<boost::mpl::_1>, Expression> {};
 
 
 namespace operation {
 
 // plus: for implemented.
-template <class... Arguments> struct plus : unimplemented
-{};
+template <class... Arguments> struct plus : unimplemented {};
 
 template <> struct plus<int, int>
 {
@@ -115,8 +106,7 @@ template <> struct plus<double, double>
 };
 
 // times: for approximate.
-template <class... Arguments> struct times
-{};
+template <class... Arguments> struct times {};
 
 template <> struct times<int, int>
 {
@@ -139,8 +129,7 @@ template <> struct times<float, float> : approximate
 };
 
 // make_approximate: pretend to make operation approximate.
-template <class... Arguments> struct make_approximate : unimplemented
-{};
+template <class... Arguments> struct make_approximate : unimplemented {};
 
 template <class Operation> struct make_approximate<Operation> : approximate
 {
@@ -154,8 +143,8 @@ namespace callable {
 
 struct plus
 {
-    template <class... Arguments> struct apply : operation::plus<Arguments...>
-    {};
+    template <class... Arguments> struct apply : operation::plus<Arguments...> {
+    };
 
     template <class... Arguments>
     auto operator()(Arguments const &... arguments)
@@ -164,8 +153,8 @@ struct plus
 
 struct times
 {
-    template <class... Arguments> struct apply : operation::times<Arguments...>
-    {};
+    template <class... Arguments> struct apply
+    : operation::times<Arguments...> {};
 
     template <class... Arguments>
     auto operator()(Arguments const &... arguments)
@@ -175,8 +164,7 @@ struct times
 struct make_approximate
 {
     template <class... Arguments> struct apply
-    : operation::make_approximate<Arguments...>
-    {};
+    : operation::make_approximate<Arguments...> {};
 
     template <class... Arguments>
     auto operator()(Arguments const &... arguments)

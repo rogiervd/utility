@@ -38,8 +38,7 @@ struct disable_if_same_or_derived
 : std::enable_if<
       !std::is_same<Target, typename std::decay<Source>::type>::value
       && !std::is_base_of<
-          Target, typename std::remove_reference<Source>::type>::value>
-{};
+          Target, typename std::remove_reference<Source>::type>::value> {};
 
 /**
 Contain a type (which is always \c void) only if \a Sources is not one type
@@ -57,8 +56,7 @@ struct disable_if_variadic_same_or_derived
 
 template <class Target, class Source>
 struct disable_if_variadic_same_or_derived<Target, Source>
-: disable_if_same_or_derived<Target, Source>
-{};
+: disable_if_same_or_derived<Target, Source> {};
 
 }  // namespace utility
 

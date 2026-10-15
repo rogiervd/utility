@@ -92,8 +92,9 @@ template <bool DestructWithLoop> void test_big_list()
     {
         int index = 45;
         auto n = l;
-        for (int i = 0; i != index; ++i)
+        for (int i = 0; i != index; ++i) {
             n = n->next_;
+        }
         BOOST_CHECK_EQUAL(n->value_, 45);
     }
 

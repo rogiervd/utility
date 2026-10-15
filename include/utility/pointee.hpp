@@ -28,8 +28,7 @@ The resulting type is not reference-qualified, but it may be
 const-qualified.
 */
 template <class Pointer> struct pointee
-: std::remove_reference<decltype(*std::declval<Pointer>())>
-{};
+: std::remove_reference<decltype(*std::declval<Pointer>())> {};
 
 }  // namespace utility
 

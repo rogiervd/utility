@@ -213,8 +213,7 @@ struct check_binary_predicate
 };
 
 
-struct convertible_from
-{};
+struct convertible_from {};
 
 struct convertible_to
 {
@@ -247,13 +246,11 @@ BOOST_AUTO_TEST_CASE(test_utility_are_convertible)
 
 // is_constructible that takes only two parameters.
 template <class Type1, class Type2> struct is_constructible
-: std::is_constructible<Type1, Type2>
-{};
+: std::is_constructible<Type1, Type2> {};
 
 // is_nothrow_constructible that takes only two parameters.
 template <class Type1, class Type2> struct is_nothrow_constructible
-: std::is_nothrow_constructible<Type1, Type2>
-{};
+: std::is_nothrow_constructible<Type1, Type2> {};
 
 BOOST_AUTO_TEST_CASE(test_utility_are_constructible)
 {
@@ -291,8 +288,7 @@ BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_constructible)
 
 /* are_*assignable. */
 
-struct assignable_from
-{};
+struct assignable_from {};
 
 struct assignable_to
 {

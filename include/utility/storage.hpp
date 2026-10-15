@@ -39,8 +39,7 @@ namespace utility { namespace storage {
         A type that can be used to represent void where a proper object is
         required.
         */
-        class void_
-        {};
+        class void_ {};
 
         /**
         Wrap an rvalue reference.
@@ -357,12 +356,10 @@ namespace utility { namespace storage {
     \tparam Type
         The type to be qualified appropriately.
     */
-    template <class Type> struct get_value : get_detail::value<Type>
-    {};
+    template <class Type> struct get_value : get_detail::value<Type> {};
 
     // Specialisation for arrays: do not contain "type".
-    template <class Type, std::size_t Number> struct get_value<Type[Number]>
-    {};
+    template <class Type, std::size_t Number> struct get_value<Type[Number]> {};
 
     /**
     Return a type that can serve as a pointer to a contained type.
