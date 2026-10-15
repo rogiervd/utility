@@ -9,13 +9,50 @@ common --registry https://bcr.bazel.build/
 
 # Arguments for C++ builds.
 # All warnings are switched on and generate errors.
-# TODO does this work on Windows?
-build --cxxopt=-std=c++14
-build --cxxopt=-Werror
-build --cxxopt=-Wall
+# The flags differ between GCC/Clang and MSVC, so pick them based on the host
+# operating system: lines with build:linux, build:macos, or build:windows are
+# used automatically on that operating system.
+common --enable_platform_specific_config
 
-# GCC Configuration
+build:linux --cxxopt=-std=c++14
+build:linux --cxxopt=-Werror
+build:linux --cxxopt=-Wall
+
+build:macos --cxxopt=-std=c++14
+build:macos --cxxopt=-Werror
+build:macos --cxxopt=-Wall
+
+# Windows uses MSVC (cl.exe) by default, or clang-cl with --config=clang-cl.
+# Both take MSVC-style flags.
+build:windows --cxxopt=/std:c++14
+# Pass include paths of dependencies with /external:I, and do not report
+# warnings in those headers.
+build:windows --features=external_include_paths
+# Switch on warnings and make them errors, for this project's own source files
+# only, not for dependencies.
+# Bazel applies these options if either the source file's path or its label
+# matches, so exclude both the path (external/...) and the label
+# (@@<repository>+//...) of files in dependencies.
+build:windows --per_file_copt=.*,-^external/,-[+]//@/W4,/WX
+
+# Compiler selection.
+# These use the C++ toolchain that rules_cc auto-configures from the compiler
+# found on the system.
+#   bazel ... --config=gcc
+#   bazel ... --config=clang
 build:gcc --repo_env=CC=gcc
+
+build:clang --repo_env=CC=clang
+
+# On Windows:
+#   bazel ... --config=msvc
+#   bazel ... --config=clang-cl
+# clang-cl must be installed; rules_cc looks for it in BAZEL_LLVM or the
+# default LLVM installation directory.
+build:msvc --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows
+
+build:clang-cl --extra_toolchains=@local_config_cc//:cc-toolchain-x64_windows-clang-cl
+build:clang-cl --extra_execution_platforms=//:windows_clang_cl
 
 # Some external libraries (e.g. Boost's header-only packages) opt into
 # "parse_headers", which makes Bazel compile each header standalone as a syntax
@@ -24,10 +61,6 @@ build:gcc --repo_env=CC=gcc
 # error because of -Werror above.
 # So disable the feature for GCC only.
 build --features=-parse_headers
-
-# Clang Configuration using your custom suite
-build:clang --crosstool_top=//toolchain:clang_suite
-build:clang --compiler=clang
 
 # Configuration for builds with address sanitiser.
 # This can be selected with
