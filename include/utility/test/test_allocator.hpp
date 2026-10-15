@@ -123,10 +123,6 @@ namespace detail {
                 new test_allocator_registry);
         }
 
-        test_allocator_checker(test_allocator_checker const & other)
-        : registry(other.registry)
-        {}
-
         ~test_allocator_checker() {}
 
         void check_allocation(void * p, std::type_info const & type, size_t n)
@@ -164,11 +160,6 @@ namespace detail {
 
     public:
         explicit test_allocator_checker_thrower(thrower & t) : t(t) {}
-
-        test_allocator_checker_thrower(
-            test_allocator_checker_thrower const & other)
-        : test_allocator_checker(other), t(other.t)
-        {}
 
         void throw_point() const { t.get().throw_point(); }
     };
