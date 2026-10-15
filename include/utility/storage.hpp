@@ -97,7 +97,7 @@ namespace utility { namespace storage {
             : data_ {data[Indices]...}
             {}
 
-            void assign(Type const (&data)[N], meta::size_t_vector<>) {}
+            void assign(Type const (&)[N], meta::size_t_vector<>) {}
 
             template <std::size_t FirstIndex, std::size_t... Indices>
             void assign(
