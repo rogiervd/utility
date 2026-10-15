@@ -60,7 +60,7 @@ template <int Bits> struct throw_toggles
     static constexpr bool throw_on_conversion =
         bool(Bits & toggle_throw_on_conversion);
 
-    friend std::ostream & operator<<(std::ostream & os, throw_toggles t)
+    friend std::ostream & operator<<(std::ostream & os, throw_toggles)
     {
         os << "throw on (";
         if (throw_on_construction) {
