@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+#
+# SPDX-License-Identifier: Apache-2.0
 name: Tag release
 # Runs after a "release-vX.Y.Z" branch (created by tool/release.py) is
 # merged into main. Creates a draft GitHub release targeting the merge

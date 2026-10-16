@@ -1,18 +1,6 @@
-/*
-Copyright 2014, 2015 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2014, 2015 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #define BOOST_TEST_MODULE test_suite_utility_throwing
 #include <boost/test/unit_test.hpp>
@@ -20,9 +8,6 @@ limitations under the License.
 #include "utility/test/throwing.hpp"
 
 #include <type_traits>
-
-// For utility::is_nothrow_assignable.
-#include "utility/is_assignable.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 
@@ -86,12 +71,12 @@ static_assert(
 
 // ThrowOnCopyAssign.
 static_assert(
-    utility::is_nothrow_assignable<
+    std::is_nothrow_assignable<
         utility::throwing<int, utility::do_not_throw> &,
         utility::throwing<int, utility::do_not_throw> const &>::value,
     "");
 static_assert(
-    !utility::is_nothrow_assignable<
+    !std::is_nothrow_assignable<
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_copy_assign>> &,
@@ -103,12 +88,12 @@ static_assert(
 
 // ThrowOnMoveAssign.
 static_assert(
-    utility::is_nothrow_assignable<
+    std::is_nothrow_assignable<
         utility::throwing<int, utility::do_not_throw> &,
         utility::throwing<int, utility::do_not_throw> &&>::value,
     "");
 static_assert(
-    !utility::is_nothrow_assignable<
+    !std::is_nothrow_assignable<
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_move_assign>> &,

@@ -1,18 +1,6 @@
-/*
-Copyright 2014 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2014 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #define BOOST_TEST_MODULE test_utility_type_sequence_traits_binary
 #include <boost/test/unit_test.hpp>
@@ -324,20 +312,20 @@ BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_assignable)
 {
     // Check that the example types are exciting enough.
     static_assert(
-        !utility::is_nothrow_assignable<
+        !std::is_nothrow_assignable<
             assignable_from &, assignable_to const &>::value,
         "");
     static_assert(
-        !utility::is_nothrow_assignable<
+        !std::is_nothrow_assignable<
             assignable_to &, assignable_from const &>::value,
         "");
     static_assert(
-        utility::is_nothrow_assignable<
+        std::is_nothrow_assignable<
             nothrow_assignable_to &, assignable_from const &>::value,
         "");
 
     check_binary_predicate<
-        utility::is_nothrow_assignable, utility::are_nothrow_assignable>
+        std::is_nothrow_assignable, utility::are_nothrow_assignable>
         test;
     test.check<assignable_from, assignable_to, nothrow_assignable_to>();
 }
