@@ -19,8 +19,6 @@ Unary traits are not provided; they are probably easy enough to write as, e.g.,
 
 #include "meta/vector.hpp"
 
-#include "is_assignable.hpp"
-
 namespace utility {
 
 namespace type_sequence_traits_detail {
@@ -122,7 +120,7 @@ Evaluate to \c true iff the two meta ranges are of the same length, and
 their types are assignable.
 */
 template <class Types1, class Types2> struct are_assignable
-: all_binary<utility::is_assignable, Types1, Types2> {};
+: all_binary<std::is_assignable, Types1, Types2> {};
 
 /**
 Evaluate to \c true iff the two meta ranges are of the same length, and
