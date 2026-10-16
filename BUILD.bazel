@@ -27,3 +27,12 @@ cc_library(
         "@meta",
     ],
 )
+
+# The host platform, marked as having clang-cl.
+# Bazel selects rules_cc's clang-cl toolchain on Windows only for an execution
+# platform with this constraint; see --config=clang-cl in .bazelrc.
+platform(
+    name = "windows_clang_cl",
+    constraint_values = ["@rules_cc//cc/private/toolchain:clang-cl"],
+    parents = ["@platforms//host"],
+)

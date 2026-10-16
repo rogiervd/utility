@@ -6,7 +6,18 @@ module(
     version = "1.0.0",
 )
 
+bazel_dep(name = "platforms", version = "1.1.0")
 bazel_dep(name = "rules_cc", version = "0.2.22")
+
+# The auto-configured C++ toolchains, so that .bazelrc can select one of them
+# explicitly (for --config=msvc and --config=clang-cl on Windows).
+cc_configure = use_extension(
+    "@rules_cc//cc:extensions.bzl",
+    "cc_configure_extension",
+    dev_dependency = True,
+)
+use_repo(cc_configure, "local_config_cc")
+
 bazel_dep(name = "meta", version = "1.1.2")
 bazel_dep(name = "boost.test", version = "1.90.0.bcr.1")
 bazel_dep(name = "boost.thread", version = "1.90.0.bcr.1")
