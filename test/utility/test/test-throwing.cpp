@@ -23,10 +23,6 @@ BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 // bool ThrowOnMoveAssign = false,
 // bool ThrowOnConversion = false
 
-// For some reason, the checks with is_nothrow_constructible fail on GCC 4.6.
-// I am unable to figure out why.
-// So workaround: disable them.
-#if !defined(__GNUC__) || __GNUC__ != 4 || __GNUC_MINOR__ != 6
 // ThrowOnConstruction.
 static_assert(
     std::is_nothrow_constructible<
@@ -70,7 +66,6 @@ static_assert(
             int,
             utility::throw_toggles<utility::toggle_throw_on_move>> &&>::value,
     "");
-#endif
 
 // ThrowOnCopyAssign.
 static_assert(
