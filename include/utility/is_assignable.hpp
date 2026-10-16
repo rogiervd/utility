@@ -57,27 +57,6 @@ namespace detail {
             std::is_same<decltype(test<Destination, Source>(1)), yes>::value;
     };
 
-#if defined(_MSC_VER)
-#    pragma warning(push)
-// If the assignment converts, e.g. from double to int, MSVC warns about the
-// conversion (C4244), even though the expression is not evaluated.
-// The question whether the assignment is noexcept is legitimate, so switch the
-// warning off.
-#    pragma warning(disable : 4244)
-#endif
-
-    /**
-    Assuming is_assignable is true, is this noexcept?
-    */
-    template <class Destination, class Source> struct is_nothrow_assignable
-    : std::integral_constant<
-          bool,
-          noexcept(std::declval<Destination>() = std::declval<Source>())> {};
-
-#if defined(_MSC_VER)
-#    pragma warning(pop)
-#endif
-
 }  // namespace detail
 
 /**
@@ -89,14 +68,10 @@ template <class Destination, class Source> struct is_assignable
       bool, detail::is_assignable<Destination, Source>::value> {};
 
 /**
-Implementation of std::is_nothrow_assignable in case the standard library
-does not provide it.
+Equivalent to std::is_nothrow_assignable.
 */
 template <class Destination, class Source> struct is_nothrow_assignable
-: std::conditional<
-      is_assignable<Destination, Source>::value,
-      detail::is_nothrow_assignable<Destination, Source>,
-      std::false_type>::type {};
+: std::is_nothrow_assignable<Destination, Source> {};
 
 }  // namespace utility
 
