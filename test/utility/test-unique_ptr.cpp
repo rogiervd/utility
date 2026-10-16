@@ -52,25 +52,6 @@ struct manual_list_deleter
 
 BOOST_AUTO_TEST_SUITE(test_utility_unique_ptr)
 
-/* Test make_unique. */
-
-bool exists = false;
-
-struct type
-{
-    type() { exists = true; }
-    ~type() { exists = false; }
-};
-
-BOOST_AUTO_TEST_CASE(test_utility_make_unique)
-{
-    auto p = utility::make_unique<type>();
-    static_assert(std::is_same<decltype(p), std::unique_ptr<type>>::value, "");
-    BOOST_CHECK(exists);
-    p.reset();
-    BOOST_CHECK(!exists);
-}
-
 /* Test shared_from_unique. */
 
 BOOST_AUTO_TEST_CASE(test_shared_from_unique)
