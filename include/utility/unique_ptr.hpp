@@ -33,18 +33,6 @@ template <class Type> struct is_unique_ptr
 : detail::is_unique_ptr<typename std::decay<Type>::type> {};
 
 /** \brief
-Produce a new object of type Type with "new" and return a std::unique_ptr
-to it.
-
-\note This does not work for array types, unlike the C++14 version.
-*/
-template <typename Type, typename... Args>
-std::unique_ptr<Type> make_unique(Args &&... args)
-{
-    return std::unique_ptr<Type>(new Type(std::forward<Args>(args)...));
-}
-
-/** \brief
 Turn a std::unique_ptr into a std::shared_ptr.
 
 This is particularly useful to wrap functions that return a std::unique_ptr.
