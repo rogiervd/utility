@@ -17,8 +17,6 @@
 
 #include "thrower.hpp"
 
-#include "utility/is_assignable.hpp"
-
 namespace utility {
 
 static constexpr int toggle_throw_on_construction = 1;

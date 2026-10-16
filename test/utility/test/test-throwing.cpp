@@ -9,9 +9,6 @@
 
 #include <type_traits>
 
-// For utility::is_nothrow_assignable.
-#include "utility/is_assignable.hpp"
-
 BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 
 /* Test noexcept specification. */
@@ -69,12 +66,12 @@ static_assert(
 
 // ThrowOnCopyAssign.
 static_assert(
-    utility::is_nothrow_assignable<
+    std::is_nothrow_assignable<
         utility::throwing<int, utility::do_not_throw> &,
         utility::throwing<int, utility::do_not_throw> const &>::value,
     "");
 static_assert(
-    !utility::is_nothrow_assignable<
+    !std::is_nothrow_assignable<
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_copy_assign>> &,
@@ -86,12 +83,12 @@ static_assert(
 
 // ThrowOnMoveAssign.
 static_assert(
-    utility::is_nothrow_assignable<
+    std::is_nothrow_assignable<
         utility::throwing<int, utility::do_not_throw> &,
         utility::throwing<int, utility::do_not_throw> &&>::value,
     "");
 static_assert(
-    !utility::is_nothrow_assignable<
+    !std::is_nothrow_assignable<
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_move_assign>> &,
