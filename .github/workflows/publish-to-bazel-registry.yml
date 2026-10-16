@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+#
+# SPDX-License-Identifier: Apache-2.0
 name: Publish to Bazel registry
 # Runs when a GitHub release is published (including manually publishing a
 # draft release created by the "Tag release" workflow) and opens a pull

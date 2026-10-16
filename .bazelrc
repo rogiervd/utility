@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+#
+# SPDX-License-Identifier: Apache-2.0
 # Use bzlmod (Bazel Modules) for dependency handling.
 common --enable_bzlmod
 
