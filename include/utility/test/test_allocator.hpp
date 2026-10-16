@@ -158,9 +158,6 @@ namespace detail {
 Allocator that wraps around a base allocator and checks whether all
 allocated objects are properly deallocated.
 It also allows for throwing errors.
-
-\todo Once the Department's system has compilers that come with it, start
-using std::allocator_traits.
 */
 template <typename BaseAllocator, bool ThrowOnAllocation = true>
 class test_allocator
@@ -173,34 +170,20 @@ class test_allocator
     template <class BaseAllocator2, bool ThrowOnAllocation2>
     friend class test_allocator;
 
+    typedef std::allocator_traits<BaseAllocator> base_traits;
+
 public:
-    // Not all compilers have std::allocator_traits.
+    typedef typename base_traits::pointer pointer;
+    typedef typename base_traits::const_pointer const_pointer;
+    typedef typename base_traits::void_pointer void_pointer;
+    typedef typename base_traits::const_void_pointer const_void_pointer;
 
-    /*
-    typedef typename boost::allocator_traits <BaseAllocator>::pointer
-        pointer;
-    typedef typename boost::allocator_traits <BaseAllocator>::const_pointer
-        const_pointer;
-    typedef typename boost::allocator_traits <BaseAllocator>::void_pointer
-        void_pointer;
-    typedef typename boost::allocator_traits <BaseAllocator>
-        ::const_void_pointer const_void_pointer;
+    typedef typename base_traits::size_type size_type;
+    typedef typename base_traits::difference_type difference_type;
 
-    typedef typename boost::allocator_traits <BaseAllocator>::size_type
-        size_type;
-    typedef typename boost::allocator_traits <BaseAllocator>
-        ::difference_type difference_type
-    */
-
-    typedef typename BaseAllocator::pointer pointer;
-    typedef typename BaseAllocator::const_pointer const_pointer;
-
-    typedef typename BaseAllocator::size_type size_type;
-    typedef typename BaseAllocator::difference_type difference_type;
-
-    typedef typename BaseAllocator::reference reference;
-    typedef typename BaseAllocator::const_reference const_reference;
-    typedef typename BaseAllocator::value_type value_type;
+    typedef typename base_traits::value_type value_type;
+    typedef value_type & reference;
+    typedef value_type const & const_reference;
 
     /**
     rebind just forwards to the base allocator's rebind functionality.
@@ -208,7 +191,7 @@ public:
     template <typename Type> struct rebind
     {
         typedef test_allocator<
-            typename BaseAllocator::template rebind<Type>::other,
+            typename base_traits::template rebind_alloc<Type>,
             ThrowOnAllocation>
             other;
     };
@@ -253,11 +236,10 @@ public:
     /**
     n may be 0, but the result is undefined.
     */
-    pointer allocate(size_type n, void const * hint = 0)
+    pointer allocate(size_type n, const_void_pointer hint = nullptr)
     {
         checker.throw_point();
-        // allocate with hint is optional though!
-        pointer p = base_allocator.allocate(n, hint);
+        pointer p = base_traits::allocate(base_allocator, n, hint);
         checker.check_allocation(p, typeid(value_type), n);
         return p;
     }
@@ -276,17 +258,20 @@ public:
                 0xed);
         }
 
-        base_allocator.deallocate(p, n);
+        base_traits::deallocate(base_allocator, p, n);
     }
 
-    size_type max_size() const noexcept { return base_allocator.max_size(); }
+    size_type max_size() const noexcept
+    {
+        return base_traits::max_size(base_allocator);
+    }
 
     void construct(pointer p, value_type const & t)
     {
-        base_allocator.construct(p, t);
+        base_traits::construct(base_allocator, p, t);
     }
 
-    void destroy(pointer p) { base_allocator.destroy(p); }
+    void destroy(pointer p) { base_traits::destroy(base_allocator, p); }
 
     bool operator==(test_allocator const & other) const
     {
