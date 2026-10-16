@@ -20,10 +20,18 @@ common --enable_platform_specific_config
 build:linux --cxxopt=-std=c++17
 build:linux --cxxopt=-Werror
 build:linux --cxxopt=-Wall
+# Extra warnings, for this project's own source files only (see the Windows
+# configuration below for the pattern).
+# Dependencies (e.g. Boost.Test with GCC 13) trigger -Wextra warnings.
+build:linux --per_file_copt=.*,-^external/,-[+]//@-Wextra
 
 build:macos --cxxopt=-std=c++17
 build:macos --cxxopt=-Werror
 build:macos --cxxopt=-Wall
+# Extra warnings, for this project's own source files only (see the Windows
+# configuration below for the pattern).
+# Dependencies (e.g. Boost.Test with GCC 13) trigger -Wextra warnings.
+build:macos --per_file_copt=.*,-^external/,-[+]//@-Wextra
 
 # Windows uses MSVC (cl.exe) by default, or clang-cl with --config=clang-cl.
 # Both take MSVC-style flags.
