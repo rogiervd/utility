@@ -1,18 +1,6 @@
-/*
-Copyright 2011, 2012, 2014, 2015, 2017 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2011, 2012, 2014, 2015, 2017 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 /**
 \file
@@ -27,6 +15,7 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #define UTILITY_STORAGE_HPP_INCLUDED
 
 #include <memory>
+#include <type_traits>
 #include <utility>
 
 #include <meta/count_c.hpp>
@@ -97,7 +86,7 @@ namespace utility { namespace storage {
             : data_ {data[Indices]...}
             {}
 
-            void assign(Type const (&data)[N], meta::size_t_vector<>) {}
+            void assign(Type const (&)[N], meta::size_t_vector<>) {}
 
             template <std::size_t FirstIndex, std::size_t... Indices>
             void assign(
@@ -256,7 +245,9 @@ namespace utility { namespace storage {
         template <class Type, class Container>
         struct deal_with_const<Type, Container const>
         {
-            typedef Type const type;
+            // Type can be a function type, to which const does not apply.
+            // Writing "Type const" would then cause a warning on MSVC.
+            typedef typename std::add_const<Type>::type type;
         };
 
         // Rvalue container -> rvalue type.
@@ -428,7 +419,10 @@ namespace utility { namespace storage {
     */
     template <class Type> struct pass
     {
-        typedef Type const & type;
+        // Type can be a function type, to which const does not apply.
+        // Writing "Type const &" would then cause a warning on MSVC.
+        typedef typename std::add_lvalue_reference<
+            typename std::add_const<Type>::type>::type type;
     };
 
     template <class Type> struct pass<Type &&>

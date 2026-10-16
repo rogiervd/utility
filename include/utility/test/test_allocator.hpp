@@ -1,18 +1,6 @@
-/*
-Copyright 2009, 2014, 2015 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2009, 2014, 2015 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef UTILITY_TEST_TEST_ALLOCATOR_HPP_INCLUDED
 #define UTILITY_TEST_TEST_ALLOCATOR_HPP_INCLUDED
@@ -123,10 +111,6 @@ namespace detail {
                 new test_allocator_registry);
         }
 
-        test_allocator_checker(test_allocator_checker const & other)
-        : registry(other.registry)
-        {}
-
         ~test_allocator_checker() {}
 
         void check_allocation(void * p, std::type_info const & type, size_t n)
@@ -164,11 +148,6 @@ namespace detail {
 
     public:
         explicit test_allocator_checker_thrower(thrower & t) : t(t) {}
-
-        test_allocator_checker_thrower(
-            test_allocator_checker_thrower const & other)
-        : test_allocator_checker(other), t(other.t)
-        {}
 
         void throw_point() const { t.get().throw_point(); }
     };

@@ -1,18 +1,6 @@
-/*
-Copyright 2012, 2015, 2017 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2012, 2015, 2017 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #define BOOST_TEST_MODULE test_utility_storage
 #include <boost/test/unit_test.hpp>
@@ -73,7 +61,7 @@ struct array_data
     array_data(int a, int b, int c) : a(a), b(b), c(c) {}
 };
 
-array_data test_storage_of_array(array_type & i, array_type & j)
+array_data test_storage_of_array(array_type &, array_type & j)
 {
     typedef typename store<array_type>::type storage_type;
     storage_type storage = j;
@@ -83,7 +71,7 @@ array_data test_storage_of_array(array_type & i, array_type & j)
     return array_data(storage[0], storage[1], storage[2]);
 }
 
-array_data test_storage_of_array(const_array_type & i, const_array_type & j)
+array_data test_storage_of_array(const_array_type &, const_array_type & j)
 {
     typedef typename store<const_array_type>::type storage_type;
     storage_type storage = j;
@@ -1112,7 +1100,11 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         BOOST_MPL_ASSERT(
             (std::is_same<decltype(extract_value(c)), member_type>) );
         // So check the function pointer.
-        member_type const (*e)(test_container<member_type const> &) =
+        // Writing "member_type const" directly as its return type would make
+        // Clang warn that the qualifier has no effect (-Wignored-qualifiers),
+        // even though it is needed to match extract_value.
+        typedef member_type const const_member_type;
+        const_member_type (*e)(test_container<member_type const> &) =
             &extract_value;
         BOOST_CHECK_EQUAL(e(c), &structure::member_1);
 
@@ -1128,7 +1120,7 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
 
         BOOST_MPL_ASSERT((
             std::is_same<decltype(extract_value(std::move(c))), member_type>) );
-        member_type const (*e2)(test_container<member_type const> &&) =
+        const_member_type (*e2)(test_container<member_type const> &&) =
             &extract_value;
         BOOST_CHECK_EQUAL(e2(std::move(c)), &structure::member_1);
 

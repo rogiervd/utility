@@ -1,18 +1,6 @@
-/*
-Copyright 2009, 2014, 2015 Rogier van Dalen.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
+// SPDX-FileCopyrightText: Copyright 2009, 2014, 2015 Rogier van Dalen
+//
+// SPDX-License-Identifier: Apache-2.0
 
 #ifndef UTILITY_TEST_THROWING_HPP_INCLUDED
 #define UTILITY_TEST_THROWING_HPP_INCLUDED
@@ -60,7 +48,7 @@ template <int Bits> struct throw_toggles
     static constexpr bool throw_on_conversion =
         bool(Bits & toggle_throw_on_conversion);
 
-    friend std::ostream & operator<<(std::ostream & os, throw_toggles t)
+    friend std::ostream & operator<<(std::ostream & os, throw_toggles)
     {
         os << "throw on (";
         if (throw_on_construction) {

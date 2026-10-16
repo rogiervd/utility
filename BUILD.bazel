@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+#
+# SPDX-License-Identifier: Apache-2.0
 load("@rules_cc//cc:defs.bzl", "cc_library")
 
 # The main target that should be used by other modules that want to depend on
