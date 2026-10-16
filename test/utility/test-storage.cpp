@@ -1100,7 +1100,11 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         BOOST_MPL_ASSERT(
             (std::is_same<decltype(extract_value(c)), member_type>) );
         // So check the function pointer.
-        member_type const (*e)(test_container<member_type const> &) =
+        // Writing "member_type const" directly as its return type would make
+        // Clang warn that the qualifier has no effect (-Wignored-qualifiers),
+        // even though it is needed to match extract_value.
+        typedef member_type const const_member_type;
+        const_member_type (*e)(test_container<member_type const> &) =
             &extract_value;
         BOOST_CHECK_EQUAL(e(c), &structure::member_1);
 
@@ -1116,7 +1120,7 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
 
         BOOST_MPL_ASSERT((
             std::is_same<decltype(extract_value(std::move(c))), member_type>) );
-        member_type const (*e2)(test_container<member_type const> &&) =
+        const_member_type (*e2)(test_container<member_type const> &&) =
             &extract_value;
         BOOST_CHECK_EQUAL(e2(std::move(c)), &structure::member_1);
 
