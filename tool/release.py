@@ -25,6 +25,7 @@ from pathlib import Path
 repo_root = Path(__file__).resolve().parent.parent
 module_bazel_file_name = repo_root / "MODULE.bazel"
 MAIN_BRANCH = "main"
+GITHUB_URL_RE = re.compile(r"github\.com[:/]([^/]+)/(.+?)(?:\.git)?/?$")
 VERSION_RE = re.compile(r'(?m)^(\s*version\s*=\s*)"([^"]+)"')
 
 
@@ -92,7 +93,17 @@ def branch_exists(branch: str) -> bool:
     return bool(git("branch", "--list", branch))
 
 
+def github_owner_and_project(remote: str) -> tuple[str, str]:
+    """Returns the GitHub owner and repository name that `remote` points to."""
+    url = git("remote", "get-url", remote)
+    match = GITHUB_URL_RE.search(url)
+    if not match:
+        sys.exit(f"error: remote {remote!r} ({url}) does not look like a GitHub URL")
+    return match.group(1), match.group(2)
+
+
 def create_pull_request(branch: str, new_version: str, remote: str) -> None:
+    owner, project_name = github_owner_and_project(remote)
     if shutil.which("gh") is None:
         print("note: 'gh' CLI not found; skipping pull request creation.")
         print(f"Push succeeded. Open a pull request for {branch!r} manually.")
@@ -102,7 +113,21 @@ def create_pull_request(branch: str, new_version: str, remote: str) -> None:
         + ["--base", MAIN_BRANCH]
         + ["--head", branch]
         + ["--title", f"Release v{new_version}"]
-        + ["--body", f"Bump version to {new_version}."],
+        + [
+            "--body",
+            (
+                f"Bump version to {new_version}.\n\n"
+                "Merging this will generate a draft release.\n"
+                "Look at "
+                f"https://github.com/{owner}/{project_name}/releases/ "
+                "for the draft release.\n\n"
+                "Once the release is published, "
+                "a PR into bazel-registry will be made.\n"
+                "Look at "
+                f"https://github.com/{owner}/bazel-registry/pulls "
+                "for that PR."
+            ),
+        ],
         cwd=repo_root,
         check=True,
     )
