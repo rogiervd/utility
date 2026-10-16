@@ -65,7 +65,7 @@ utility::small_ptr<node<DestructWithLoop>> make_list(std::size_t number)
     pointer_type first(allocator);
     pointer_type * current = &first;
     for (std::size_t i = 0; i != number; ++i) {
-        *current = pointer_type::construct(allocator, i);
+        *current = pointer_type::construct(allocator, static_cast<int>(i));
         current = &(*current)->next_;
     }
     return first;
