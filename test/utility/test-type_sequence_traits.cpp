@@ -292,19 +292,17 @@ BOOST_AUTO_TEST_CASE(test_utility_are_assignable)
 {
     // Check that the example types are exciting enough.
     static_assert(
-        !utility::is_assignable<
-            assignable_from &, assignable_to const &>::value,
+        !std::is_assignable<assignable_from &, assignable_to const &>::value,
         "");
     static_assert(
-        utility::is_assignable<assignable_to &, assignable_from const &>::value,
+        std::is_assignable<assignable_to &, assignable_from const &>::value,
         "");
     static_assert(
-        utility::is_assignable<
+        std::is_assignable<
             nothrow_assignable_to &, assignable_from const &>::value,
         "");
 
-    check_binary_predicate<utility::is_assignable, utility::are_assignable>
-        test;
+    check_binary_predicate<std::is_assignable, utility::are_assignable> test;
     test.check<assignable_from, assignable_to, nothrow_assignable_to>();
 }
 
@@ -312,20 +310,20 @@ BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_assignable)
 {
     // Check that the example types are exciting enough.
     static_assert(
-        !utility::is_nothrow_assignable<
+        !std::is_nothrow_assignable<
             assignable_from &, assignable_to const &>::value,
         "");
     static_assert(
-        !utility::is_nothrow_assignable<
+        !std::is_nothrow_assignable<
             assignable_to &, assignable_from const &>::value,
         "");
     static_assert(
-        utility::is_nothrow_assignable<
+        std::is_nothrow_assignable<
             nothrow_assignable_to &, assignable_from const &>::value,
         "");
 
     check_binary_predicate<
-        utility::is_nothrow_assignable, utility::are_nothrow_assignable>
+        std::is_nothrow_assignable, utility::are_nothrow_assignable>
         test;
     test.check<assignable_from, assignable_to, nothrow_assignable_to>();
 }
