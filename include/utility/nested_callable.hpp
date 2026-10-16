@@ -27,17 +27,33 @@ For example, if "plus" and "times" are callable types,
 result_of <plus (double, times (int, float))>::type
 may evaluate to "double".
 If the type is not a function expression, return the type itself.
-This uses std::result_of.
+This uses std::invoke_result, or std::result_of if that is not available.
 */
 template <class Type> struct result_of
 {
     typedef Type type;
 };
 
+namespace detail {
+
+    // std::result_of is deprecated in C++17, and replaced by
+    // std::invoke_result.
+    // TODO: Remove the fallback once the library requires C++17.
+#if defined(__cpp_lib_is_invocable)
+    template <class Function, class... Arguments> struct invoke_result
+    : std::invoke_result<Function, Arguments...> {};
+#else
+    template <class Function, class... Arguments> struct invoke_result
+    : std::result_of<Function(Arguments...)> {};
+#endif
+
+}  // namespace detail
+
 template <class Function, class... Arguments>
 struct result_of<Function(Arguments...)>
-: std::result_of<typename result_of<Function>::type(
-      typename result_of<Arguments>::type...)> {};
+: detail::invoke_result<
+      typename result_of<Function>::type,
+      typename result_of<Arguments>::type...> {};
 
 template <class Function, class... Arguments>
 struct result_of<Function (*)(Arguments...)>
