@@ -23,4 +23,4 @@ jobs:
           # Share repository cache between workflows.
           repository-cache: true
       - run: sudo apt update && sudo apt install -y valgrind
-      - run: bazel test //test/... --test_output=errors --run_under=valgrind
+      - run: bazel test --keep_going //test/... --test_output=errors --run_under=valgrind
