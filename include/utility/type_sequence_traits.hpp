@@ -130,7 +130,7 @@ Evaluate to \c true iff the two meta ranges are of the same length, and
 their types are nothrow assignable.
 */
 template <class Types1, class Types2> struct are_nothrow_assignable
-: all_binary<utility::is_nothrow_assignable, Types1, Types2> {};
+: all_binary<std::is_nothrow_assignable, Types1, Types2> {};
 
 }  // namespace utility
 

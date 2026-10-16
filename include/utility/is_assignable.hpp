@@ -55,12 +55,6 @@ template <class Destination, class Source> struct is_assignable
 : std::integral_constant<
       bool, detail::is_assignable<Destination, Source>::value> {};
 
-/**
-Equivalent to std::is_nothrow_assignable.
-*/
-template <class Destination, class Source> struct is_nothrow_assignable
-: std::is_nothrow_assignable<Destination, Source> {};
-
 }  // namespace utility
 
 #endif  // UTILITY_IS_ASSIGNABLE_HPP_INCLUDED
