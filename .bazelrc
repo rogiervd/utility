@@ -13,7 +13,7 @@ common --registry https://bcr.bazel.build/
 # Arguments for C++ builds.
 # All warnings are switched on and generate errors.
 # TODO does this work on Windows?
-build --cxxopt=-std=c++14
+build --cxxopt=-std=c++17
 build --cxxopt=-Werror
 build --cxxopt=-Wall
 
