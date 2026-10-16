@@ -37,6 +37,20 @@ repos:
     hooks:
       - id: clang-format
         types_or: [c++, c]
+  # Check licensing and copyright information, following the REUSE
+  # specification by the FSF Europe: https://reuse.software
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v6.2.0
+    hooks:
+      # Check only the files that pre-commit passes (tracked or staged files).
+      - id: reuse-lint-file
+      # Check the whole project, including that every licence in LICENSES/ is
+      # used and present.
+      # This also checks untracked files, so it runs only when asked for, e.g.
+      # in CI:
+      #   pre-commit run reuse --hook-stage manual --all-files
+      - id: reuse
+        stages: [manual]
 
 # Not used, on purpose:
 # actionlint has false positives e.g. when a new image is released.
