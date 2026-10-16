@@ -27,7 +27,7 @@ For example, if "plus" and "times" are callable types,
 result_of <plus (double, times (int, float))>::type
 may evaluate to "double".
 If the type is not a function expression, return the type itself.
-This uses std::result_of.
+This uses std::invoke_result.
 */
 template <class Type> struct result_of
 {
@@ -36,8 +36,9 @@ template <class Type> struct result_of
 
 template <class Function, class... Arguments>
 struct result_of<Function(Arguments...)>
-: std::result_of<typename result_of<Function>::type(
-      typename result_of<Arguments>::type...)> {};
+: std::invoke_result<
+      typename result_of<Function>::type,
+      typename result_of<Arguments>::type...> {};
 
 template <class Function, class... Arguments>
 struct result_of<Function (*)(Arguments...)>
