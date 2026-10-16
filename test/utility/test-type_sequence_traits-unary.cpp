@@ -58,22 +58,21 @@ BOOST_AUTO_TEST_CASE(test_utility_are_default_constructible)
 {
     // Check that the example types are interesting enough.
     static_assert(
-        utility::is_default_constructible<nothrow_default_constructible>::value,
+        std::is_default_constructible<nothrow_default_constructible>::value,
         "");
     static_assert(
-        utility::is_default_constructible<default_constructible>::value, "");
+        std::is_default_constructible<default_constructible>::value, "");
     static_assert(
-        !utility::is_default_constructible<not_default_constructible>::value,
-        "");
+        !std::is_default_constructible<not_default_constructible>::value, "");
 
     check<
-        utility::is_default_constructible, utility::are_default_constructible,
-        int, int &, void>();
+        std::is_default_constructible, utility::are_default_constructible, int,
+        int &, void>();
     check<
-        utility::is_default_constructible, utility::are_default_constructible,
-        int, default_constructible, not_default_constructible>();
+        std::is_default_constructible, utility::are_default_constructible, int,
+        default_constructible, not_default_constructible>();
     check<
-        utility::is_default_constructible, utility::are_default_constructible,
+        std::is_default_constructible, utility::are_default_constructible,
         default_constructible, not_default_constructible,
         nothrow_default_constructible>();
 }
@@ -82,27 +81,26 @@ BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_default_constructible)
 {
     // Check that the example types are interesting enough.
     static_assert(
-        utility::is_nothrow_default_constructible<
+        std::is_nothrow_default_constructible<
             nothrow_default_constructible>::value,
         "");
     static_assert(
-        !utility::is_nothrow_default_constructible<
-            default_constructible>::value,
+        !std::is_nothrow_default_constructible<default_constructible>::value,
         "");
     static_assert(
-        !utility::is_nothrow_default_constructible<
+        !std::is_nothrow_default_constructible<
             not_default_constructible>::value,
         "");
 
     check<
-        utility::is_nothrow_default_constructible,
+        std::is_nothrow_default_constructible,
         utility::are_nothrow_default_constructible, int, int &, void>();
     check<
-        utility::is_nothrow_default_constructible,
+        std::is_nothrow_default_constructible,
         utility::are_nothrow_default_constructible, int, default_constructible,
         not_default_constructible>();
     check<
-        utility::is_nothrow_default_constructible,
+        std::is_nothrow_default_constructible,
         utility::are_nothrow_default_constructible, default_constructible,
         not_default_constructible, nothrow_default_constructible>();
 }

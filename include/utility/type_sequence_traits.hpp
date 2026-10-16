@@ -20,7 +20,6 @@ Unary traits are not provided; they are probably easy enough to write as, e.g.,
 #include "meta/vector.hpp"
 
 #include "is_assignable.hpp"
-#include "is_default_constructible.hpp"
 
 namespace utility {
 
@@ -109,14 +108,14 @@ template <class Types1, class Types2> struct are_nothrow_constructible
 Evaluate to \c true iff all types in \a Types are default-constructible.
 */
 template <class Types> struct are_default_constructible
-: all_unary<is_default_constructible, Types> {};
+: all_unary<std::is_default_constructible, Types> {};
 
 /**
 Evaluate to \c true iff all types in \a Types are default-constructible
 without exceptions.
 */
 template <class Types> struct are_nothrow_default_constructible
-: all_unary<is_nothrow_default_constructible, Types> {};
+: all_unary<std::is_nothrow_default_constructible, Types> {};
 
 /**
 Evaluate to \c true iff the two meta ranges are of the same length, and

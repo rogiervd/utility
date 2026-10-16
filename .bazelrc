@@ -17,17 +17,17 @@ common --registry https://bcr.bazel.build/
 # used automatically on that operating system.
 common --enable_platform_specific_config
 
-build:linux --cxxopt=-std=c++14
+build:linux --cxxopt=-std=c++17
 build:linux --cxxopt=-Werror
 build:linux --cxxopt=-Wall
 
-build:macos --cxxopt=-std=c++14
+build:macos --cxxopt=-std=c++17
 build:macos --cxxopt=-Werror
 build:macos --cxxopt=-Wall
 
 # Windows uses MSVC (cl.exe) by default, or clang-cl with --config=clang-cl.
 # Both take MSVC-style flags.
-build:windows --cxxopt=/std:c++14
+build:windows --cxxopt=/std:c++17
 # Pass include paths of dependencies with /external:I, and do not report
 # warnings in those headers.
 build:windows --features=external_include_paths

@@ -106,9 +106,8 @@ public:
     template <class Type, class Allocator>
     static void release(Allocator & allocator, Type * object) noexcept
     {
-        // This seems to always on GCC 4.6.
-        // static_assert (noexcept (object->~Type()),
-        //     "Type must have a no-throw destructor.");
+        static_assert(
+            noexcept(object->~Type()), "Type must have a no-throw destructor.");
         if (release_count(object)) {
             // object must be deleted
             object->~Type();

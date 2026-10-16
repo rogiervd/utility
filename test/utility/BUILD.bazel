@@ -24,7 +24,6 @@ load("@rules_cc//cc:defs.bzl", "cc_test")
         "test-disable_if_same",
         "test-enable_if_compiles",
         "test-is_assignable",
-        "test-is_default_constructible",
         "test-nested_callable",
         "test-overload_order",
         "test-pointee",
