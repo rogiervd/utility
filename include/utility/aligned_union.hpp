@@ -12,8 +12,8 @@ Define an aligned_union type that takes a compile-time type list.
 
 #include <type_traits>
 
-#include <boost/mpl/placeholders.hpp>
-#include <boost/mpl/sizeof.hpp>
+#include "boost/mpl/placeholders.hpp"
+#include "boost/mpl/sizeof.hpp"
 
 #include "meta/max_element.hpp"
 #include "meta/transform.hpp"

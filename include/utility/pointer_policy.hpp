@@ -32,7 +32,7 @@ framework.
 #include <cassert>
 #include <type_traits>
 
-#include <boost/compressed_pair.hpp>
+#include "boost/compressed_pair.hpp"
 
 #include "shared.hpp"
 

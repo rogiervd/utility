@@ -11,9 +11,9 @@ Find properties of nested function calls expressed as types.
 
 #include <type_traits>
 
-#include <boost/mpl/apply.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/eval_if.hpp>
+#include "boost/mpl/apply.hpp"
+#include "boost/mpl/bool.hpp"
+#include "boost/mpl/eval_if.hpp"
 
 #include "meta/all_of_c.hpp"
 #include "meta/any_of_c.hpp"

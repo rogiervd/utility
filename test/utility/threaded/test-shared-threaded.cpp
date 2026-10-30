@@ -10,13 +10,13 @@ To test the test, temporarily turn the atomic counter in "shared.hpp" into
 */
 
 #define BOOST_TEST_MODULE test_utility_shared_atomicity
-#include <boost/test/unit_test.hpp>
+#include "boost/test/unit_test.hpp"
 
 #include <memory>
 
 #include "utility/small_ptr.hpp"
 
-#include <boost/thread/thread.hpp>
+#include "boost/thread/thread.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_shared)
 
