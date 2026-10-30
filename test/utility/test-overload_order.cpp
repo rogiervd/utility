@@ -3,14 +3,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #define BOOST_TEST_MODULE test_utility_order_overload
-#include <boost/test/unit_test.hpp>
+#include "boost/test/unit_test.hpp"
 
 #include "utility/overload_order.hpp"
 
 #include <limits>
 #include <string>
 
-#include <boost/utility/enable_if.hpp>
+#include "boost/utility/enable_if.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_order_overload)
 

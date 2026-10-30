@@ -11,7 +11,7 @@ Define macro to make it easier to declare the return type of a simple function.
 
 #include <type_traits>
 
-#include <boost/preprocessor/cat.hpp>
+#include "boost/preprocessor/cat.hpp"
 
 /** \brief
 Make a type declaration and implementation for a function at once.
