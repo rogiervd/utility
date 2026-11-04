@@ -20,10 +20,14 @@ common --enable_platform_specific_config
 build:linux --cxxopt=-std=c++17
 build:linux --cxxopt=-Werror
 build:linux --cxxopt=-Wall
+# Switch on extra warnings, for this project only.
+build:linux --per_file_copt=.*,-^external/,-[+]//@-Wextra
 
 build:macos --cxxopt=-std=c++17
 build:macos --cxxopt=-Werror
 build:macos --cxxopt=-Wall
+# Switch on extra warnings, for this project only.
+build:macos --per_file_copt=.*,-^external/,-[+]//@-Wextra
 
 # Windows uses MSVC (cl.exe) by default, or clang-cl with --config=clang-cl.
 # Both take MSVC-style flags.
