@@ -37,6 +37,21 @@ repos:
     hooks:
       - id: clang-format
         types_or: [c++, c]
+  # There are two reasons for running clang-tidy manually:
+  # * It is quite slow;
+  # * It requires compile_commands.json and compilation symlinks.
+  # Running the hook manually:
+  #   pre-commit run clang-tidy --hook-stage manual --all-files
+  # This is here so as to use pre-commit's ability to pin versions.
+  # "rev" is the version of the hook, and "--version=" gives the version of
+  # clang-tidy.
+  # Keep the major version of clang-tidy equal to that of clang-format above.
+  - repo: https://github.com/cpp-linter/cpp-linter-hooks
+    rev: v1.9.0
+    hooks:
+      - id: clang-tidy
+        args: [--version=23.1.4, --jobs=4]
+        stages: [manual]
   # Check licensing and copyright information, following the REUSE
   # specification by the FSF Europe: https://reuse.software
   - repo: https://github.com/fsfe/reuse-tool
