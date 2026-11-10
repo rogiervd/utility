@@ -7,6 +7,10 @@
 
 #include "utility/type_sequence_traits.hpp"
 
+#include <type_traits>
+
+#include "meta/vector.hpp"
+
 BOOST_AUTO_TEST_SUITE(test_utility_type_sequence_traits_binary)
 
 /**

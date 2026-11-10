@@ -7,7 +7,10 @@
 
 #include <memory>
 
+#include "utility/pointer_policy.hpp"
+#include "utility/shared.hpp"
 #include "utility/test/test_allocator.hpp"
+#include "utility/test/thrower.hpp"
 #include "utility/test/throwing.hpp"
 #include "utility/test/tracked.hpp"
 

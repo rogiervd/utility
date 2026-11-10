@@ -12,11 +12,13 @@ To test the test, temporarily turn the atomic counter in "shared.hpp" into
 #define BOOST_TEST_MODULE test_utility_shared_atomicity
 #include "boost/test/unit_test.hpp"
 
+#include <functional>
 #include <memory>
 
+#include "utility/shared.hpp"
 #include "utility/small_ptr.hpp"
 
-#include "boost/thread/thread.hpp"
+#include "boost/thread/thread.hpp"  // IWYU pragma: keep
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_shared)
 

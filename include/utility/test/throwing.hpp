@@ -5,14 +5,10 @@
 #ifndef UTILITY_TEST_THROWING_HPP_INCLUDED
 #define UTILITY_TEST_THROWING_HPP_INCLUDED
 
-#include <memory>
-#include <type_traits>
+#include <ostream>
 #include <utility>
 
-#include <type_traits>
-
 #include "boost/mpl/bool.hpp"
-#include "boost/mpl/not.hpp"
 #include "boost/test/test_tools.hpp"
 
 #include "thrower.hpp"

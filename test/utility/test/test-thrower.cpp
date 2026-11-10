@@ -7,6 +7,8 @@
 
 #include "utility/test/thrower.hpp"
 
+#include <exception>
+
 BOOST_AUTO_TEST_SUITE(test_suite_utility_thrower)
 
 BOOST_AUTO_TEST_CASE(test_utility_thrower)

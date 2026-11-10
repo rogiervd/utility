@@ -6,10 +6,8 @@
 #define UTILITY_ASSIGNABLE_HPP_INCLUDED
 
 #include <cassert>
-#include <new>
 #include <type_traits>
 
-#include "disable_if_same.hpp"
 #include "storage.hpp"
 
 namespace utility {
