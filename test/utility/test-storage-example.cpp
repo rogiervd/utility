@@ -15,8 +15,6 @@ Give an example, and test, of how to use the classes defined in
 #include <string>
 #include <type_traits>
 
-#include "boost/mpl/assert.hpp"
-
 #include "utility/test/tracked.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_storage_example)

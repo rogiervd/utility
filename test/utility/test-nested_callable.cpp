@@ -7,7 +7,10 @@
 
 #include "utility/nested_callable.hpp"
 
+#include <type_traits>
+
 #include "boost/mpl/assert.hpp"
+#include "boost/mpl/not.hpp"
 #include "boost/mpl/placeholders.hpp"
 
 #include "utility/returns.hpp"

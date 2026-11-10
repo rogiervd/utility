@@ -9,8 +9,6 @@ Define macro to make it easier to declare the return type of a simple function.
 #ifndef UTILITY_RETURNS_HPP_INCLUDED
 #define UTILITY_RETURNS_HPP_INCLUDED
 
-#include <type_traits>
-
 #include "boost/preprocessor/cat.hpp"
 
 /** \brief

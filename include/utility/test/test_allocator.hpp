@@ -6,11 +6,17 @@
 #define UTILITY_TEST_TEST_ALLOCATOR_HPP_INCLUDED
 
 #include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <functional>
 #include <map>
 #include <memory>
+#include <typeinfo>
+#include <utility>
 
 #include "boost/mpl/bool.hpp"
 #include "boost/mpl/if.hpp"
+#include "boost/test/test_tools.hpp"
 
 #include "thrower.hpp"
 

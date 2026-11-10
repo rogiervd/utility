@@ -7,7 +7,11 @@
 
 #include "utility/test/test_allocator.hpp"
 
+#include <cstddef>
+#include <memory>
 #include <vector>
+
+#include "utility/test/thrower.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_test_allocator)
 

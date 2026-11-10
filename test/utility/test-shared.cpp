@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "utility/test/test_allocator.hpp"
+#include "utility/test/thrower.hpp"
 #include "utility/test/throwing.hpp"
 #include "utility/test/tracked.hpp"
 
