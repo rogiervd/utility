@@ -28,7 +28,7 @@ Checks: >
 
 CheckOptions:
     # Mark some external headers as non-public, so misc-include-cleaner does
-    # not suggest internal headers.
-    misc-include-cleaner.IgnoreHeaders: "boost/test/.*;boost/optional/detail/.*"
+    # not suggest internal headers or forward declarations.
+    misc-include-cleaner.IgnoreHeaders: "boost/test/.*;boost/mpl/(bool|char|int|integral_c|long|size_t|void)(_fwd)?\\.hpp;boost/(.*/)?(detail|aux_)/.*"
 
 WarningsAsErrors: "*"
