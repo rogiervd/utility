@@ -5,7 +5,6 @@
 #ifndef UTILITY_SMALL_PTR_HPP_INCLUDED
 #define UTILITY_SMALL_PTR_HPP_INCLUDED
 
-#include <algorithm>  // For std::swap
 #include <memory>
 #include <type_traits>
 

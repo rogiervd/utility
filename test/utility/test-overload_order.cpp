@@ -10,7 +10,8 @@
 #include <limits>
 #include <string>
 
-#include "boost/utility/enable_if.hpp"
+#include "boost/core/enable_if.hpp"
+
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_order_overload)
 

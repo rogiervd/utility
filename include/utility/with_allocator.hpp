@@ -5,6 +5,8 @@
 #ifndef UTILITY_WITH_ALLOCATOR_HPP_INCLUDED
 #define UTILITY_WITH_ALLOCATOR_HPP_INCLUDED
 
+#include <utility>
+
 namespace utility {
 
 /**

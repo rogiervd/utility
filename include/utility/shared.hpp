@@ -5,13 +5,11 @@
 #ifndef UTILITY_SHARED_HPP_INCLUDED
 #define UTILITY_SHARED_HPP_INCLUDED
 
-#include <new>
 #include <type_traits>
+#include <utility>
 
 #include "boost/smart_ptr/detail/atomic_count.hpp"
-#include "boost/utility/enable_if.hpp"
 
-#include "with_allocator.hpp"
 
 namespace utility {
 

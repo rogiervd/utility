@@ -7,7 +7,8 @@
 
 #include <string>
 
-#include "boost_unit_test.hpp"
+#include "boost/test/framework.hpp"
+#include "boost/test/tree/test_unit.hpp"
 
 bool command_line_contains(std::string const & argument)
 {

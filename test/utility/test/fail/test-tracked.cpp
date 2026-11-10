@@ -7,9 +7,6 @@
 
 #include "utility/test/tracked.hpp"
 
-#include <type_traits>
-
-#include "boost/mpl/assert.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_utility_tracked)
 

@@ -10,6 +10,7 @@ Define an aligned_union type that takes a compile-time type list.
 #ifndef UTILITY_ALIGNED_UNION_HPP_INCLUDED
 #define UTILITY_ALIGNED_UNION_HPP_INCLUDED
 
+#include <cstddef>
 #include <type_traits>
 
 #include "boost/mpl/placeholders.hpp"

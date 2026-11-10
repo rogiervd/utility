@@ -7,7 +7,11 @@
 
 #include "utility/test/throwing.hpp"
 
+#include <exception>
 #include <type_traits>
+#include <utility>
+
+#include "utility/test/thrower.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 
