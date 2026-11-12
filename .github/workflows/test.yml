@@ -1,7 +1,11 @@
-# SPDX-FileCopyrightText: Copyright 2026 Rogier van Dalen
+# SPDX-FileCopyrightText: Copyright 2024, 2026 Rogier van Dalen
 #
 # SPDX-License-Identifier: Apache-2.0
 name: Unit tests
+# Run the unit tests in a number of types and environments:
+# - debug: debug build, on a few operating systems and compilers.
+# - optimised: optimised build, on a selection of those.
+# - asan, ubsan, valgrind: check memory and undefined behaviour.
 on:
   push:
     branches: [main, develop, test-github-actions]
@@ -10,25 +14,75 @@ on:
   workflow_dispatch:
 jobs:
   test:
+    name: ${{ matrix.variant }} (${{ matrix.os }}, ${{ matrix.compiler }})
     runs-on: ${{ matrix.os }}
     strategy:
+      # Report every failing variant, rather than cancelling the rest of the
+      # matrix when the first one fails.
+      fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-26.04, ubuntu-26.04-arm, macos-26]
-        compiler: [gcc, clang]
-        # On Windows, use MSVC and clang-cl instead.
+        # "flags" are extra arguments to Bazel.
         include:
+          # Debug builds.
+          - os: ubuntu-24.04
+            compiler: gcc
+            variant: debug
+          - os: ubuntu-26.04
+            compiler: gcc
+            variant: debug
+          - os: ubuntu-26.04
+            compiler: clang
+            variant: debug
+          - os: ubuntu-26.04-arm
+            compiler: clang
+            variant: debug
+          - os: macos-26
+            compiler: clang
+            variant: debug
           - os: windows-2025
             compiler: msvc
+            variant: debug
           - os: windows-2025
             compiler: clang-cl
+            variant: debug
+          # Optimised builds.
+          - os: ubuntu-26.04
+            compiler: gcc
+            variant: optimised
+            flags: -c opt
+          - os: ubuntu-26.04
+            compiler: clang
+            variant: optimised
+            flags: -c opt
+          - os: windows-2025
+            compiler: msvc
+            variant: optimised
+            flags: -c opt
+          # Sanitizers, configured in .bazelrc.
+          - os: ubuntu-26.04
+            compiler: clang
+            variant: asan
+            flags: --config=asan
+          - os: ubuntu-26.04
+            compiler: clang
+            variant: ubsan
+            flags: --config=ubsan
+          - os: ubuntu-26.04
+            compiler: gcc
+            variant: valgrind
+            flags: --run_under=valgrind
     steps:
       - uses: actions/checkout@v7
-      - uses: bazel-contrib/setup-bazel@0.19.0
+      - uses: bazel-contrib/setup-bazel@0.19.1
         with:
           # Avoid downloading Bazel every time.
           bazelisk-cache: true
-          # Store build cache per workflow.
-          disk-cache: ${{ github.workflow }}
-          # Share repository cache between workflows.
+          # Store build cache per job. A cache cannot be overwritten once
+          # saved, so if jobs with different build configurations shared a key,
+          # only the first one to finish would get a useful cache.
+          disk-cache: ${{ matrix.os }}-${{ matrix.compiler }}-${{ matrix.variant }}
+          # Share repository cache between jobs and workflows.
           repository-cache: true
-      - run: bazel test --keep_going --config=${{ matrix.compiler }} //test/...
+      - if: matrix.variant == 'valgrind'
+        run: sudo apt update && sudo apt install -y valgrind
+      - run: bazel test --keep_going --test_output=errors --config=${{ matrix.compiler }} ${{ matrix.flags }} //test/...

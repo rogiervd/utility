@@ -20,6 +20,13 @@ cc_test(
     name = "test-tracked",
     size = "small",
     srcs = ["test-tracked.cpp"],
+    # The test destructs an object twice on purpose. With optimisation, GCC
+    # assumes the object's memory is dead after the first destructor and may
+    # remove stores to it, so tracked<> could not detect the second destruction.
+    copts = select({
+        "@rules_cc//cc/compiler:gcc": ["-fno-lifetime-dse"],
+        "//conditions:default": [],
+    }),
     deps = [
         "//:utility",
         "@boost.test//:unit_test_main",
