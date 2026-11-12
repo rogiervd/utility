@@ -14,11 +14,10 @@ To test the test, temporarily turn the atomic counter in "shared.hpp" into
 
 #include <functional>
 #include <memory>
+#include <thread>
 
 #include "utility/shared.hpp"
 #include "utility/small_ptr.hpp"
-
-#include "boost/thread/thread.hpp"  // IWYU pragma: keep
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_shared)
 
@@ -67,8 +66,8 @@ BOOST_AUTO_TEST_CASE(test_utility_shared_atomicity)
     hammer action;
 
     // This causes random crashes if the use counter is not atomic.
-    boost::thread t1(std::ref(action));
-    boost::thread t2(std::ref(action));
+    std::thread t1(std::ref(action));
+    std::thread t2(std::ref(action));
 
     t2.join();
     t1.join();
