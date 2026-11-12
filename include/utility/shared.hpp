@@ -5,10 +5,9 @@
 #ifndef UTILITY_SHARED_HPP_INCLUDED
 #define UTILITY_SHARED_HPP_INCLUDED
 
+#include <atomic>
 #include <type_traits>
 #include <utility>
-
-#include "boost/smart_ptr/detail/atomic_count.hpp"
 
 
 namespace utility {
@@ -22,7 +21,9 @@ Base class for reference-counted objects.
 class shared
 {
 private:
-    boost::detail::atomic_count count;
+    // The memory orders used are the same as in boost::detail::atomic_count,
+    // which this used to be.
+    std::atomic<long> count;
 
 protected:
     shared() noexcept : count(0l) {}
@@ -40,19 +41,30 @@ public:
     Register as an owner of the object.
     Call release_count later to der
     */
-    static void acquire(shared * s) noexcept { ++s->count; }
+    static void acquire(shared * s) noexcept
+    {
+        s->count.fetch_add(1, std::memory_order_acq_rel);
+    }
 
     /**
     Release a reference to a shared object.
     \return true iff this was the last reference, i.e. iff the object must
     be deleted.
     */
-    static bool release_count(shared * s) noexcept { return !--s->count; }
+    static bool release_count(shared * s) noexcept
+    {
+        // acq_rel makes all accesses to the object from other threads happen
+        // before the thread that releases the last reference deletes it.
+        return s->count.fetch_sub(1, std::memory_order_acq_rel) == 1;
+    }
 
     /**
     \return The current number of owners of this object.
     */
-    static long get_count(shared const * s) noexcept { return s->count; }
+    static long get_count(shared const * s) noexcept
+    {
+        return s->count.load(std::memory_order_acquire);
+    }
 
     /**
     Use an allocator to construct an object of type "Type" and return a
