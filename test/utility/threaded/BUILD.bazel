@@ -11,6 +11,5 @@ cc_test(
     deps = [
         "//:utility",
         "@boost.test//:unit_test_main",
-        "@boost.thread",
     ],
 )
