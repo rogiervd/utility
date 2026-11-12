@@ -11,8 +11,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "boost/mpl/assert.hpp"
-
 #include "utility/test/thrower.hpp"
 #include "utility/test/throwing.hpp"
 #include "utility/test/tracked.hpp"
@@ -27,7 +25,7 @@ template <class Target, class... Sources> struct disable_if_same_or_derived
 template <class Target, class Source>
 struct disable_if_same_or_derived<Target, Source>
 : std::enable_if<
-      !std::is_same<Target, typename std::decay<Source>::type>::value
+      !std::is_same_v<Target, typename std::decay<Source>::type>
       && !std::is_base_of<
           Target, typename std::remove_reference<Source>::type>::value> {};
 
@@ -156,8 +154,7 @@ struct test_assignable
             registry.since(before),
             value_construct_count(1) + move_count(3) + destruct_moved_count(3));
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(e.move_content()), test_type &&>) );
+        static_assert(std::is_same_v<decltype(e.move_content()), test_type &&>);
 
         before = registry.counts();
         test_type content = e.move_content();
@@ -199,7 +196,7 @@ BOOST_AUTO_TEST_CASE(test_utility_assignable_types)
         BOOST_CHECK_EQUAL(i, 8);
 
         // Moving a reference merely returns the reference itself.
-        BOOST_MPL_ASSERT((std::is_same<decltype(a.move_content()), int &>) );
+        static_assert(std::is_same_v<decltype(a.move_content()), int &>);
     }
 }
 

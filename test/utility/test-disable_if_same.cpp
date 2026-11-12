@@ -9,8 +9,6 @@
 
 #include <type_traits>
 
-#include "boost/mpl/assert.hpp"
-
 BOOST_AUTO_TEST_SUITE(test_suite_utility_disable_if_same)
 
 struct base {};
@@ -56,56 +54,54 @@ BOOST_AUTO_TEST_CASE(test_utility_disable_if_same_or_derived)
 {
     {
         auto t = call(4);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_int_temporary>) );
+        static_assert(std::is_same_v<decltype(t), got_int_temporary>);
     }
     {
         int i = 4;
         auto t = call(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_int>) );
+        static_assert(std::is_same_v<decltype(t), got_int>);
     }
     {
         int const i = 4;
         auto t = call(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_int>) );
+        static_assert(std::is_same_v<decltype(t), got_int>);
     }
 
     {
         auto t = call(4l);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<long>>) );
+        static_assert(std::is_same_v<decltype(t), got_something_else<long>>);
     }
     {
         long l = 4;
         auto t = call(l);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<long &>>) );
+        static_assert(std::is_same_v<decltype(t), got_something_else<long &>>);
     }
     {
         long const l = 4;
         auto t = call(l);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<long const &>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<long const &>>);
     }
 
     // Call with "base".
     {
         base b;
         auto t = call(b);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base>) );
+        static_assert(std::is_same_v<decltype(t), got_base>);
     }
     {
         auto t = call(base());
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base_temporary>) );
+        static_assert(std::is_same_v<decltype(t), got_base_temporary>);
     }
     // The same with derived.
     {
         derived d;
         auto t = call(d);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base>) );
+        static_assert(std::is_same_v<decltype(t), got_base>);
     }
     {
         auto t = call(derived());
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base_temporary>) );
+        static_assert(std::is_same_v<decltype(t), got_base_temporary>);
     }
 }
 
@@ -125,64 +121,64 @@ BOOST_AUTO_TEST_CASE(test_utility_enable_if_variadic_same_or_derived)
 {
     {
         auto t = call_multiple();
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_something_else<>>) );
+        static_assert(std::is_same_v<decltype(t), got_something_else<>>);
     }
     {
         auto t = call_multiple(4);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_something_else<int>>) );
+        static_assert(std::is_same_v<decltype(t), got_something_else<int>>);
     }
     {
         auto t = call_multiple(4, 5l);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<int, long>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<int, long>>);
     }
 
     // Call with "base".
     {
         base b;
         auto t = call_multiple(b);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base>) );
+        static_assert(std::is_same_v<decltype(t), got_base>);
     }
     {
         auto t = call_multiple(base());
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base_temporary>) );
+        static_assert(std::is_same_v<decltype(t), got_base_temporary>);
     }
     // The same with derived.
     {
         derived d;
         auto t = call_multiple(d);
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base>) );
+        static_assert(std::is_same_v<decltype(t), got_base>);
     }
     {
         auto t = call_multiple(derived());
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), got_base_temporary>) );
+        static_assert(std::is_same_v<decltype(t), got_base_temporary>);
     }
 
     // Two parameters, one of which is base.
     {
         base b;
         auto t = call_multiple(b, 2);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<base &, int>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<base &, int>>);
     }
     {
         base b;
         auto t = call_multiple(2, b);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<int, base &>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<int, base &>>);
     }
     // Two parameters, one of which is derived.
     {
         derived d;
         auto t = call_multiple(d, 2);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<derived &, int>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<derived &, int>>);
     }
     {
         derived d;
         auto t = call_multiple(2, d);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(t), got_something_else<int, derived &>>) );
+        static_assert(
+            std::is_same_v<decltype(t), got_something_else<int, derived &>>);
     }
 }
 

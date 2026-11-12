@@ -25,8 +25,7 @@ struct check_binary_predicate
     {
         static_assert(
             AllPredicate<meta::vector<TypeA>, meta::vector<TypeB>>::value
-                == SinglePredicate<TypeA, TypeB>::value,
-            "");
+            == SinglePredicate<TypeA, TypeB>::value);
     }
 
     template <class TypeA, class TypeB, class TypeC, class TypeD>
@@ -35,37 +34,30 @@ struct check_binary_predicate
         static_assert(
             AllPredicate<
                 meta::vector<TypeA, TypeB>, meta::vector<TypeC, TypeD>>::value
-                == (SinglePredicate<TypeA, TypeC>::value
-                    && SinglePredicate<TypeB, TypeD>::value),
-            "");
+            == (SinglePredicate<TypeA, TypeC>::value
+                && SinglePredicate<TypeB, TypeD>::value));
     }
 
     template <class Type1, class Type2, class Type3> void check() const
     {
         // Zero length.
-        static_assert(AllPredicate<meta::vector<>, meta::vector<>>::value, "");
+        static_assert(AllPredicate<meta::vector<>, meta::vector<>>::value);
 
         // Different lengths: always false.
         static_assert(
-            !AllPredicate<meta::vector<>, meta::vector<Type1>>::value, "");
+            !AllPredicate<meta::vector<>, meta::vector<Type1>>::value);
         static_assert(
-            !AllPredicate<meta::vector<>, meta::vector<Type1, Type2>>::value,
-            "");
+            !AllPredicate<meta::vector<>, meta::vector<Type1, Type2>>::value);
 
         static_assert(
-            !AllPredicate<meta::vector<Type1>, meta::vector<>>::value, "");
-        static_assert(
-            !AllPredicate<
-                meta::vector<Type1>, meta::vector<Type1, Type2>>::value,
-            "");
+            !AllPredicate<meta::vector<Type1>, meta::vector<>>::value);
+        static_assert(!AllPredicate<
+                      meta::vector<Type1>, meta::vector<Type1, Type2>>::value);
 
         static_assert(
-            !AllPredicate<meta::vector<Type1, Type2>, meta::vector<>>::value,
-            "");
-        static_assert(
-            !AllPredicate<
-                meta::vector<Type1, Type2>, meta::vector<Type1>>::value,
-            "");
+            !AllPredicate<meta::vector<Type1, Type2>, meta::vector<>>::value);
+        static_assert(!AllPredicate<
+                      meta::vector<Type1, Type2>, meta::vector<Type1>>::value);
 
         /*
         It is probably possible to be clever about this longish list below,
@@ -226,12 +218,9 @@ struct explicitly_nothrow_convertible_to
 
 BOOST_AUTO_TEST_CASE(test_utility_are_convertible)
 {
-    static_assert(
-        std::is_convertible<convertible_from, convertible_to>::value, "");
-    static_assert(
-        !std::is_convertible<
-            convertible_from, explicitly_convertible_to>::value,
-        "");
+    static_assert(std::is_convertible<convertible_from, convertible_to>::value);
+    static_assert(!std::is_convertible<
+                  convertible_from, explicitly_convertible_to>::value);
     check_binary_predicate<std::is_convertible, utility::are_convertible> test;
     test.check<convertible_from, convertible_to, explicitly_convertible_to>();
 }
@@ -248,11 +237,9 @@ BOOST_AUTO_TEST_CASE(test_utility_are_constructible)
 {
     // Check that the example types are exciting enough.
     static_assert(
-        is_constructible<explicitly_convertible_to, convertible_from>::value,
-        "");
+        is_constructible<explicitly_convertible_to, convertible_from>::value);
     static_assert(
-        !is_constructible<convertible_from, explicitly_convertible_to>::value,
-        "");
+        !is_constructible<convertible_from, explicitly_convertible_to>::value);
 
     check_binary_predicate<is_constructible, utility::are_constructible> test;
     test.check<convertible_from, convertible_to, explicitly_convertible_to>();
@@ -261,14 +248,10 @@ BOOST_AUTO_TEST_CASE(test_utility_are_constructible)
 BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_constructible)
 {
     // Check that the example types are exciting enough.
-    static_assert(
-        !is_nothrow_constructible<
-            explicitly_convertible_to, convertible_from>::value,
-        "");
-    static_assert(
-        is_nothrow_constructible<
-            explicitly_nothrow_convertible_to, convertible_from>::value,
-        "");
+    static_assert(!is_nothrow_constructible<
+                  explicitly_convertible_to, convertible_from>::value);
+    static_assert(is_nothrow_constructible<
+                  explicitly_nothrow_convertible_to, convertible_from>::value);
 
     check_binary_predicate<
         is_nothrow_constructible, utility::are_nothrow_constructible>
@@ -296,15 +279,11 @@ BOOST_AUTO_TEST_CASE(test_utility_are_assignable)
 {
     // Check that the example types are exciting enough.
     static_assert(
-        !std::is_assignable<assignable_from &, assignable_to const &>::value,
-        "");
+        !std::is_assignable<assignable_from &, assignable_to const &>::value);
     static_assert(
-        std::is_assignable<assignable_to &, assignable_from const &>::value,
-        "");
-    static_assert(
-        std::is_assignable<
-            nothrow_assignable_to &, assignable_from const &>::value,
-        "");
+        std::is_assignable<assignable_to &, assignable_from const &>::value);
+    static_assert(std::is_assignable<
+                  nothrow_assignable_to &, assignable_from const &>::value);
 
     check_binary_predicate<std::is_assignable, utility::are_assignable> test;
     test.check<assignable_from, assignable_to, nothrow_assignable_to>();
@@ -313,18 +292,12 @@ BOOST_AUTO_TEST_CASE(test_utility_are_assignable)
 BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_assignable)
 {
     // Check that the example types are exciting enough.
-    static_assert(
-        !std::is_nothrow_assignable<
-            assignable_from &, assignable_to const &>::value,
-        "");
-    static_assert(
-        !std::is_nothrow_assignable<
-            assignable_to &, assignable_from const &>::value,
-        "");
-    static_assert(
-        std::is_nothrow_assignable<
-            nothrow_assignable_to &, assignable_from const &>::value,
-        "");
+    static_assert(!std::is_nothrow_assignable<
+                  assignable_from &, assignable_to const &>::value);
+    static_assert(!std::is_nothrow_assignable<
+                  assignable_to &, assignable_from const &>::value);
+    static_assert(std::is_nothrow_assignable<
+                  nothrow_assignable_to &, assignable_from const &>::value);
 
     check_binary_predicate<
         std::is_nothrow_assignable, utility::are_nothrow_assignable>

@@ -22,20 +22,17 @@ template <
     class Type1, class Type2, class Type3>
 void check()
 {
-    static_assert(AllPredicate<meta::vector<>>::value, "");
+    static_assert(AllPredicate<meta::vector<>>::value);
     static_assert(
         AllPredicate<meta::vector<Type1>>::value
-            == SinglePredicate<Type1>::value,
-        "");
+        == SinglePredicate<Type1>::value);
     static_assert(
         AllPredicate<meta::vector<Type1, Type2>>::value
-            == (SinglePredicate<Type1>::value && SinglePredicate<Type2>::value),
-        "");
+        == (SinglePredicate<Type1>::value && SinglePredicate<Type2>::value));
     static_assert(
         AllPredicate<meta::vector<Type1, Type2, Type3>>::value
-            == (SinglePredicate<Type1>::value && SinglePredicate<Type2>::value
-                && SinglePredicate<Type3>::value),
-        "");
+        == (SinglePredicate<Type1>::value && SinglePredicate<Type2>::value
+            && SinglePredicate<Type3>::value));
 }
 
 struct default_constructible
@@ -63,12 +60,10 @@ BOOST_AUTO_TEST_CASE(test_utility_are_default_constructible)
 {
     // Check that the example types are interesting enough.
     static_assert(
-        std::is_default_constructible<nothrow_default_constructible>::value,
-        "");
+        std::is_default_constructible<nothrow_default_constructible>::value);
+    static_assert(std::is_default_constructible<default_constructible>::value);
     static_assert(
-        std::is_default_constructible<default_constructible>::value, "");
-    static_assert(
-        !std::is_default_constructible<not_default_constructible>::value, "");
+        !std::is_default_constructible<not_default_constructible>::value);
 
     check<
         std::is_default_constructible, utility::are_default_constructible, int,
@@ -85,17 +80,12 @@ BOOST_AUTO_TEST_CASE(test_utility_are_default_constructible)
 BOOST_AUTO_TEST_CASE(test_utility_are_nothrow_default_constructible)
 {
     // Check that the example types are interesting enough.
+    static_assert(std::is_nothrow_default_constructible<
+                  nothrow_default_constructible>::value);
     static_assert(
-        std::is_nothrow_default_constructible<
-            nothrow_default_constructible>::value,
-        "");
-    static_assert(
-        !std::is_nothrow_default_constructible<default_constructible>::value,
-        "");
-    static_assert(
-        !std::is_nothrow_default_constructible<
-            not_default_constructible>::value,
-        "");
+        !std::is_nothrow_default_constructible<default_constructible>::value);
+    static_assert(!std::is_nothrow_default_constructible<
+                  not_default_constructible>::value);
 
     check<
         std::is_nothrow_default_constructible,

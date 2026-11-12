@@ -25,24 +25,19 @@ BOOST_AUTO_TEST_SUITE(test_suite_utility_throwing)
 // bool ThrowOnConversion = false
 
 // ThrowOnConstruction.
-static_assert(
-    std::is_nothrow_constructible<
-        utility::throwing<int, utility::do_not_throw>, utility::thrower &,
-        int>::value,
-    "");
+static_assert(std::is_nothrow_constructible<
+              utility::throwing<int, utility::do_not_throw>, utility::thrower &,
+              int>::value);
 static_assert(
     !std::is_nothrow_constructible<
         utility::throwing<
             int, utility::throw_toggles<utility::toggle_throw_on_construction>>,
-        utility::thrower &, int>::value,
-    "");
+        utility::thrower &, int>::value);
 
 // ThrowOnCopy.
-static_assert(
-    std::is_nothrow_constructible<
-        utility::throwing<int, utility::do_not_throw>,
-        utility::throwing<int, utility::do_not_throw> const &>::value,
-    "");
+static_assert(std::is_nothrow_constructible<
+              utility::throwing<int, utility::do_not_throw>,
+              utility::throwing<int, utility::do_not_throw> const &>::value);
 static_assert(
     !std::is_nothrow_constructible<
         utility::throwing<
@@ -50,30 +45,24 @@ static_assert(
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_copy>> const &>::
-        value,
-    "");
+        value);
 
 // ThrowOnMove.
-static_assert(
-    std::is_nothrow_constructible<
-        utility::throwing<int, utility::do_not_throw>,
-        utility::throwing<int, utility::do_not_throw> &&>::value,
-    "");
+static_assert(std::is_nothrow_constructible<
+              utility::throwing<int, utility::do_not_throw>,
+              utility::throwing<int, utility::do_not_throw> &&>::value);
 static_assert(
     !std::is_nothrow_constructible<
         utility::throwing<
             int, utility::throw_toggles<utility::toggle_throw_on_move>>,
         utility::throwing<
             int,
-            utility::throw_toggles<utility::toggle_throw_on_move>> &&>::value,
-    "");
+            utility::throw_toggles<utility::toggle_throw_on_move>> &&>::value);
 
 // ThrowOnCopyAssign.
-static_assert(
-    std::is_nothrow_assignable<
-        utility::throwing<int, utility::do_not_throw> &,
-        utility::throwing<int, utility::do_not_throw> const &>::value,
-    "");
+static_assert(std::is_nothrow_assignable<
+              utility::throwing<int, utility::do_not_throw> &,
+              utility::throwing<int, utility::do_not_throw> const &>::value);
 static_assert(
     !std::is_nothrow_assignable<
         utility::throwing<
@@ -82,15 +71,12 @@ static_assert(
         utility::throwing<
             int,
             utility::throw_toggles<
-                utility::toggle_throw_on_copy_assign>> const &>::value,
-    "");
+                utility::toggle_throw_on_copy_assign>> const &>::value);
 
 // ThrowOnMoveAssign.
-static_assert(
-    std::is_nothrow_assignable<
-        utility::throwing<int, utility::do_not_throw> &,
-        utility::throwing<int, utility::do_not_throw> &&>::value,
-    "");
+static_assert(std::is_nothrow_assignable<
+              utility::throwing<int, utility::do_not_throw> &,
+              utility::throwing<int, utility::do_not_throw> &&>::value);
 static_assert(
     !std::is_nothrow_assignable<
         utility::throwing<
@@ -99,8 +85,7 @@ static_assert(
         utility::throwing<
             int,
             utility::throw_toggles<utility::toggle_throw_on_move_assign>> &&>::
-        value,
-    "");
+        value);
 
 // ThrowOnConversion is not really interesting to check here.
 

@@ -9,8 +9,6 @@
 
 #include <type_traits>
 
-#include "boost/mpl/assert.hpp"
-
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_copy_or_move)
 
@@ -27,32 +25,32 @@ BOOST_AUTO_TEST_CASE(test_utility_copy_or_move)
     {
         int i = 4;
         auto t = destination(utility::copy_or_move<int>(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int const &>>);
     }
     // Rvalue reference.
     {
         auto t = destination(utility::copy_or_move<int>(4));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int>>) );
+        static_assert(std::is_same_v<decltype(t), type<int>>);
     }
     // Const lvalue reference.
     {
         int const i = 4;
         auto t = destination(
             utility::copy_or_move<int>(static_cast<int const &&>(i)));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int const &>>);
     }
     // Const rvalue reference: becomes an lvalue reference.
     {
         int i = 4;
         auto t = destination(
             utility::copy_or_move<int>(static_cast<int const &&>(i)));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int const &>>);
     }
     // Lvalue reference to a different type: generate a temporary of type long.
     {
         int i = 4;
         auto t = destination(utility::copy_or_move<long>(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<long>>) );
+        static_assert(std::is_same_v<decltype(t), type<long>>);
     }
 }
 
@@ -61,16 +59,16 @@ BOOST_AUTO_TEST_CASE(test_utility_forward_copy_or_move)
     {
         int i = 4;
         auto t = destination(utility::forward_copy_or_move<long, int>(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<long>>) );
+        static_assert(std::is_same_v<decltype(t), type<long>>);
 
         int const & i2 = i;
         auto t2 =
             destination(utility::forward_copy_or_move<long, int const &>(i2));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t2), type<long>>) );
+        static_assert(std::is_same_v<decltype(t2), type<long>>);
 
         auto t3 =
             destination(utility::forward_copy_or_move<int, int const &>(i2));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t3), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t3), type<int const &>>);
     }
 }
 
@@ -92,17 +90,17 @@ BOOST_AUTO_TEST_CASE(test_utility_forward_member)
 
     {
         auto t = destination(utility::forward_member<structure>(s.a));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int>>) );
+        static_assert(std::is_same_v<decltype(t), type<int>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure>(s.a), 2);
     }
     {
         auto t = destination(utility::forward_member<structure &>(s.a));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int &>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure &>(s.a), 2);
     }
     {
         auto t = destination(utility::forward_member<structure const &>(s2.a));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int const &>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure const &>(s2.a), 4);
     }
     // It is currently possible to set Container to structure const & while
@@ -116,18 +114,18 @@ BOOST_AUTO_TEST_CASE(test_utility_forward_member)
 
     {
         auto t = destination(utility::forward_member<structure &>(s.b));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<long &>>) );
+        static_assert(std::is_same_v<decltype(t), type<long &>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure &>(s.b), 9l);
     }
     {
         auto t = destination(utility::forward_member<structure const &>(s2.b));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<long &>>) );
+        static_assert(std::is_same_v<decltype(t), type<long &>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure const &>(s2.b), 9l);
     }
 
     {
         auto t = destination(utility::forward_member<structure &>(s.c));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<int const &>>) );
+        static_assert(std::is_same_v<decltype(t), type<int const &>>);
         BOOST_CHECK_EQUAL(utility::forward_member<structure &>(s.c), 5);
     }
 }
