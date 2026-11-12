@@ -11,7 +11,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "boost/mpl/assert.hpp"
 #include "boost/mpl/or.hpp"
 
 #include "utility/overload_order.hpp"
@@ -358,122 +357,115 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
     // Normal type.
     {
         test_container<int> c(4);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int &>);
         BOOST_CHECK_EQUAL(extract(c), 4);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), int>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int>);
         BOOST_CHECK_EQUAL(extract_value(c), 4);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_pointer(c)), int *>) );
+        static_assert(std::is_same_v<decltype(extract_pointer(c)), int *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int &&>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), int &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), int>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 4);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(std::move(c))), int *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(std::move(c))), int *>);
     }
     {
         test_container<non_pod const> c(4);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), non_pod const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), non_pod const &>);
         BOOST_CHECK_EQUAL(extract(c), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), non_pod const>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), non_pod const>);
         BOOST_CHECK_EQUAL(extract_value(c), 4);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), non_pod const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), non_pod const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), non_pod const &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), non_pod const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), non_pod const>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), non_pod const>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 4);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), non_pod const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), non_pod const *>);
     }
     {
         test_container<int> const c(4);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int const &>);
         BOOST_CHECK_EQUAL(extract(c), 4);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), int>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int>);
         BOOST_CHECK_EQUAL(extract_value(c), 4);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), int const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), int const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int const &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), int const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), int>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 4);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), int const *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))), int const *>);
     }
     {
         test_container<non_pod const> const c(4);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), non_pod const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), non_pod const &>);
         BOOST_CHECK_EQUAL(extract(c), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), non_pod const>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), non_pod const>);
         BOOST_CHECK_EQUAL(extract_value(c), 4);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), non_pod const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), non_pod const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), non_pod const &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), non_pod const &&>);
         BOOST_CHECK_EQUAL(extract(c), 4);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), non_pod const>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), non_pod const>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 4);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), non_pod const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), non_pod const *>);
     }
 
     // get_pointer on structure, which has operator& overloaded.
     {
         structure s;
         test_container<structure> c(s);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), structure *>) );
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), structure *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), structure *>);
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))), structure *>);
         BOOST_CHECK_EQUAL(
             static_cast<void *>(extract_pointer(c)), static_cast<void *>(&c));
     }
@@ -482,136 +474,128 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
     {
         int i = 7;
         test_container<int &> c(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), int &>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int &>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(&extract_value(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<int &, decltype(c)>::type, int *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int &, decltype(c)>::type, int *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int &>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), int &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), int &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 7);
         BOOST_CHECK_EQUAL(&extract_value(std::move(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<int &, decltype(std::move(c))>::type,
-                int *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int &, decltype(std::move(c))>::type,
+                      int *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int const i = 7;
         test_container<int const &> c(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int const &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), int const &>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int const &>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(&extract_value(c), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<int const &, decltype(c)>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int const &, decltype(c)>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), int const &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract_value(std::move(c))), int const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int const &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 7);
         BOOST_CHECK_EQUAL(&extract_value(std::move(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
+        static_assert(
+            std::is_same_v<
                 typename get_pointer<int const &, decltype(std::move(c))>::type,
-                int const *>) );
+                int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int i = 7;
         test_container<int &> const c(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), int &>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int &>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(&extract_value(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<int &, decltype(c)>::type, int *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int &, decltype(c)>::type, int *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int &>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), int &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), int &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 7);
         BOOST_CHECK_EQUAL(&extract_value(std::move(c)), &i);
 
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<int &, decltype(std::move(c))>::type,
-                int *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int &, decltype(std::move(c))>::type,
+                      int *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int const i = 7;
         test_container<int const &> const c(i);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int const &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), int const &>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int const &>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(&extract_value(c), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<int const &, decltype(c)>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int const &, decltype(c)>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), int const &>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(&extract(c), &i);
 
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract_value(std::move(c))), int const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int const &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), 7);
         BOOST_CHECK_EQUAL(&extract_value(std::move(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
+        static_assert(
+            std::is_same_v<
                 typename get_pointer<int const &, decltype(std::move(c))>::type,
-                int const *>) );
+                int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
 
@@ -619,138 +603,131 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
     {
         non_pod i = 7;
         test_container<non_pod &&> c(std::move(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), non_pod &&>) );
+        static_assert(std::is_same_v<decltype(extract(c)), non_pod &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), non_pod &&>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), non_pod &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<non_pod &&, decltype(c)>::type,
-                          non_pod *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<non_pod &&, decltype(c)>::type,
+                      non_pod *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), non_pod &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), non_pod &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), non_pod &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), non_pod &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
+        static_assert(
+            std::is_same_v<
                 typename get_pointer<non_pod &&, decltype(std::move(c))>::type,
-                non_pod *>) );
+                non_pod *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int const i = 7;
         test_container<int const &&> c(std::move(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int const &&>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int const &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), int const &&>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int const &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<int const &&, decltype(c)>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int const &&, decltype(c)>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int const &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), int const &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), int const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), int const &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              int const &&, decltype(std::move(c))>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          int const &&, decltype(std::move(c))>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int i = 7;
         test_container<int &&> const c(std::move(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int &&>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), int &&>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<int &&, decltype(c)>::type, int *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int &&, decltype(c)>::type, int *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int &&>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), int &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), int &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), int &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
+        static_assert(
+            std::is_same_v<
                 typename get_pointer<int &&, decltype(std::move(c))>::type,
-                int *>) );
+                int *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
     {
         int const i = 7;
         test_container<int const &&> const c(std::move(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), int const &&>) );
+        static_assert(std::is_same_v<decltype(extract(c)), int const &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), int const &&>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), int const &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<int const &&, decltype(c)>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<int const &&, decltype(c)>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), &i);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), int const &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), int const &&>);
         BOOST_CHECK_EQUAL(extract(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract(c)), &i);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), int const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), int const &&>);
         BOOST_CHECK_EQUAL(extract_value(c), 7);
         BOOST_CHECK_EQUAL(address_of(extract_value(c)), &i);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              int const &&, decltype(std::move(c))>::type,
-                          int const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          int const &&, decltype(std::move(c))>::type,
+                      int const *>);
         BOOST_CHECK_EQUAL(extract_pointer(std::move(c)), &i);
     }
 
@@ -758,7 +735,7 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
     {
         array_type a = {12, 23, 34};
         test_container<array_type> c(a);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), array_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), array_type &>);
         BOOST_CHECK_EQUAL(extract(c)[0], 12);
         BOOST_CHECK_EQUAL(extract(c)[1], 23);
         BOOST_CHECK_EQUAL(extract(c)[2], 34);
@@ -766,26 +743,24 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         // get_value cannot be defined for array types.
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), array_type *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), array_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), array_type &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), array_type &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))[0], 12);
         BOOST_CHECK_EQUAL(extract(std::move(c))[1], 23);
         BOOST_CHECK_EQUAL(extract(std::move(c))[2], 34);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), array_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))), array_type *>);
     }
     {
         array_type const a = {12, 23, 34};
         test_container<array_type const> c(a);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), array_type const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), array_type const &>);
         BOOST_CHECK_EQUAL(extract(c)[0], 12);
         BOOST_CHECK_EQUAL(extract(c)[1], 23);
         BOOST_CHECK_EQUAL(extract(c)[2], 34);
@@ -793,27 +768,25 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         // get_value cannot be defined for array types.
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), array_type const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), array_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), array_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))), array_type const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))[0], 12);
         BOOST_CHECK_EQUAL(extract(std::move(c))[1], 23);
         BOOST_CHECK_EQUAL(extract(std::move(c))[2], 34);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), array_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), array_type const *>);
     }
     {
         array_type a = {12, 23, 34};
         test_container<array_type> const c(a);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), array_type const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), array_type const &>);
         BOOST_CHECK_EQUAL(extract(c)[0], 12);
         BOOST_CHECK_EQUAL(extract(c)[1], 23);
         BOOST_CHECK_EQUAL(extract(c)[2], 34);
@@ -821,27 +794,25 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         // get_value cannot be defined for array types.
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), array_type const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), array_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), array_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))), array_type const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))[0], 12);
         BOOST_CHECK_EQUAL(extract(std::move(c))[1], 23);
         BOOST_CHECK_EQUAL(extract(std::move(c))[2], 34);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), array_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), array_type const *>);
     }
     {
         array_type const a = {12, 23, 34};
         test_container<array_type const> const c(a);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), array_type const &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), array_type const &>);
         BOOST_CHECK_EQUAL(extract(c)[0], 12);
         BOOST_CHECK_EQUAL(extract(c)[1], 23);
         BOOST_CHECK_EQUAL(extract(c)[2], 34);
@@ -849,258 +820,238 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         // get_value cannot be defined for array types.
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), array_type const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), array_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), array_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))), array_type const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))[0], 12);
         BOOST_CHECK_EQUAL(extract(std::move(c))[1], 23);
         BOOST_CHECK_EQUAL(extract(std::move(c))[2], 34);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), array_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), array_type const *>);
     }
 
     // Function type.
     {
         test_container<function_type> c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<function_type, decltype(c)>::type,
-                function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<function_type, decltype(c)>::type,
+                      function_type *>);
 
         // Rvalue reference container.
         // Compilers differ about whether the result of the function, a
         // reference to function, is an lvalue or rvalue reference.
         // We don't really care which one it picks.
         typedef decltype(extract(std::move(c))) result_type;
-        BOOST_MPL_ASSERT((boost::mpl::or_<
-                          std::is_same<result_type, function_type &&>,
-                          std::is_same<result_type, function_type &>>) );
+        static_assert(boost::mpl::or_<
+                      std::is_same<result_type, function_type &&>,
+                      std::is_same<result_type, function_type &>>::value);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type &>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              function_type, decltype(std::move(c))>::type,
-                          function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          function_type, decltype(std::move(c))>::type,
+                      function_type *>);
     }
     {
         // Functions do not come const-qualified.
         test_container<function_type> const c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<function_type, decltype(c)>::type,
-                function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<function_type, decltype(c)>::type,
+                      function_type *>);
 
         // Rvalue reference container.
         // Compilers differ about whether the result of the function, a
         // reference to function, is an lvalue or rvalue reference.
         // We don't really care which one it picks.
         typedef decltype(extract(std::move(c))) result_type;
-        BOOST_MPL_ASSERT((boost::mpl::or_<
-                          std::is_same<result_type, function_type &&>,
-                          std::is_same<result_type, function_type &>>) );
+        static_assert(boost::mpl::or_<
+                      std::is_same<result_type, function_type &&>,
+                      std::is_same<result_type, function_type &>>::value);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type &>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              function_type, decltype(std::move(c))>::type,
-                          function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          function_type, decltype(std::move(c))>::type,
+                      function_type *>);
     }
 
     // Function reference.
     {
         test_container<function_type &> c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<function_type &, decltype(c)>::type,
-                function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<function_type &, decltype(c)>::type,
+                      function_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type &>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              function_type &, decltype(std::move(c))>::type,
-                          function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          function_type &, decltype(std::move(c))>::type,
+                      function_type *>);
     }
     {
         test_container<function_type &> const c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<function_type &, decltype(c)>::type,
-                function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<function_type &, decltype(c)>::type,
+                      function_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type &>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type &>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          typename get_pointer<
-                              function_type &, decltype(std::move(c))>::type,
-                          function_type *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<
+                          function_type &, decltype(std::move(c))>::type,
+                      function_type *>);
     }
 
     // Function pointer.
     {
         test_container<function_type *> c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type *&>) );
+        static_assert(std::is_same_v<decltype(extract(c)), function_type *&>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type *>);
         BOOST_CHECK_EQUAL(extract_value(c)(2.5), 1);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), function_type **>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), function_type **>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract(std::move(c))), function_type *&&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), function_type *&&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type *>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), function_type **>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), function_type **>);
     }
     {
         test_container<function_type *> const c(function_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), function_type * const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(c)), function_type * const &>);
         BOOST_CHECK_EQUAL(extract(c)(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), function_type *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), function_type *>);
         BOOST_CHECK_EQUAL(extract_value(c)(2.5), 1);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(c)), function_type * const *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(c)), function_type * const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), function_type * const &&>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract(std::move(c))), function_type * const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c))(2.5), 1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))), function_type *>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c))(2.5), 1);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          function_type * const *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))),
+                      function_type * const *>);
     }
 
     // Member pointer.
     {
         test_container<member_type> c(&structure::member_1);
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), member_type &>) );
+        static_assert(std::is_same_v<decltype(extract(c)), member_type &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::member_1);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), member_type>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), member_type>);
         BOOST_CHECK_EQUAL(extract_value(c), &structure::member_1);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), member_type *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), member_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), member_type &&>) );
+        static_assert(
+            std::is_same_v<decltype(extract(std::move(c))), member_type &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), &structure::member_1);
 
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract_value(std::move(c))), member_type>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), member_type>);
         BOOST_CHECK_EQUAL(extract_value(std::move(c)), &structure::member_1);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(std::move(c))), member_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))), member_type *>);
     }
     {
         test_container<member_type const> c(&structure::member_1);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), member_type const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(c)), member_type const &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::member_1);
 
         // This returns "member_type const" but that is a POD type so the
         // const-qualification is removed immediately.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), member_type>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), member_type>);
         // So check the function pointer.
         // Writing "member_type const" directly as its return type would make
         // Clang warn that the qualifier has no effect (-Wignored-qualifiers),
@@ -1111,220 +1062,209 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_and_get_pointer)
         BOOST_CHECK_EQUAL(e(c), &structure::member_1);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_pointer(c)), member_type const *>) );
+        static_assert(
+            std::is_same_v<decltype(extract_pointer(c)), member_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), member_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))), member_type const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), &structure::member_1);
 
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract_value(std::move(c))), member_type>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), member_type>);
         const_member_type (*e2)(test_container<member_type const> &&) =
             &extract_value;
         BOOST_CHECK_EQUAL(e2(std::move(c)), &structure::member_1);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          member_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(std::move(c))), member_type const *>);
     }
 
     // Member function pointer.
     {
         test_container<member_function_type> c(&structure::member_function_2);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), member_function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(c)), member_function_type &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), member_function_type>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), member_function_type>);
         BOOST_CHECK_EQUAL(extract_value(c), &structure::member_function_2);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(c)), member_function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(c)), member_function_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), member_function_type &&>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract(std::move(c))), member_function_type &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), &structure::member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), member_function_type>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_value(std::move(c))), member_function_type>);
         BOOST_CHECK_EQUAL(
             extract_value(std::move(c)), &structure::member_function_2);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          member_function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))),
+                      member_function_type *>);
     }
     {
         test_container<member_function_type const> c(
             &structure::member_function_2);
-        BOOST_MPL_ASSERT((
-            std::is_same<decltype(extract(c)), member_function_type const &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(c)), member_function_type const &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(c)), member_function_type>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(c)), member_function_type>);
         BOOST_CHECK_EQUAL(extract_value(c), &structure::member_function_2);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(c)), member_function_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(c)), member_function_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract(std::move(c))),
-                          member_function_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))),
+                      member_function_type const &&>);
         BOOST_CHECK_EQUAL(extract(std::move(c)), &structure::member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(std::move(c))), member_function_type>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_value(std::move(c))), member_function_type>);
         BOOST_CHECK_EQUAL(
             extract_value(std::move(c)), &structure::member_function_2);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          member_function_type const *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))),
+                      member_function_type const *>);
     }
 
     // Member function pointer.
     {
         test_container<cv_member_function_type> c(
             &structure::cv_member_function_2);
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(c)), cv_member_function_type &>) );
+        static_assert(
+            std::is_same_v<decltype(extract(c)), cv_member_function_type &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::cv_member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(c)), cv_member_function_type>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(c)), cv_member_function_type>);
         BOOST_CHECK_EQUAL(extract_value(c), &structure::cv_member_function_2);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_pointer(c)), cv_member_function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(c)), cv_member_function_type *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(std::move(c))), cv_member_function_type &&>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract(std::move(c))), cv_member_function_type &&>);
         BOOST_CHECK_EQUAL(
             extract(std::move(c)), &structure::cv_member_function_2);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_value(std::move(c))),
-                          cv_member_function_type>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))),
+                      cv_member_function_type>);
         BOOST_CHECK_EQUAL(
             extract_value(std::move(c)), &structure::cv_member_function_2);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          cv_member_function_type *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))),
+                      cv_member_function_type *>);
     }
     {
         test_container<cv_member_function_type const> c(
             &structure::cv_member_function_2);
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract(c)), cv_member_function_type const &>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(c)), cv_member_function_type const &>);
         BOOST_CHECK_EQUAL(extract(c), &structure::cv_member_function_2);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                decltype(extract_value(c)), cv_member_function_type>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(c)), cv_member_function_type>);
         BOOST_CHECK_EQUAL(extract_value(c), &structure::cv_member_function_2);
 
         extract_pointer(c);
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(c)),
-                          cv_member_function_type const *>) );
+        static_assert(
+            std::is_same_v<
+                decltype(extract_pointer(c)), cv_member_function_type const *>);
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract(std::move(c))),
-                          cv_member_function_type const &&>) );
+        static_assert(std::is_same_v<
+                      decltype(extract(std::move(c))),
+                      cv_member_function_type const &&>);
         BOOST_CHECK_EQUAL(
             extract(std::move(c)), &structure::cv_member_function_2);
 
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_value(std::move(c))),
-                          cv_member_function_type>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_value(std::move(c))),
+                      cv_member_function_type>);
         BOOST_CHECK_EQUAL(
             extract_value(std::move(c)), &structure::cv_member_function_2);
 
         extract_pointer(std::move(c));
-        BOOST_MPL_ASSERT((std::is_same<
-                          decltype(extract_pointer(std::move(c))),
-                          cv_member_function_type const *>) );
+        static_assert(std::is_same_v<
+                      decltype(extract_pointer(std::move(c))),
+                      cv_member_function_type const *>);
     }
 
     // void.
     {
         test_container<void> c;
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), void>) );
+        static_assert(std::is_same_v<decltype(extract(c)), void>);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), void>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), void>);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<void, decltype(c)>::type, void *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<void, decltype(c)>::type, void *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), static_cast<void *>(&c));
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), void>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), void>);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), void>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), void>);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<void, decltype(std::move(c))>::type,
-                void *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<void, decltype(std::move(c))>::type,
+                      void *>);
         BOOST_CHECK_EQUAL(
             extract_pointer(std::move(c)), static_cast<void *>(&c));
     }
     // void in a const container: only pointers can actually be to void const.
     {
         test_container<void> const c;
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract(c)), void>) );
+        static_assert(std::is_same_v<decltype(extract(c)), void>);
         extract(c);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(extract_value(c)), void>) );
+        static_assert(std::is_same_v<decltype(extract_value(c)), void>);
         extract_value(c);
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<void, decltype(c)>::type, void const *>) );
+        static_assert(
+            std::is_same_v<
+                typename get_pointer<void, decltype(c)>::type, void const *>);
         BOOST_CHECK_EQUAL(extract_pointer(c), static_cast<void const *>(&c));
 
         // Rvalue reference container.
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract(std::move(c))), void>) );
+        static_assert(std::is_same_v<decltype(extract(std::move(c))), void>);
         extract(std::move(c));
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(extract_value(std::move(c))), void>) );
+        static_assert(
+            std::is_same_v<decltype(extract_value(std::move(c))), void>);
         extract_value(std::move(c));
 
-        BOOST_MPL_ASSERT(
-            (std::is_same<
-                typename get_pointer<void, decltype(std::move(c))>::type,
-                void const *>) );
+        static_assert(std::is_same_v<
+                      typename get_pointer<void, decltype(std::move(c))>::type,
+                      void const *>);
         BOOST_CHECK_EQUAL(
             extract_pointer(std::move(c)), static_cast<void const *>(&c));
     }
@@ -1341,18 +1281,17 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     using utility::storage::detail::type_that_cannot_be_constructed_1;
     using utility::storage::detail::type_that_cannot_be_constructed_2;
 
-    BOOST_MPL_ASSERT((std::is_same<pass<int>::type, int const &>) );
-    BOOST_MPL_ASSERT((std::is_same<pass_rvalue<int>::type, int &&>) );
+    static_assert(std::is_same_v<pass<int>::type, int const &>);
+    static_assert(std::is_same_v<pass_rvalue<int>::type, int &&>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<int &>::type, int &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            pass_rvalue<int &>::type, type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<int &>::type, int &>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<int &>::type, type_that_cannot_be_constructed_1>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<int &&>::type, int &&>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            pass_rvalue<int &&>::type, type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<int &&>::type, int &&>);
+    static_assert(
+        std::is_same_v<
+            pass_rvalue<int &&>::type, type_that_cannot_be_constructed_1>);
 
     {
         double d = 4.5;
@@ -1364,18 +1303,18 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // const.
-    BOOST_MPL_ASSERT((std::is_same<pass<int const>::type, int const &>) );
-    BOOST_MPL_ASSERT((std::is_same<pass_rvalue<int const>::type, int &&>) );
+    static_assert(std::is_same_v<pass<int const>::type, int const &>);
+    static_assert(std::is_same_v<pass_rvalue<int const>::type, int &&>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<int const &>::type, int const &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<int const &>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<int const &>::type, int const &>);
+    static_assert(
+        std::is_same_v<
+            pass_rvalue<int const &>::type, type_that_cannot_be_constructed_1>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<int const &&>::type, int const &&>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<int const &&>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<int const &&>::type, int const &&>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<int const &&>::type,
+                  type_that_cannot_be_constructed_1>);
 
     {
         double d = 4.5;
@@ -1387,20 +1326,18 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // Array.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<array_type>::type, array_type const &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass_rvalue<array_type>::type, array_type &&>) );
+    static_assert(std::is_same_v<pass<array_type>::type, array_type const &>);
+    static_assert(std::is_same_v<pass_rvalue<array_type>::type, array_type &&>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<array_type &>::type, array_type &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<array_type &>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<array_type &>::type, array_type &>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<array_type &>::type,
+                  type_that_cannot_be_constructed_1>);
 
-    BOOST_MPL_ASSERT((std::is_same<pass<array_type &&>::type, array_type &&>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<array_type &&>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<array_type &&>::type, array_type &&>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<array_type &&>::type,
+                  type_that_cannot_be_constructed_1>);
 
     {
         array_type a = {5, 6, 7};
@@ -1412,22 +1349,22 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // Const array.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<array_type const>::type, array_type const &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass_rvalue<array_type const>::type, array_type &&>) );
+    static_assert(
+        std::is_same_v<pass<array_type const>::type, array_type const &>);
+    static_assert(
+        std::is_same_v<pass_rvalue<array_type const>::type, array_type &&>);
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<array_type const &>::type, array_type const &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<array_type const &>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(
+        std::is_same_v<pass<array_type const &>::type, array_type const &>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<array_type const &>::type,
+                  type_that_cannot_be_constructed_1>);
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<array_type const &&>::type, array_type const &&>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<array_type const &&>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(
+        std::is_same_v<pass<array_type const &&>::type, array_type const &&>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<array_type const &&>::type,
+                  type_that_cannot_be_constructed_1>);
 
     {
         array_type a = {5, 6, 7};
@@ -1440,37 +1377,35 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
 
     // Function.
     // Function types don't come const-qualified.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<function_type>::type, function_type &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass_rvalue<function_type>::type, function_type &&>) );
+    static_assert(std::is_same_v<pass<function_type>::type, function_type &>);
+    static_assert(
+        std::is_same_v<pass_rvalue<function_type>::type, function_type &&>);
 
     {
         BOOST_CHECK_EQUAL(pass_to<function_type>(function_1), 0);
     }
 
     // Function reference.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<function_type &>::type, function_type &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<function_type &>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(std::is_same_v<pass<function_type &>::type, function_type &>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<function_type &>::type,
+                  type_that_cannot_be_constructed_1>);
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<function_type &&>::type, function_type &&>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<function_type &&>::type,
-                      type_that_cannot_be_constructed_1>) );
+    static_assert(
+        std::is_same_v<pass<function_type &&>::type, function_type &&>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<function_type &&>::type,
+                  type_that_cannot_be_constructed_1>);
 
     {
         BOOST_CHECK_EQUAL(pass_to<function_type &>(function_1), 0);
     }
 
     // Function pointer.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<function_type *>::type, function_type * const &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass_rvalue<function_type *>::type, function_type *&&>) );
+    static_assert(
+        std::is_same_v<pass<function_type *>::type, function_type * const &>);
+    static_assert(
+        std::is_same_v<pass_rvalue<function_type *>::type, function_type *&&>);
 
     {
         function_type * f = function_1;
@@ -1482,10 +1417,9 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // Member.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<member_type>::type, member_type const &>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass_rvalue<member_type>::type, member_type &&>) );
+    static_assert(std::is_same_v<pass<member_type>::type, member_type const &>);
+    static_assert(
+        std::is_same_v<pass_rvalue<member_type>::type, member_type &&>);
 
     {
         member_type m = &structure::member_1;
@@ -1497,19 +1431,19 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // Member function.
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            pass<member_function_type>::type, member_function_type const &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<member_function_type>::type,
-                      member_function_type &&>) );
+    static_assert(
+        std::is_same_v<
+            pass<member_function_type>::type, member_function_type const &>);
+    static_assert(
+        std::is_same_v<
+            pass_rvalue<member_function_type>::type, member_function_type &&>);
 
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass<v_member_function_type>::type,
-                      v_member_function_type const &>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      pass_rvalue<v_member_function_type>::type,
-                      v_member_function_type &&>) );
+    static_assert(std::is_same_v<
+                  pass<v_member_function_type>::type,
+                  v_member_function_type const &>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<v_member_function_type>::type,
+                  v_member_function_type &&>);
 
     {
         member_function_type m = &structure::member_function_1;
@@ -1521,11 +1455,10 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_pass)
     }
 
     // void.
-    BOOST_MPL_ASSERT(
-        (std::is_same<pass<void>::type, type_that_cannot_be_constructed_1>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            pass_rvalue<void>::type, type_that_cannot_be_constructed_2>) );
+    static_assert(
+        std::is_same_v<pass<void>::type, type_that_cannot_be_constructed_1>);
+    static_assert(std::is_same_v<
+                  pass_rvalue<void>::type, type_that_cannot_be_constructed_2>);
 }
 
 BOOST_AUTO_TEST_CASE(test_utility_storage_get_pointer_type)
@@ -1536,39 +1469,42 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_get_pointer_type)
     struct container;
     typedef int type;
 
-    BOOST_MPL_ASSERT((is_same<get_pointer<type, container>::type, type *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type const, container>::type, type const *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type, container const>::type, type const *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<
-            get_pointer<type const, container const>::type, type const *>) );
+    static_assert(is_same<get_pointer<type, container>::type, type *>::value);
+    static_assert(
+        is_same<get_pointer<type const, container>::type, type const *>::value);
+    static_assert(
+        is_same<get_pointer<type, container const>::type, type const *>::value);
+    static_assert(
+        is_same<get_pointer<type const, container const>::type, type const *>::
+            value);
 
     // Lvalue reference.
-    BOOST_MPL_ASSERT((is_same<get_pointer<type &, container>::type, type *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type const &, container>::type, type const *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type &, container const>::type, type *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<
-            get_pointer<type const &, container const>::type, type const *>) );
+    static_assert(is_same<get_pointer<type &, container>::type, type *>::value);
+    static_assert(
+        is_same<
+            get_pointer<type const &, container>::type, type const *>::value);
+    static_assert(
+        is_same<get_pointer<type &, container const>::type, type *>::value);
+    static_assert(is_same<
+                  get_pointer<type const &, container const>::type,
+                  type const *>::value);
 
     // Rvalue reference.
-    BOOST_MPL_ASSERT((is_same<get_pointer<type &&, container>::type, type *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type const &&, container>::type, type const *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<type &&, container const>::type, type *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<
-            get_pointer<type const &&, container const>::type, type const *>) );
+    static_assert(
+        is_same<get_pointer<type &&, container>::type, type *>::value);
+    static_assert(
+        is_same<
+            get_pointer<type const &&, container>::type, type const *>::value);
+    static_assert(
+        is_same<get_pointer<type &&, container const>::type, type *>::value);
+    static_assert(is_same<
+                  get_pointer<type const &&, container const>::type,
+                  type const *>::value);
 
     // void.
-    BOOST_MPL_ASSERT((is_same<get_pointer<void, container>::type, void *>) );
-    BOOST_MPL_ASSERT(
-        (is_same<get_pointer<void, container const>::type, void const *>) );
+    static_assert(is_same<get_pointer<void, container>::type, void *>::value);
+    static_assert(
+        is_same<get_pointer<void, container const>::type, void const *>::value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
