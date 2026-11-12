@@ -5,6 +5,7 @@
 #ifndef UTILITY_TEST_THROWER_HPP_INCLUDED
 #define UTILITY_TEST_THROWER_HPP_INCLUDED
 
+#include <exception>
 #include <functional>
 
 #include <type_traits>

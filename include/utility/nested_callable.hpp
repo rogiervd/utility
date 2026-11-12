@@ -17,7 +17,6 @@ Find properties of nested function calls expressed as types.
 
 #include "meta/all_of_c.hpp"
 #include "meta/any_of_c.hpp"
-#include "meta/vector.hpp"
 
 namespace nested_callable {
 

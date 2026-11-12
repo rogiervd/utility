@@ -14,8 +14,30 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
+      # Standard pre-commit checks:
       - uses: pre-commit/action@v3.0.1
-      # Run the hooks that only run when asked for.
+      # Run the full "reuse" hook.
       - uses: pre-commit/action@v3.0.1
         with:
           extra_args: reuse --hook-stage manual --all-files
+      # "clang-tidy" hook: requires set-up.
+      - uses: bazel-contrib/setup-bazel@0.19.0
+        with:
+          # Avoid downloading Bazel every time.
+          bazelisk-cache: true
+          # Store build cache per workflow.
+          disk-cache: ${{ github.workflow }}
+          # Share repository cache between workflows.
+          repository-cache: true
+      # Produce the inputs to compilation (external dependencies, generated
+      # files, and the symlinks that compile_commands.json refers to) without
+      # actually compiling anything.
+      # As "_INTERNAL_" indicates, future versions of rules_cc may not allow
+      # this; then another solution will be necessary.
+      - run: bazel build --keep_going --config=clang --output_groups=compilation_prerequisites_INTERNAL_ //test/...
+      # Generate compile_commands.json, which clang-tidy needs.
+      - run: bazel run --config=clang @hedron_compile_commands//:refresh_all
+      # Actually run the "clang-tidy" hook.
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: clang-tidy --hook-stage manual --all-files

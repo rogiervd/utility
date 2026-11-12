@@ -7,6 +7,7 @@
 
 #include "utility/enable_if_compiles.hpp"
 
+#include <type_traits>
 #include <vector>
 
 /**

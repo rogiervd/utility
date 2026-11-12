@@ -17,8 +17,13 @@ This file tries to cause a stack overflow.
 
 #include "utility/small_ptr.hpp"
 
+#include <cstddef>
 #include <iostream>
 #include <memory>
+#include <utility>
+
+#include "utility/pointer_policy.hpp"
+#include "utility/shared.hpp"
 
 static constexpr std::size_t blow_up_stack_number = 500000;
 

@@ -13,14 +13,16 @@ This is useful to test the behaviour of container-like types.
 #define UTILITY_TEST_TRACKED_HPP_INCLUDED
 
 #include <algorithm>
+#include <functional>
 #include <iosfwd>
 #include <map>
-#include <memory>
 #include <type_traits>
+#include <typeinfo>
 #include <utility>
 
 #include <type_traits>
 
+#include "boost/core/enable_if.hpp"
 #include "boost/test/test_tools.hpp"
 
 namespace utility {

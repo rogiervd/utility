@@ -14,11 +14,13 @@ store, get, get_pointer, pass, and pass_rvalue can be used together.
 #ifndef UTILITY_STORAGE_HPP_INCLUDED
 #define UTILITY_STORAGE_HPP_INCLUDED
 
+#include <cstddef>
+#include <functional>
 #include <memory>
 #include <type_traits>
-#include <utility>
 
 #include "meta/count_c.hpp"
+#include "meta/vector_c.hpp"
 
 namespace utility { namespace storage {
 

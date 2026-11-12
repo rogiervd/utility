@@ -7,6 +7,9 @@
 
 #include "utility/pointee.hpp"
 
+#include <memory>
+#include <type_traits>
+
 BOOST_AUTO_TEST_SUITE(test_utility_pointee)
 
 using utility::pointee;

@@ -11,6 +11,7 @@ path = [
   ".bazelversion",
   ".bcr/**",
   ".clang-format",
+  ".clang-tidy",
   ".git-blame-ignore-revs",
   ".gitignore",
   ".vscode/**",

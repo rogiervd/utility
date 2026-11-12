@@ -9,8 +9,10 @@
 
 #include <iostream>
 #include <type_traits>
+#include <utility>
 
 #include "boost/mpl/assert.hpp"
+#include "boost/mpl/or.hpp"
 
 #include "utility/overload_order.hpp"
 

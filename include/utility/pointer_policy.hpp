@@ -32,7 +32,8 @@ framework.
 #include <cassert>
 #include <type_traits>
 
-#include "boost/compressed_pair.hpp"
+#include "boost/compressed_pair.hpp"  // IWYU pragma: keep
+#include "boost/core/enable_if.hpp"
 
 #include "shared.hpp"
 
