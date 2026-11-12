@@ -33,7 +33,6 @@ framework.
 #include <type_traits>
 
 #include "boost/compressed_pair.hpp"  // IWYU pragma: keep
-#include "boost/core/enable_if.hpp"
 
 #include "shared.hpp"
 
@@ -464,8 +463,8 @@ namespace utility { namespace pointer_policy {
         */
         template <
             class Pointer,
-            class Enable = typename boost::enable_if<
-                std::is_base_of<reference_count_shared, Pointer>>::type>
+            class Enable = std::enable_if_t<
+                std::is_base_of_v<reference_count_shared, Pointer>>>
         static void release_chain(Pointer && p) noexcept
         {
             Pointer current = std::move(p);
