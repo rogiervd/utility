@@ -67,9 +67,9 @@ public:
             std::is_base_of<shared, Type>::value,
             "Type must be derived from 'shared'.");
         static_assert(
-            std::is_same<
+            std::is_same_v<
                 typename Allocator::value_type,
-                typename std::decay<Type>::type>::value,
+                typename std::decay<Type>::type>,
             "The allocator value_type must match small_ptr's Type.");
 
         // This works in two steps, allocating memory and constructing the

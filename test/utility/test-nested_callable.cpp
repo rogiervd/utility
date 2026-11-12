@@ -169,111 +169,105 @@ BOOST_AUTO_TEST_SUITE(test_utility_nested_callable)
 BOOST_AUTO_TEST_CASE(test_utility_nested_callable_result_of)
 {
     using nested_callable::result_of;
-    BOOST_MPL_ASSERT((std::is_same<typename result_of<a>::type, a>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<typename result_of<function1>::type, function1>) );
+    static_assert(std::is_same_v<typename result_of<a>::type, a>);
+    static_assert(
+        std::is_same_v<typename result_of<function1>::type, function1>);
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<typename result_of<function1(a, a)>::type, a>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<typename result_of<function1(a, b)>::type, b>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<typename result_of<function1(b, b)>::type, c>) );
+    static_assert(std::is_same_v<typename result_of<function1(a, a)>::type, a>);
+    static_assert(std::is_same_v<typename result_of<function1(a, b)>::type, b>);
+    static_assert(std::is_same_v<typename result_of<function1(b, b)>::type, c>);
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            typename result_of<function1(a, function2(b, b))>::type, a>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            typename result_of<function1(a, function2(c, b))>::type, b>) );
-    BOOST_MPL_ASSERT(
-        (std::is_same<
-            typename result_of<function1(function2(c, b), b)>::type, c>) );
-    BOOST_MPL_ASSERT((std::is_same<
-                      typename result_of<function1(
-                          function2(b, b), function2(c, b))>::type,
-                      b>) );
+    static_assert(std::is_same_v<
+                  typename result_of<function1(a, function2(b, b))>::type, a>);
+    static_assert(std::is_same_v<
+                  typename result_of<function1(a, function2(c, b))>::type, b>);
+    static_assert(std::is_same_v<
+                  typename result_of<function1(function2(c, b), b)>::type, c>);
+    static_assert(std::is_same_v<
+                  typename result_of<function1(
+                      function2(b, b), function2(c, b))>::type,
+                  b>);
 }
 
 BOOST_AUTO_TEST_CASE(test_utility_nested_callable_all)
 {
     // Test the example implementation.
-    BOOST_MPL_ASSERT((is_apply_implemented<callable::plus(int, int)>) );
-    BOOST_MPL_ASSERT((is_apply_implemented<callable::plus(float, float)>) );
-    BOOST_MPL_ASSERT_NOT((is_apply_implemented<callable::plus(float, int)>) );
-    BOOST_MPL_ASSERT_NOT((is_apply_implemented<callable::plus()>) );
-    BOOST_MPL_ASSERT_NOT((is_apply_implemented<callable::plus(int)>) );
-    BOOST_MPL_ASSERT_NOT(
-        (is_apply_implemented<callable::plus(int, int, int)>) );
+    static_assert(is_apply_implemented<callable::plus(int, int)>::value);
+    static_assert(is_apply_implemented<callable::plus(float, float)>::value);
+    static_assert(!is_apply_implemented<callable::plus(float, int)>::value);
+    static_assert(!is_apply_implemented<callable::plus()>::value);
+    static_assert(!is_apply_implemented<callable::plus(int)>::value);
+    static_assert(!is_apply_implemented<callable::plus(int, int, int)>::value);
 
     // Test the same cases as above.
-    BOOST_MPL_ASSERT((is_implemented<callable::plus(int, int)>) );
-    BOOST_MPL_ASSERT((is_implemented<callable::plus(float, float)>) );
-    BOOST_MPL_ASSERT_NOT((is_implemented<callable::plus(float, int)>) );
-    BOOST_MPL_ASSERT_NOT((is_implemented<callable::plus()>) );
-    BOOST_MPL_ASSERT_NOT((is_implemented<callable::plus(int)>) );
-    BOOST_MPL_ASSERT_NOT((is_implemented<callable::plus(int, int, int)>) );
+    static_assert(is_implemented<callable::plus(int, int)>::value);
+    static_assert(is_implemented<callable::plus(float, float)>::value);
+    static_assert(!is_implemented<callable::plus(float, int)>::value);
+    static_assert(!is_implemented<callable::plus()>::value);
+    static_assert(!is_implemented<callable::plus(int)>::value);
+    static_assert(!is_implemented<callable::plus(int, int, int)>::value);
 
     // Test nested cases.
-    BOOST_MPL_ASSERT(
-        (is_implemented<callable::plus(int, callable::plus(int, int))>) );
-    BOOST_MPL_ASSERT(
-        (is_implemented<callable::plus(float, callable::plus(float, float))>) );
-    BOOST_MPL_ASSERT(
-        (is_implemented<callable::plus(
-             int, callable::plus(callable::plus(int, int), int))>) );
-    BOOST_MPL_ASSERT(
-        (is_implemented<callable::plus(
-             float, callable::plus(callable::plus(float, float), float))>) );
+    static_assert(
+        is_implemented<callable::plus(int, callable::plus(int, int))>::value);
+    static_assert(is_implemented<callable::plus(
+                      float, callable::plus(float, float))>::value);
+    static_assert(
+        is_implemented<callable::plus(
+            int, callable::plus(callable::plus(int, int), int))>::value);
+    static_assert(
+        is_implemented<callable::plus(
+            float,
+            callable::plus(callable::plus(float, float), float))>::value);
 
-    BOOST_MPL_ASSERT_NOT(
-        (is_implemented<callable::plus(int, callable::plus(float, int))>) );
-    BOOST_MPL_ASSERT_NOT(
-        (is_implemented<callable::plus(float, callable::plus(int, int))>) );
-    BOOST_MPL_ASSERT_NOT(
-        (is_implemented<callable::plus(
-             callable::plus(float, int), callable::plus(float, int))>) );
-    BOOST_MPL_ASSERT_NOT(
-        (is_implemented<callable::plus(
-             callable::plus(float, int), callable::plus(int, int))>) );
+    static_assert(!is_implemented<callable::plus(
+                      int, callable::plus(float, int))>::value);
+    static_assert(!is_implemented<callable::plus(
+                      float, callable::plus(int, int))>::value);
+    static_assert(
+        !is_implemented<callable::plus(
+            callable::plus(float, int), callable::plus(float, int))>::value);
+    static_assert(
+        !is_implemented<callable::plus(
+            callable::plus(float, int), callable::plus(int, int))>::value);
 }
 
 BOOST_AUTO_TEST_CASE(test_utility_nested_callable_any)
 {
     // Test the example implementation.
-    BOOST_MPL_ASSERT_NOT((is_apply_approximate<callable::times(int, int)>) );
-    BOOST_MPL_ASSERT((is_apply_approximate<callable::times(float, int)>) );
-    BOOST_MPL_ASSERT((is_apply_approximate<callable::times(int, float)>) );
-    BOOST_MPL_ASSERT((is_apply_approximate<callable::times(float, float)>) );
+    static_assert(!is_apply_approximate<callable::times(int, int)>::value);
+    static_assert(is_apply_approximate<callable::times(float, int)>::value);
+    static_assert(is_apply_approximate<callable::times(int, float)>::value);
+    static_assert(is_apply_approximate<callable::times(float, float)>::value);
 
     // Test the same cases as above.
-    BOOST_MPL_ASSERT_NOT((is_approximate<callable::times(int, int)>) );
-    BOOST_MPL_ASSERT((is_approximate<callable::times(float, int)>) );
-    BOOST_MPL_ASSERT((is_approximate<callable::times(int, float)>) );
-    BOOST_MPL_ASSERT((is_approximate<callable::times(float, float)>) );
+    static_assert(!is_approximate<callable::times(int, int)>::value);
+    static_assert(is_approximate<callable::times(float, int)>::value);
+    static_assert(is_approximate<callable::times(int, float)>::value);
+    static_assert(is_approximate<callable::times(float, float)>::value);
 
     // Test nested cases.
-    BOOST_MPL_ASSERT_NOT(
-        (is_approximate<callable::times(int, callable::times(int, int))>) );
+    static_assert(!is_approximate<callable::times(
+                      int, callable::times(int, int))>::value);
     // plus is not marked as approximate.
-    BOOST_MPL_ASSERT_NOT(
-        (is_approximate<callable::times(int, callable::plus(int, int))>) );
+    static_assert(
+        !is_approximate<callable::times(int, callable::plus(int, int))>::value);
     // The function pointer type for make_approximate (times).
     // Not great, but this does work.
     typedef callable::make_approximate (*approximate_times)(callable::times);
-    BOOST_MPL_ASSERT(
-        (is_approximate<approximate_times(int, callable::times(int, int))>) );
+    static_assert(is_approximate<approximate_times(
+                      int, callable::times(int, int))>::value);
     typedef callable::make_approximate (*approximate_plus)(callable::plus);
-    BOOST_MPL_ASSERT(
-        (is_approximate<callable::times(int, approximate_plus(int, int))>) );
+    static_assert(is_approximate<callable::times(
+                      int, approximate_plus(int, int))>::value);
 
-    BOOST_MPL_ASSERT(
-        (is_approximate<callable::times(callable::times(float, int), int)>) );
-    BOOST_MPL_ASSERT(
-        (is_approximate<callable::times(int, callable::times(float, int))>) );
-    BOOST_MPL_ASSERT(
-        (is_approximate<callable::times(
-             callable::times(float, int), callable::times(float, int))>) );
+    static_assert(is_approximate<callable::times(
+                      callable::times(float, int), int)>::value);
+    static_assert(is_approximate<callable::times(
+                      int, callable::times(float, int))>::value);
+    static_assert(
+        is_approximate<callable::times(
+            callable::times(float, int), callable::times(float, int))>::value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

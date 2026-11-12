@@ -94,45 +94,41 @@ BOOST_AUTO_TEST_CASE(test_shared_from_unique_deleter)
 BOOST_AUTO_TEST_CASE(test_is_unique_ptr)
 {
     // Values.
-    static_assert(!is_unique_ptr<void>::value, "");
-    static_assert(!is_unique_ptr<int>::value, "");
-    static_assert(!is_unique_ptr<manual_list>::value, "");
+    static_assert(!is_unique_ptr<void>::value);
+    static_assert(!is_unique_ptr<int>::value);
+    static_assert(!is_unique_ptr<manual_list>::value);
 
     // Normal pointers
-    static_assert(!is_unique_ptr<void *>::value, "");
-    static_assert(!is_unique_ptr<int * const>::value, "");
-    static_assert(!is_unique_ptr<manual_list *&>::value, "");
+    static_assert(!is_unique_ptr<void *>::value);
+    static_assert(!is_unique_ptr<int * const>::value);
+    static_assert(!is_unique_ptr<manual_list *&>::value);
 
-    static_assert(!is_unique_ptr<std::unique_ptr<int> *>::value, "");
-    static_assert(!is_unique_ptr<std::unique_ptr<manual_list> *>::value, "");
+    static_assert(!is_unique_ptr<std::unique_ptr<int> *>::value);
+    static_assert(!is_unique_ptr<std::unique_ptr<manual_list> *>::value);
 
     // std::shared_ptr.
-    static_assert(!is_unique_ptr<std::shared_ptr<void *>>::value, "");
-    static_assert(!is_unique_ptr<std::shared_ptr<int * const>>::value, "");
-    static_assert(!is_unique_ptr<std::shared_ptr<manual_list *&>>::value, "");
+    static_assert(!is_unique_ptr<std::shared_ptr<void *>>::value);
+    static_assert(!is_unique_ptr<std::shared_ptr<int * const>>::value);
+    static_assert(!is_unique_ptr<std::shared_ptr<manual_list *&>>::value);
 
     // std::unique_ptr.
-    static_assert(is_unique_ptr<std::unique_ptr<void>>::value, "");
-    static_assert(is_unique_ptr<std::unique_ptr<int *>>::value, "");
-    static_assert(
-        is_unique_ptr<std::unique_ptr<manual_list, manual_list_deleter>>::value,
-        "");
+    static_assert(is_unique_ptr<std::unique_ptr<void>>::value);
+    static_assert(is_unique_ptr<std::unique_ptr<int *>>::value);
+    static_assert(is_unique_ptr<
+                  std::unique_ptr<manual_list, manual_list_deleter>>::value);
 
-    static_assert(is_unique_ptr<std::unique_ptr<void *> const &>::value, "");
+    static_assert(is_unique_ptr<std::unique_ptr<void *> const &>::value);
     static_assert(
-        is_unique_ptr<std::unique_ptr<int, manual_list_deleter> &>::value, "");
-    static_assert(
-        is_unique_ptr<std::unique_ptr<manual_list> const &>::value, "");
+        is_unique_ptr<std::unique_ptr<int, manual_list_deleter> &>::value);
+    static_assert(is_unique_ptr<std::unique_ptr<manual_list> const &>::value);
 
-    static_assert(is_unique_ptr<std::unique_ptr<void>>::value, "");
-    static_assert(is_unique_ptr<std::unique_ptr<int> const>::value, "");
-    static_assert(is_unique_ptr<std::unique_ptr<manual_list>>::value, "");
+    static_assert(is_unique_ptr<std::unique_ptr<void>>::value);
+    static_assert(is_unique_ptr<std::unique_ptr<int> const>::value);
+    static_assert(is_unique_ptr<std::unique_ptr<manual_list>>::value);
 
     // std::unique_ptr with possibly confusing pointee types.
-    static_assert(
-        is_unique_ptr<std::unique_ptr<std::unique_ptr<int>>>::value, "");
-    static_assert(
-        is_unique_ptr<std::unique_ptr<std::shared_ptr<int>>>::value, "");
+    static_assert(is_unique_ptr<std::unique_ptr<std::unique_ptr<int>>>::value);
+    static_assert(is_unique_ptr<std::unique_ptr<std::shared_ptr<int>>>::value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

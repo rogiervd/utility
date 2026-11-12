@@ -46,30 +46,29 @@ BOOST_AUTO_TEST_CASE(test_utility_returns)
 {
     {
         int i = 7;
-        BOOST_MPL_ASSERT(
-            (std::is_same<decltype(return_const_ref(i)), int const &>) );
+        static_assert(
+            std::is_same_v<decltype(return_const_ref(i)), int const &>);
         BOOST_CHECK_EQUAL(return_const_ref(i), 7);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(return_ref(i)), int &>) );
+        static_assert(std::is_same_v<decltype(return_ref(i)), int &>);
         BOOST_CHECK_EQUAL(return_ref(i), 7);
 
-        BOOST_MPL_ASSERT((std::is_same<decltype(return_decayed(i)), int>) );
+        static_assert(std::is_same_v<decltype(return_decayed(i)), int>);
         BOOST_CHECK_EQUAL(return_decayed(i), 7);
     }
 
-    BOOST_MPL_ASSERT(
-        (std::is_same<decltype(construct_default<float>()), float>) );
+    static_assert(std::is_same_v<decltype(construct_default<float>()), float>);
     BOOST_CHECK_EQUAL(construct_default<float>(), 0);
 
     s o;
-    BOOST_MPL_ASSERT((std::is_same<decltype(o.get_int()), int>) );
+    static_assert(std::is_same_v<decltype(o.get_int()), int>);
     BOOST_CHECK_EQUAL(o.get_int(), 3);
-    BOOST_MPL_ASSERT((std::is_same<decltype(o.get_float()), float>) );
+    static_assert(std::is_same_v<decltype(o.get_float()), float>);
     BOOST_CHECK_EQUAL(o.get_float(), 5.6f);
 
-    BOOST_MPL_ASSERT((std::is_same<decltype(o.get_double()), double>) );
+    static_assert(std::is_same_v<decltype(o.get_double()), double>);
     BOOST_CHECK_EQUAL(o.get_double(), 81.25);
-    BOOST_MPL_ASSERT((std::is_same<decltype(o.get_double_ref()), double &>) );
+    static_assert(std::is_same_v<decltype(o.get_double_ref()), double &>);
     BOOST_CHECK_EQUAL(o.get_double_ref(), 81.25);
 }
 

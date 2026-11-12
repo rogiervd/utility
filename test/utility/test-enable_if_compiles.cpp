@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE(enable_if_compiles)
     twiceable a(27);
     BOOST_CHECK_EQUAL(times_two(a).i, 54);
 
-    static_assert(!has_begin<int>::value, "");
-    static_assert(has_begin<std::vector<int>>::value, "");
+    static_assert(!has_begin<int>::value);
+    static_assert(has_begin<std::vector<int>>::value);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
