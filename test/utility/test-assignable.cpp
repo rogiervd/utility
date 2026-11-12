@@ -11,8 +11,6 @@
 #include <type_traits>
 #include <utility>
 
-#include "boost/mpl/assert.hpp"
-
 #include "utility/test/thrower.hpp"
 #include "utility/test/throwing.hpp"
 #include "utility/test/tracked.hpp"

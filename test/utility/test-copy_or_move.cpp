@@ -9,8 +9,6 @@
 
 #include <type_traits>
 
-#include "boost/mpl/assert.hpp"
-
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_copy_or_move)
 

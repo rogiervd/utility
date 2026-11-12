@@ -9,8 +9,6 @@
 
 #include <type_traits>
 
-#include "boost/mpl/assert.hpp"
-
 float f;
 
 template <class Type> inline auto return_const_ref(Type const & c) RETURNS(c);
