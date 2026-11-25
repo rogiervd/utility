@@ -100,10 +100,8 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_example_simple)
         simple_container<int> const c(-7);
         BOOST_CHECK_EQUAL(c.content(), -7);
         BOOST_CHECK_EQUAL(c.content_value(), -7);
-        static_assert(
-            std::is_same<decltype(c.content()), int const &>::value, "");
-        static_assert(
-            std::is_same<decltype(c.content_value()), int>::value, "");
+        static_assert(std::is_same_v<decltype(c.content()), int const &>);
+        static_assert(std::is_same_v<decltype(c.content_value()), int>);
     }
     // Contain a reference.
     {
@@ -246,10 +244,8 @@ BOOST_AUTO_TEST_CASE(test_utility_storage_example_extensive)
         simple_container<utility::tracked<int>> const c(
             utility::tracked<int>(registry, 9));
         BOOST_CHECK_EQUAL(c.content().content(), 9);
-        static_assert(
-            std::is_same<
-                decltype(c.content()), utility::tracked<int> const &>::value,
-            "");
+        static_assert(std::is_same_v<
+                      decltype(c.content()), utility::tracked<int> const &>);
     }
     // Const contents.
     {

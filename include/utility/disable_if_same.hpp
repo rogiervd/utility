@@ -24,7 +24,7 @@ move constructor should be used.
 template <class Target, class Source, class Type = void>
 struct disable_if_same_or_derived
 : std::enable_if<
-      !std::is_same<Target, typename std::decay<Source>::type>::value
+      !std::is_same_v<Target, typename std::decay<Source>::type>
       && !std::is_base_of<
           Target, typename std::remove_reference<Source>::type>::value> {};
 

@@ -16,19 +16,15 @@ using utility::pointee;
 
 BOOST_AUTO_TEST_CASE(test_utility_pointee)
 {
-    static_assert(std::is_same<pointee<int *>::type, int>::value, "");
-    static_assert(
-        std::is_same<pointee<int const *>::type, int const>::value, "");
+    static_assert(std::is_same_v<pointee<int *>::type, int>);
+    static_assert(std::is_same_v<pointee<int const *>::type, int const>);
 
-    static_assert(std::is_same<pointee<bool *>::type, bool>::value, "");
+    static_assert(std::is_same_v<pointee<bool *>::type, bool>);
 
-    static_assert(
-        std::is_same<pointee<std::unique_ptr<float>>::type, float>::value, "");
+    static_assert(std::is_same_v<pointee<std::unique_ptr<float>>::type, float>);
 
-    static_assert(
-        std::is_same<
-            pointee<std::shared_ptr<double const>>::type, double const>::value,
-        "");
+    static_assert(std::is_same_v<
+                  pointee<std::shared_ptr<double const>>::type, double const>);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

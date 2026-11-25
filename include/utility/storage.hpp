@@ -384,7 +384,7 @@ namespace utility { namespace storage {
         // This overload is used iff Type is not void.
         inline type operator()(
             typename std::conditional<
-                !std::is_same<Type, void>::value, get<Type, Container &>,
+                !std::is_same_v<Type, void>, get<Type, Container &>,
                 unusable>::type::type object) const
         {
             return std::addressof(object);
