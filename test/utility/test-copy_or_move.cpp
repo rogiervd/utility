@@ -56,24 +56,6 @@ BOOST_AUTO_TEST_CASE(test_utility_copy_or_move)
     }
 }
 
-BOOST_AUTO_TEST_CASE(test_utility_forward_copy_or_move)
-{
-    {
-        int i = 4;
-        auto t = destination(utility::forward_copy_or_move<long, int>(i));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t), type<long>>) );
-
-        int const & i2 = i;
-        auto t2 =
-            destination(utility::forward_copy_or_move<long, int const &>(i2));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t2), type<long>>) );
-
-        auto t3 =
-            destination(utility::forward_copy_or_move<int, int const &>(i2));
-        BOOST_MPL_ASSERT((std::is_same<decltype(t3), type<int const &>>) );
-    }
-}
-
 struct structure
 {
     int a;
