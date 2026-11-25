@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #define BOOST_TEST_MODULE test_utility_order_overload
+#include <type_traits>
+
 #include "boost/test/unit_test.hpp"
 
 #include "utility/overload_order.hpp"
@@ -10,31 +12,29 @@
 #include <limits>
 #include <string>
 
-#include "boost/core/enable_if.hpp"
-
 
 BOOST_AUTO_TEST_SUITE(test_suite_utility_order_overload)
 
 using utility::pick_overload;
 
-template <class Type> typename boost::enable_if_c<
+template <class Type> std::enable_if_t<
     std::numeric_limits<Type>::is_signed
         && std::numeric_limits<Type>::is_integer,
-    std::string>::type
+    std::string>
     get_type(Type, utility::overload_order<1> *)
 {
     return "signed integer";
 }
 
-template <class Type> typename boost::enable_if_c<
-    std::numeric_limits<Type>::is_integer, std::string>::type
-    get_type(Type, utility::overload_order<2> *)
+template <class Type>
+std::enable_if_t<std::numeric_limits<Type>::is_integer, std::string> get_type(
+    Type, utility::overload_order<2> *)
 {
     return "integer";
 }
 
-template <class Type> typename boost::enable_if_c<
-    std::numeric_limits<Type>::is_specialized, std::string>::type
+template <class Type>
+std::enable_if_t<std::numeric_limits<Type>::is_specialized, std::string>
     get_type(Type, utility::overload_order<3> *)
 {
     return "number type";

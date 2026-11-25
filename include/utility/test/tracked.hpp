@@ -22,7 +22,6 @@ This is useful to test the behaviour of container-like types.
 
 #include <type_traits>
 
-#include "boost/core/enable_if.hpp"
 #include "boost/test/test_tools.hpp"
 
 namespace utility {
@@ -428,15 +427,14 @@ public:
 
     template <class OtherContent> tracked(
         tracked<OtherContent> const & other,
-        typename boost::enable_if<
-            std::is_convertible<OtherContent const &, Content>>::type * = 0)
+        std::enable_if_t<
+            std::is_convertible_v<OtherContent const &, Content>> * = 0)
     : tracked<void>(other), content_(other.content_)
     {}
 
     template <class OtherContent> tracked(
         tracked<OtherContent> && other,
-        typename boost::enable_if<
-            std::is_convertible<OtherContent, Content>>::type * = 0)
+        std::enable_if_t<std::is_convertible_v<OtherContent, Content>> * = 0)
     : tracked<void>(std::move(other)), content_(std::move(other.content_))
     {}
 
