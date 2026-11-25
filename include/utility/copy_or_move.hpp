@@ -36,17 +36,6 @@ inline typename std::decay<Target>::type && copy_or_move(Target && argument)
     return static_cast<Target &&>(argument);
 }
 
-/**
-Forward an argument of type Source (qualified, like one would for std::forward)
-as either a const-reference or an unqualified rvalue reference.
-*/
-template <class Target, class Source> inline auto forward_copy_or_move(
-    typename std::remove_reference<Source>::type & argument)
-    -> decltype(copy_or_move<Target>(std::declval<Source &&>()))
-{
-    return copy_or_move<Target>(static_cast<Source &&>(argument));
-}
-
 namespace detail {
     template <class Container, class Member> struct forward_member_result
     {
