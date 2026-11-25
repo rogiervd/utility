@@ -85,4 +85,11 @@ jobs:
           repository-cache: true
       - if: matrix.variant == 'valgrind'
         run: sudo apt update && sudo apt install -y valgrind
+      # The MSVC standard library on the Windows image requires a newer Clang
+      # than the LLVM preinstalled there, so replace it with a pinned version
+      # in the default location, where Bazel looks for clang-cl.
+      - if: matrix.compiler == 'clang-cl'
+        run: |
+          choco upgrade llvm --version=22.1.8 --yes --no-progress
+          & "C:\Program Files\LLVM\bin\clang-cl.exe" --version
       - run: bazel test --keep_going --test_output=errors --config=${{ matrix.compiler }} ${{ matrix.flags }} //test/...
